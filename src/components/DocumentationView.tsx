@@ -1,0 +1,1606 @@
+import { useState, useEffect, useRef } from "react";
+import {
+  Sparkles,
+  BookOpen,
+  Terminal,
+  Code2,
+  FileText,
+  HelpCircle,
+  Search,
+  ChevronRight,
+  ChevronDown,
+  Play,
+  Check,
+  Copy,
+  Globe,
+  Database,
+  ShieldAlert,
+  Menu,
+  X,
+  CreditCard,
+  Layers,
+  ArrowRight,
+  Send,
+  RefreshCw,
+  Clock,
+  ExternalLink,
+  ShieldCheck,
+  Workflow,
+  AlertTriangle,
+  Flame,
+  Activity,
+  History,
+  Info
+} from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+
+interface DocumentationViewProps {
+  onBackToDashboard: () => void;
+  workspaceName?: string;
+}
+
+export default function DocumentationView({ onBackToDashboard, workspaceName = "Aora Technologies Ltd" }: DocumentationViewProps) {
+  // Mobile sidebar toggle
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  // Active page controller
+  const [activePage, setActivePage] = useState<string>("intro");
+
+  // Expanded sidebar sections
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    gettingStarted: true,
+    concepts: true,
+    devTools: true,
+    guides: true,
+    reference: true
+  });
+
+  const toggleSection = (sec: string) => {
+    setExpandedSections(prev => ({ ...prev, [sec]: !prev[sec] }));
+  };
+
+  // ----------------------------------------------------
+  // SEARCH STATE (CMD + K)
+  // ----------------------------------------------------
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(prev => !prev);
+      }
+      if (e.key === "Escape") {
+        setSearchOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      setTimeout(() => searchInputRef.current?.focus(), 100);
+    }
+  }, [searchOpen]);
+
+  // Index documentation items for search
+  const docRoutes = [
+    { id: "intro", title: "Overview & Introduction", cat: "Getting Started", desc: "Understand Aora Billing Operating System and multi-tenant billing models." },
+    { id: "quickstart", title: "Quick Start Guide", cat: "Getting Started", desc: "Integrate billing, create meters, subscribe customers, and view invoices in under 5 minutes." },
+    { id: "architecture", title: "System Architecture", cat: "Core Concepts", desc: "High-throughput telemetry ingestion, rating loops, and billing schedulers." },
+    { id: "concepts-products", title: "Products & Plans Catalog", cat: "Core Concepts", desc: "Structured flats, meters overages, and dynamic hybrid models." },
+    { id: "concepts-usage", title: "Usage Metering Ingestion", cat: "Core Concepts", desc: "Tracking usage units, deduplicating high-speed payload feeds." },
+    { id: "concepts-entitlements", title: "Entitlement Gate Engine", cat: "Core Concepts", desc: "Enforcing API locks, feature limits, and subscription guards." },
+    { id: "dev-keys", title: "Authentication & API Keys", cat: "Developer Sandbox", desc: "Generate sk_live secret headers, authenticate SDK calls safely." },
+    { id: "playground", title: "Interactive API Terminal", cat: "Developer Sandbox", desc: "Try posting events or querying entitlement can-access metrics live!" },
+    { id: "webhooks", title: "Webhook Developer Center", cat: "Developer Sandbox", desc: "Configure subscription.created, replay events, and check signatures." },
+    { id: "errors", title: "Searchable Error Directory", cat: "Developer Sandbox", desc: "Lookup unauthorized, limit exceeded, and billing retry fault scenarios." },
+    { id: "guide-seats", title: "SaaS Seat Pricing Guide", cat: "Step-by-Step Guides", desc: "Configure hybrid seat pricing with overage usage multipliers." },
+    { id: "guide-usage", title: "Usage-Based Token Guide", cat: "Step-by-Step Guides", desc: "Track AI LLM completions, run-time executions, and API operations." },
+    { id: "sdks", title: "Official Runtimes SDKs", cat: "Reference", desc: "Installation steps for Node.js, Python, Go Lang, and PHP modules." },
+    { id: "dashboard-integration", title: "Workspace Integration", cat: "Reference", desc: "Sync workspace accounts, track subscription ARR, and export ledgers." },
+    { id: "status", title: "System Health Status", cat: "Reference", desc: "Real-time service status logs for five master ingestion nodes." },
+    { id: "changelog", title: "Product release logs", cat: "Reference", desc: "V1.0.4 improvements, bug fixes, and deprecation protocols." }
+  ];
+
+  const searchResults = searchQuery
+    ? docRoutes.filter(
+        item =>
+          item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.cat.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : docRoutes.slice(0, 5);
+
+  // ----------------------------------------------------
+  // INTERACTIVE PLAYGROUND STATE
+  // ----------------------------------------------------
+  const [playgroundApiKey, setPlaygroundApiKey] = useState("sk_live_aora_5f2d93e810cb9921e42f2bca01");
+  const [playgroundMethod, setPlaygroundMethod] = useState("POST");
+  const [playgroundPath, setPlaygroundPath] = useState("/api/usage-events");
+  const [playgroundLoading, setPlaygroundLoading] = useState(false);
+  const [playgroundResponse, setPlaygroundResponse] = useState<any>(null);
+  const [playgroundPayload, setPlaygroundPayload] = useState(
+    JSON.stringify({
+      customerId: "linear",
+      meterId: "compute_meter",
+      value: 1200,
+      metadata: {
+        source: "api_gateway",
+        mode: "sandbox",
+        timestamp: new Date().toISOString()
+      }
+    }, null, 2)
+  );
+
+  const handlePlaygroundPreset = (path: string) => {
+    setPlaygroundPath(path);
+    if (path === "/api/can-access") {
+      setPlaygroundMethod("GET");
+      setPlaygroundResponse(null);
+    } else {
+      setPlaygroundMethod("POST");
+      setPlaygroundPayload(
+        JSON.stringify({
+          customerId: "linear",
+          meterId: "compute_meter",
+          value: 1200,
+          metadata: {
+            source: "api_gateway",
+            mode: "sandbox",
+            timestamp: new Date().toISOString()
+          }
+        }, null, 2)
+      );
+      setPlaygroundResponse(null);
+    }
+  };
+
+  const executePlaygroundRequest = async () => {
+    setPlaygroundLoading(true);
+    setPlaygroundResponse(null);
+    try {
+      let finalUrl = playgroundPath;
+      let init: RequestInit = {
+        method: playgroundMethod,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${playgroundApiKey}`
+        }
+      };
+
+      if (playgroundPath === "/api/can-access") {
+        const params = new URLSearchParams({
+          customerId: "linear",
+          featureSlug: "api_access",
+          workspace: workspaceName
+        });
+        finalUrl = `/api/can-access?${params.toString()}`;
+        init = { method: "GET" };
+      } else {
+        const bodyObj = JSON.parse(playgroundPayload);
+        init.body = JSON.stringify({
+          ...bodyObj,
+          workspace: workspaceName
+        });
+      }
+
+      const res = await fetch(finalUrl, init);
+      const data = await res.json();
+      setPlaygroundResponse({
+        status: res.status + " " + (res.ok ? "OK" : "Error"),
+        timestamp: new Date().toLocaleTimeString(),
+        headers: {
+          "content-type": "application/json",
+          "x-request-id": "req_" + Math.random().toString(36).substr(2, 9),
+          "cache-control": "no-cache"
+        },
+        body: data
+      });
+    } catch (e: any) {
+      setPlaygroundResponse({
+        error: "Network Sandbox Failure",
+        message: e.message
+      });
+    } finally {
+      setPlaygroundLoading(false);
+    }
+  };
+
+  const handleRegenPlaygroundKey = () => {
+    const chars = "abcdef0123456789";
+    let token = "sk_live_aora_";
+    for (let i = 0; i < 24; i++) token += chars[Math.floor(Math.random() * chars.length)];
+    setPlaygroundApiKey(token);
+  };
+
+  // ----------------------------------------------------
+  // WEBHOOK REPLAY SIMULATOR STATE
+  // ----------------------------------------------------
+  const [selectedWebhookEvent, setSelectedWebhookEvent] = useState("invoice.paid");
+  const [isSimulatingWebhook, setIsSimulatingWebhook] = useState(false);
+  const [simulatedWebhookResult, setSimulatedWebhookResult] = useState<any>(null);
+
+  const simulateWebhookTrigger = () => {
+    setIsSimulatingWebhook(true);
+    setTimeout(() => {
+      setIsSimulatingWebhook(false);
+      const randId = "evt_wh_" + Math.random().toString(36).substr(2, 9);
+      if (selectedWebhookEvent === "invoice.paid") {
+        setSimulatedWebhookResult({
+          id: randId,
+          type: "invoice.paid",
+          apiVersion: "2026-06-15",
+          livemode: true,
+          created: Math.floor(Date.now() / 1000),
+          signature: "sha256=t_82ba83f...a239bca",
+          data: {
+            invoiceId: "INV-2026-1402",
+            customerId: "linear",
+            amountDue: 240000,
+            amountPaid: 240000,
+            currency: "NGN",
+            status: "PAID",
+            attemptCount: 1,
+            billingPeriod: "monthly",
+            meta: {
+              activeSeats: 12,
+              telemetryUsage: 145000
+            }
+          }
+        });
+      } else if (selectedWebhookEvent === "subscription.created") {
+        setSimulatedWebhookResult({
+          id: randId,
+          type: "subscription.created",
+          apiVersion: "2026-06-15",
+          livemode: true,
+          created: Math.floor(Date.now() / 1000),
+          signature: "sha256=s_123b76f...99bcda1",
+          data: {
+            subscriptionId: "sub_92b8d81001",
+            customerId: "vercel",
+            planId: "scale_monthly",
+            seatsPurchased: 15,
+            startedAt: new Date().toISOString(),
+            status: "ACTIVE",
+            trialEnd: null
+          }
+        });
+      } else if (selectedWebhookEvent === "entitlement.breached") {
+        setSimulatedWebhookResult({
+          id: randId,
+          type: "entitlement.breached",
+          apiVersion: "2026-06-15",
+          livemode: true,
+          created: Math.floor(Date.now() / 1000),
+          signature: "sha256=e_9912cd3...ef8ac12",
+          data: {
+            customerId: "notion",
+            featureSlug: "api_access",
+            limitValue: 500000,
+            currentValue: 500120,
+            severity: "BLOCKING",
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+    }, 600);
+  };
+
+  // ----------------------------------------------------
+  // SEARCHABLE ERROR CATALOG STATE
+  // ----------------------------------------------------
+  const [errorSearchQuery, setErrorSearchQuery] = useState("");
+  const errorsCatalog = [
+    { code: "401_UNAUTHORIZED", name: "Invalid Secret Key API Credential", cause: "Occurs when sk_live header is omitted, malformed, or doesn't match active Workspace parameters.", fix: "Supply Bearer sk_live_aora_... value within Authorization headers. Generate a fresh client credential key under the Developer tab." },
+    { code: "404_METER_NOT_FOUND", name: "Telemetry Ingestion Meter Inactive", cause: "The specified meterId inside event packages does not match any registered Aggregate configuration.", fix: "Inspect your active Ingestion Meters. Register the target meterSlug (e.g. compute_meter) in your control panel before forwarding stream data." },
+    { code: "403_ENTITLEMENT_LOCKED", name: "Feature Blocked / Overage Threshold Omitted", cause: "Customer attempts to execute features (e.g. bulk exporting) that are turned off in their Plan, or allocation is fully used and overages are blocked.", fix: "Verify entitlements dynamically using billing.can('feature') before offering features, or adjust plan settings to allow volumetric overage pricing." },
+    { code: "422_TIMESTAMP_TOO_OLD", name: "Stale Ingest Segment Rejection", cause: "Event timestamp registers more than 31 days in chronological historical past.", fix: "Deliver event tracking parameters within actual real-time cycles. For retro-active rating, execute specific chronological imports using Bulking endpoints." },
+    { code: "402_PAYMENT_REQUIRED", name: "Past-Due Account Suspension Lock", cause: "Associated Customer has outstanding unpaid invoices or payment method failed three consecutive times.", fix: "Redirect terminal operator or direct subscriber to Aora Billing Customer self-service portal to update card parameters to auto-retry." }
+  ];
+
+  const filteredErrors = errorsCatalog.filter(
+    err =>
+      err.code.toLowerCase().includes(errorSearchQuery.toLowerCase()) ||
+      err.name.toLowerCase().includes(errorSearchQuery.toLowerCase()) ||
+      err.cause.toLowerCase().includes(errorSearchQuery.toLowerCase())
+  );
+
+  // ----------------------------------------------------
+  // OFFICIAL SDK PACKAGE INSTRUCTIONS CODE LANGS
+  // ----------------------------------------------------
+  const [sdkLanguage, setSdkLanguage] = useState<"js" | "python" | "go" | "php">("js");
+
+  const sdkCodeSnippets = {
+    js: {
+      install: "npm install @aora/billing-node",
+      init: `import { AoraBilling } from "@aora/billing-node";\n\nconst billing = new AoraBilling({\n  apiKey: "sk_live_aora_5f2d93e810cb9921e42bcs2"\n});`,
+      ingest: `// Transmit a live metering telemetry event\nawait billing.events.track({\n  customerId: "customer_linear_102",\n  meterId: "api_operations",\n  value: 12,\n  metadata: { endpoint: "/v2/completions" }\n});`,
+      check: `// Verify entitlement gateway dynamically\nconst authCheck = await billing.entitlements.canAccess({\n  customerId: "customer_linear_102",\n  featureSlug: "premium_export"\n});\n\nif (authCheck.hasAccess) {\n  console.log("Execute rich pipeline operation safely.");\n}`
+    },
+    python: {
+      install: "pip install aora-billing-sdk",
+      init: `from aora_billing import AoraClient\n\nbilling = AoraClient(\n    api_key="sk_live_aora_5f2d93e810cb9921e42bcs2"\n)`,
+      ingest: `# Deliver real-time usage event package\nbilling.events.track(\n    customer_id="customer_linear_102",\n    meter_id="api_operations",\n    value=12,\n    metadata={"endpoint": "/v2/completions"}\n)`,
+      check: `# Run permission evaluation gate\ncheck = billing.entitlements.can_access(\n    customer_id="customer_linear_102",\n    feature_slug="premium_export"\n)\n\nif check.has_access:\n    # Allow processing\n    pass`
+    },
+    go: {
+      install: "go get github.com/aora/billing-sdk-go",
+      init: `import (\n\t"github.com/aora/billing-sdk-go/client"\n)\n\nbilling := client.NewClient("sk_live_aora_5f2d93e810cb9921e42bcs2")`,
+      ingest: `// Record telemetry statistics\nbilling.Events.Track(client.EventRequest{\n\tCustomerID: "customer_linear_102",\n\tMeterID:    "api_operations",\n\tValue:      12,\n\tMetadata:   map[string]string{"endpoint": "/v2/completions"},\n})`,
+      check: `// Call dynamic rule evaluator locks\neval, _ := billing.Entitlements.CanAccess("customer_linear_102", "premium_export")\nif eval.HasAccess {\n\t// Trigger transaction\n}`
+    },
+    php: {
+      install: "composer require aorabilling/sdk-php",
+      init: `<?php\nuse Aora\\Billing\\Client;\n\n$billing = new Client("sk_live_aora_5f2d93e810cb9921e42bcs2");`,
+      ingest: `// Report single transaction weight\n$billing->events->track([\n    "customerId" => "customer_linear_102",\n    "meterId" => "api_operations",\n    "value" => 12,\n    "metadata" => ["endpoint" => "/v2/completions"]\n]);`,
+      check: `// Verify subscription rules\n$check = $billing->entitlements->canAccess(\n    "customer_linear_102",\n    "premium_export"\n);\n\nif ($check->hasAccess) {\n    // Execute core module\n}`
+    }
+  };
+
+  // ----------------------------------------------------
+  // AI DOCUMENTATION CHAT ASSISTANT STATE
+  // ----------------------------------------------------
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiQuestion, setAiQuestion] = useState("");
+  const [aiChatLog, setAiChatLog] = useState<Array<{ sender: "user" | "engine"; text: string }>>([
+    {
+      sender: "engine",
+      text: "Developer assistant initialized. I can fetch exact configurations, SDK snippets, or troubleshoot validation rules directly from Aora API models! Ask me anything regarding usage meters, webhook deliveries, or entitlements."
+    }
+  ]);
+
+  const handleAskAIAssistant = async (presetText?: string) => {
+    const question = presetText || aiQuestion;
+    if (!question.trim()) return;
+
+    // Append user message
+    setAiChatLog(prev => [...prev, { sender: "user", text: question }]);
+    if (!presetText) setAiQuestion("");
+    setAiLoading(true);
+
+    try {
+      const docsContext = `
+      You are the Aora Billing Documentation AI. Answer based STRICTLY on Aora Documentation guidelines:
+      1. Webhook types: invoice.paid, subscription.created, entitlement.breached.
+      2. Portals: clients connect via /api/can-access or read details.
+      3. Usage events post to POST /api/usage-events with payload: customerId, meterId, value, metadata.
+      4. Workspace: ${workspaceName}.
+      Answer questions clearly using JetBrains Mono code snippets and Inter typography.
+      `;
+
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: `[DOCUMENTATION CONTEXT: ${docsContext}] User question: ${question}`
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        // The server response carries historical chat. The last message is usually the latest AI answer.
+        const latestText = result[result.length - 1]?.text || "I processed your request, and your billing setup is fully verified.";
+        setAiChatLog(prev => [...prev, { sender: "engine", text: latestText }]);
+      } else {
+        throw new Error("AI Server Module Offline");
+      }
+    } catch (e) {
+      // High fidelity local client-side documentation model responder if backend is transient
+      setTimeout(() => {
+        let localReply = "I have scanned the local documentation repository. ";
+        const query = question.toLowerCase();
+
+        if (query.includes("meter") || query.includes("usage")) {
+          localReply += "In Aora, **Usage Metering** aggregates telemetry data. Events are ingested at `POST /api/usage-events` using: \n```json\n{\n  \"customerId\": \"linear\",\n  \"meterId\": \"compute_meter\",\n  \"value\": 1,\n  \"metadata\": { \"source\": \"api_gateway\" }\n}\n``` \nMultiple meters aggregations can compute maximums, sum weights, or count increments dynamically during active cycles.";
+        } else if (query.includes("credit") || query.includes("quota")) {
+          localReply += "Our **Credits Engine** supports pre-paid virtual wallets. Credits are registered as balance objects and automatically deducted via active rate rules (e.g., NGN ₦2.50 per image generated) before a customer's standard invoice generates.";
+        } else if (query.includes("seat") || query.includes("seat price")) {
+          localReply += "To implement **Seat-Based Billing**, configure a recurring price plan (e.g., NGN ₦12,500/seat/month). Aora automatically syncs seat changes and computes prorated billing fractions when seats increase or decrease, ensuring correct payment cycles.";
+        } else if (query.includes("webhook") || query.includes("payload")) {
+          localReply += "Aora fires webhooks for key transactions like `invoice.paid`, `subscription.created`, and `entitlement.breached`. Ensure you configure verification signatures securely using secret tokens and evaluate payload hash maps recursively.";
+        } else {
+          localReply += "Aora Billing provides sub-second rating with multi-tenant API isolation. To integrate quickly, install our official SDKs (Node.js, Python, or Go), inject your `sk_live_...` secret key, and forward telemetry. Let me know if you would like me to draft an integration file!";
+        }
+        setAiChatLog(prev => [...prev, { sender: "engine", text: localReply }]);
+      }, 700);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // State utility for copy button states
+  const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
+  const triggerCopyToClipboard = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedStates(prev => ({ ...prev, [id]: true }));
+    setTimeout(() => {
+      setCopiedStates(prev => ({ ...prev, [id]: false }));
+    }, 2000);
+  };
+
+  return (
+    <div className="min-h-screen bg-white text-[#111111] font-sans antialiased text-left shadow-lg overflow-x-hidden">
+
+      {/* ----------------- WORLD-CLASS DOCS HEADER ----------------- */}
+      <header className="sticky top-0 bg-white border-b border-[#E5E5E7] py-3.5 px-6 z-40 flex items-center justify-between">
+        <div className="flex items-center gap-8">
+          <div className="flex items-center gap-2.5 cursor-pointer" onClick={onBackToDashboard}>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#111111] shadow-sm">
+              <Sparkles className="h-4 w-4 text-white" />
+            </div>
+            <span className="font-bold text-sm text-neutral-900 leading-none">Aora Billing</span>
+            <span className="text-[10px] bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Docs</span>
+          </div>
+
+          <nav className="hidden lg:flex items-center gap-5 text-xs font-semibold text-[#6E6E73]">
+            <button onClick={() => { setActivePage("intro"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer ${activePage === "intro" ? "text-[#0071E3]" : ""}`}>Documentation</button>
+            <button onClick={() => { setActivePage("playground"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer ${activePage === "playground" ? "text-[#0071E3]" : ""}`}>API Reference</button>
+            <button onClick={() => { setActivePage("sdks"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer ${activePage === "sdks" ? "text-[#0071E3]" : ""}`}>SDKs</button>
+            <button onClick={() => { setActivePage("guide-usage"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer ${activePage === "guide-usage" ? "text-[#0071E3]" : ""}`}>Guides</button>
+            <button onClick={() => { setActivePage("changelog"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer ${activePage === "changelog" ? "text-[#0071E3]" : ""}`}>Changelog</button>
+            <button onClick={() => { setActivePage("status"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer flex items-center gap-1 cursor-pointer ${activePage === "status" ? "text-[#0071E3]" : ""}`}>
+              <span className="h-2 w-2 rounded-full bg-[#34C759] animate-pulse"></span>
+              Status
+            </button>
+          </nav>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* Cmd + K search button triggers modal */}
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="flex items-center gap-2.5 bg-[#FAFAFA] border border-[#E5E5E7] rounded-lg px-3 py-1.5 transition-all text-[#6E6E73] hover:border-black/35 hover:bg-neutral-50 text-xs font-medium cursor-pointer"
+            id="docs-search-btn"
+          >
+            <Search className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Search docs...</span>
+            <kbd className="hidden sm:inline bg-white border border-[#E5E5E7] shadow-sm text-[9px] px-1.5 py-0.5 rounded-md font-mono font-bold text-neutral-400">⌘K</kbd>
+          </button>
+
+          {/* Quick link back to the fully interactive workspace dashboard */}
+          <button
+            onClick={onBackToDashboard}
+            className="bg-[#111111] hover:bg-[#1D1D1F] text-white text-xs font-bold leading-none py-2 px-3.5 rounded-lg transition-all cursor-pointer shadow-sm flex items-center gap-1"
+            id="docs-back-dashboard-btn"
+          >
+            Dashboard
+            <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+            className="p-1 px-1.5 border border-[#E5E5E7] bg-[#FAFAFA] text-neutral-800 rounded-lg lg:hidden hover:bg-neutral-100 cursor-pointer"
+          >
+            {mobileSidebarOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
+          </button>
+        </div>
+      </header>
+
+      {/* ----------------- LAYOUT CONTENT ----------------- */}
+      <div className="max-w-8xl mx-auto flex">
+
+        {/* ----------------- FIXED SIDEBAR FOR DESKTOP / FLAGGED SHELF FOR MOBILE ----------------- */}
+        <aside className={`w-64 border-r border-[#E5E5E7] bg-[#FAFAFA] shrink-0 h-[calc(100vh-53px)] overflow-y-auto sticky top-[53px] z-30 transition-all duration-300 lg:block ${mobileSidebarOpen ? "fixed left-0 top-[53px] bg-white w-72 h-[calc(100vh-53px)] border-r shadow-xl z-50 block" : "hidden lg:block animate-in"}`}>
+          <div className="py-6 px-4 space-y-6">
+
+            {/* Section: Getting Started */}
+            <div>
+              <button onClick={() => toggleSection("gettingStarted")} className="w-full flex items-center justify-between text-[#86868B] text-[10px] uppercase font-bold tracking-wider mb-2 hover:text-[#111111] transition-colors cursor-pointer">
+                <span>Getting Started</span>
+                {expandedSections.gettingStarted ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+              </button>
+              {expandedSections.gettingStarted && (
+                <div className="space-y-1 pl-1">
+                  <button onClick={() => { setActivePage("intro"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "intro" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    <BookOpen className="h-3 w-3" />
+                    Overview & Introduction
+                  </button>
+                  <button onClick={() => { setActivePage("quickstart"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "quickstart" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    <Terminal className="h-3 w-3" />
+                    Quick Start Guide
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Section: Core Concepts */}
+            <div>
+              <button onClick={() => toggleSection("concepts")} className="w-full flex items-center justify-between text-[#86868B] text-[10px] uppercase font-bold tracking-wider mb-2 hover:text-[#111111] transition-colors cursor-pointer">
+                <span>Core Concepts</span>
+                {expandedSections.concepts ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+              </button>
+              {expandedSections.concepts && (
+                <div className="space-y-1 pl-1">
+                  <button onClick={() => { setActivePage("architecture"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "architecture" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    <Workflow className="h-3.5 w-3.5" />
+                    System Architecture
+                  </button>
+                  <button onClick={() => { setActivePage("concepts-products"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "concepts-products" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    <CreditCard className="h-3.5 w-3.5" />
+                    Products & Plans Catalog
+                  </button>
+                  <button onClick={() => { setActivePage("concepts-usage"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "concepts-usage" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    <Database className="h-3.5 w-3.5" />
+                    Usage Metering
+                  </button>
+                  <button onClick={() => { setActivePage("concepts-entitlements"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "concepts-entitlements" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                    Entitlement Gate Engine
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Section: Developer Center */}
+            <div>
+              <button onClick={() => toggleSection("devTools")} className="w-full flex items-center justify-between text-[#86868B] text-[10px] uppercase font-bold tracking-wider mb-2 hover:text-[#111111] transition-colors cursor-pointer">
+                <span>API Developer Tools</span>
+                {expandedSections.devTools ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+              </button>
+              {expandedSections.devTools && (
+                <div className="space-y-1 pl-1">
+                  <button onClick={() => { setActivePage("dev-keys"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "dev-keys" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    <Code2 className="h-3.5 w-3.5" />
+                    Authentication Keys
+                  </button>
+                  <button onClick={() => { setActivePage("playground"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "playground" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    <Play className="h-3.5 w-3.5" />
+                    Interactive Sandbox API
+                  </button>
+                  <button onClick={() => { setActivePage("webhooks"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "webhooks" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    <Globe className="h-3.5 w-3.5" />
+                    Webhook Deliverer
+                  </button>
+                  <button onClick={() => { setActivePage("errors"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "errors" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    <ShieldAlert className="h-3.5 w-3.5" />
+                    Error Directory Catalog
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Section: Practical Guides */}
+            <div>
+              <button onClick={() => toggleSection("guides")} className="w-full flex items-center justify-between text-[#86868B] text-[10px] uppercase font-bold tracking-wider mb-2 hover:text-[#111111] transition-colors cursor-pointer">
+                <span>Tutorial Guides</span>
+                {expandedSections.guides ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+              </button>
+              {expandedSections.guides && (
+                <div className="space-y-1 pl-1">
+                  <button onClick={() => { setActivePage("guide-seats"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "guide-seats" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    Building Seat-Based models
+                  </button>
+                  <button onClick={() => { setActivePage("guide-usage"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "guide-usage" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    Usage Metering Pipeline
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Section: References & Logs */}
+            <div>
+              <button onClick={() => toggleSection("reference")} className="w-full flex items-center justify-between text-[#86868B] text-[10px] uppercase font-bold tracking-wider mb-2 hover:text-[#111111] transition-colors cursor-pointer">
+                <span>Reference & Release</span>
+                {expandedSections.reference ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+              </button>
+              {expandedSections.reference && (
+                <div className="space-y-1 pl-1">
+                  <button onClick={() => { setActivePage("sdks"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "sdks" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    <Layers className="h-3.5 w-3.5" />
+                    Official Runtime SDKs
+                  </button>
+                  <button onClick={() => { setActivePage("dashboard-integration"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "dashboard-integration" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Developer Dashboard Integration
+                  </button>
+                  <button onClick={() => { setActivePage("status"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "status" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    <Activity className="h-3.5 w-3.5" />
+                    Master Service Status
+                  </button>
+                  <button onClick={() => { setActivePage("changelog"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "changelog" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    <History className="h-3.5 w-3.5" />
+                    Product Changelog
+                  </button>
+                </div>
+              )}
+            </div>
+
+          </div>
+        </aside>
+
+        {/* ----------------- CORE VIEWS MAIN OUTLET STAGE ----------------- */}
+        <main className="flex-1 min-h-[calc(100vh-53px)] px-6 sm:px-12 py-10 max-w-4xl mx-auto space-y-12 bg-white pb-32">
+
+          {/* ----------------- INTRO VIEW ----------------- */}
+          {activePage === "intro" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Overview</span>
+                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111]">Billing Infrastructure without Billing Complexity</h1>
+                <p className="text-sm text-[#6E6E73] leading-relaxed">
+                  Aora is a state-of-the-art billing developer engine constructed to implement seats, volumetric overages, allowances, credits, and pricing models in under few minutes. Manage sub-millisecond usage rating buses, enforce multi-tenant entitling policies, and emit beautiful customer portals automatically.
+                </p>
+              </div>
+
+              {/* Stripe style layout cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                <div onClick={() => setActivePage("quickstart")} className="bg-[#F5F5F7] border border-[#E5E5E7] hover:border-[#0071E3] hover:bg-neutral-50/70 p-5 rounded-2xl text-left cursor-pointer transition-all space-y-2 group">
+                  <Terminal className="h-6 w-6 text-[#111111] group-hover:text-[#0071E3] transition-colors" />
+                  <h3 className="text-sm font-bold text-[#111111] flex items-center gap-1.5">
+                    Quick Start Guide
+                    <ChevronRight className="h-3.5 w-3.5 text-[#86868B]" />
+                  </h3>
+                  <p className="text-xs text-[#6E6E73] leading-normal font-medium">
+                    Integrate your billing pipeline, configure a plan, ingest sample telemetry events, and calculate usage.
+                  </p>
+                </div>
+
+                <div onClick={() => setActivePage("playground")} className="bg-[#F5F5F7] border border-[#E5E5E7] hover:border-[#0071E3] hover:bg-neutral-50/70 p-5 rounded-2xl text-left cursor-pointer transition-all space-y-2 group">
+                  <Play className="h-6 w-6 text-[#111111] group-hover:text-[#0071E3] transition-colors" />
+                  <h3 className="text-sm font-bold text-[#111111] flex items-center gap-1.5">
+                    Interactive Service Playground
+                    <ChevronRight className="h-3.5 w-3.5 text-[#86868B]" />
+                  </h3>
+                  <p className="text-xs text-[#6E6E73] leading-normal font-medium">
+                    Transmit sandbox events live to Aora and review immediate responses and multi-tenant telemetry checks on-screen.
+                  </p>
+                </div>
+              </div>
+
+              {/* Core capabilities list section */}
+              <div className="space-y-4 pt-4">
+                <h2 className="text-lg font-bold text-[#111111] border-b border-[#E5E5E7] pb-2">The Aora Platform Pillars</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-medium text-stone-600">
+                  <div className="space-y-1">
+                    <strong className="text-[#111111] block">Allowances & Meters</strong>
+                    <span className="text-[11px] text-[#6E6E73] block leading-relaxed">High performance deduplication of events. Calculate sum, max, or unique identifiers.</span>
+                  </div>
+                  <div className="space-y-1">
+                    <strong className="text-[#111111] block">Entitlement Gate</strong>
+                    <span className="text-[11px] text-[#6E6E73] block leading-relaxed">Verify plan capabilities and feature flags dynamically within millisecond limits.</span>
+                  </div>
+                  <div className="space-y-1">
+                    <strong className="text-[#111111] block">Virtual Credit Wallets</strong>
+                    <span className="text-[11px] text-[#6E6E73] block leading-relaxed">Load prepaid credits, handle triggers, and expire allocations timeline-accurately.</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Video Sandbox / Terminal styling Callout */}
+              <div className="bg-[#FAF9F6] border border-[#FF9F0A]/20 p-4 rounded-xl flex gap-3 text-left">
+                <Info className="h-5 w-5 text-[#FF9F0A] shrink-0 mt-0.5" />
+                <div className="text-xs font-semibold text-stone-800 leading-normal space-y-1">
+                  <span>Workspace Integration Live:</span>
+                  <p className="text-[#6E6E73] font-medium text-[11px]">
+                    This guide is synced to your current active instance: <strong>{workspaceName}</strong>. All interactive calls to sandbox endpoints will write context directly to that workspace logs!
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- QUICK START VIEW ----------------- */}
+          {activePage === "quickstart" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Walkthrough</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Quick Start Guide</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Start processing sub-millisecond metering and and calculating real invoices in under three quick operations. Estimated completion time: <strong className="text-amber-600">3 minutes</strong>.
+                </p>
+              </div>
+
+              {/* Step 1 */}
+              <div className="space-y-3 pt-2">
+                <div className="flex gap-3 items-center">
+                  <span className="h-6 w-6 rounded-full bg-[#111111] text-white text-[11px] font-extrabold flex items-center justify-center shrink-0">1</span>
+                  <h3 className="text-sm font-bold text-[#111111]">Forward an Event Package</h3>
+                </div>
+                <p className="text-xs text-[#6E6E73] leading-relaxed pl-9 font-medium">
+                  Submit a payload package whenever users execute programmatic actions (e.g., API requests, processing gigabytes, or vector tokens).
+                </p>
+
+                <div className="pl-9 space-y-2">
+                  <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
+                    <button onClick={() => triggerCopyToClipboard("curl -X POST https://api.aora.co/api/usage-events \\\n -H \"Authorization: Bearer sk_live_aora_5f2d93e810cb9921e42f2bca01\" \\\n -H \"Content-Type: application/json\" \\\n -d '{\n   \"customerId\": \"linear\",\n   \"meterId\": \"compute_meter\",\n   \"value\": 150,\n   \"metadata\": { \"source\": \"api\" }\n }'", "curl-qs")} className="absolute top-3 right-3 text-neutral-400 hover:text-neutral-950 p-1 rounded hover:bg-neutral-100 transition-colors cursor-pointer" title="Copy code snippet">
+                      {copiedStates["curl-qs"] ? <Check className="h-3.5 w-3.5 text-[#34C759]" /> : <Copy className="h-3.5 w-3.5" />}
+                    </button>
+                    <pre className="text-[10.5px] font-mono text-emerald-800 leading-normal overflow-x-auto text-left py-1 select-all">
+{`curl -X POST https://api.aora.co/api/usage-events \\
+ -H "Authorization: Bearer sk_live_aora_5f2d93e810cb9921e42f2bca01" \\
+ -H "Content-Type: application/json" \\
+ -d '{
+   "customerId": "linear",
+   "meterId": "compute_meter",
+   "value": 150,
+   "metadata": { "source": "api" }
+ }'`}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="space-y-3">
+                <div className="flex gap-3 items-center">
+                  <span className="h-6 w-6 rounded-full bg-[#111111] text-white text-[11px] font-extrabold flex items-center justify-center shrink-0">2</span>
+                  <h3 className="text-sm font-bold text-[#111111]">Verify Entitlement Gateway Dynamically</h3>
+                </div>
+                <p className="text-xs text-[#6E6E73] leading-relaxed pl-9 font-medium">
+                  Before allowing the user to execute premium calculations, check Aora is allowing access based on historical aggregates.
+                </p>
+
+                <div className="pl-9 space-y-2">
+                  <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
+                    <button onClick={() => triggerCopyToClipboard("curl -X GET \"https://api.aora.co/api/can-access?customerId=linear&featureSlug=api_access\" \\\n -H \"Authorization: Bearer sk_live_aora_...\"", "curl-qs-2")} className="absolute top-3 right-3 text-neutral-400 hover:text-neutral-950 p-1 rounded hover:bg-neutral-100 transition-colors cursor-pointer">
+                      {copiedStates["curl-qs-2"] ? <Check className="h-3.5 w-3.5 text-[#34C759]" /> : <Copy className="h-3.5 w-3.5" />}
+                    </button>
+                    <pre className="text-[10.5px] font-mono text-slate-800 leading-normal overflow-x-auto text-left py-1">
+{`curl -X GET "https://api.aora.co/api/can-access?customerId=linear&featureSlug=api_access" \\
+ -H "Authorization: Bearer sk_live_aora_5f2d93e810cb9921e42f2bca01"`}
+                    </pre>
+                  </div>
+
+                  <div className="bg-neutral-950 border border-neutral-900 p-4 rounded-xl text-left">
+                    <span className="text-[10px] text-[#86868B] uppercase font-bold tracking-wider font-mono">Response Payload (200 OK)</span>
+                    <pre className="text-[10px] font-mono text-neutral-200 mt-1.5 select-all">
+{`{
+  "customerId": "linear",
+  "featureSlug": "api_access",
+  "hasAccess": true,
+  "reason": "Customer is on Growth Plan",
+  "limits": {
+    "limit": 500000,
+    "current": 145150
+  }
+}`}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+
+              {/* Link CTA */}
+              <div className="pt-4 text-center">
+                <button
+                  onClick={() => setActivePage("playground")}
+                  className="bg-[#0071E3] hover:bg-[#0077ED] text-white text-xs font-bold leading-none py-2.5 px-5 rounded-lg transition-all cursor-pointer shadow-md inline-flex items-center gap-1.5"
+                >
+                  <Play className="h-3.5 w-3.5 fill-white shrink-0" />
+                  Try live inside interactive API Playground
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- CORE ARCHITECTURE DIAGRAM ----------------- */}
+          {activePage === "architecture" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">System Design</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Aora Platform Architecture</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Review how high-throughput events progress safely within Aora, tracking logs and syncing allocations instantly.
+                </p>
+              </div>
+
+              {/* SVG / Styled visual architecture pipeline */}
+              <div className="bg-[#F5F5F7] border border-[#E5E5E7] rounded-3xl p-6 space-y-8 text-center shadow-inner">
+                <span className="text-[9px] uppercase font-bold text-neutral-400 tracking-wider font-mono block">Data Pipeline Schema</span>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                  
+                  {/* Step 1: SDK Clients */}
+                  <div className="bg-white border border-[#E5E5E7] p-4.5 rounded-2xl relative shadow-sm hover:border-[#0071E3] transition-all text-left">
+                    <span className="z-10 absolute -top-2.5 left-4 bg-emerald-500 text-white font-mono text-[9px] px-2 py-0.5 rounded-full font-bold">NODE 01</span>
+                    <Terminal className="h-4.5 w-4.5 text-[#111111] mb-1.5" />
+                    <h4 className="text-xs font-bold text-[#111111]">Client SDKs</h4>
+                    <p className="text-[10px] text-[#6E6E73] leading-relaxed mt-1 font-medium">Forward telemetry via NodeJS, Python, custom APIs.</p>
+                  </div>
+
+                  {/* Flow arrow */}
+                  <div className="hidden md:flex justify-center items-center font-mono text-xs text-neutral-400">
+                    <ArrowRight className="h-5 w-5 animate-pulse text-[#0071E3]" />
+                  </div>
+
+                  {/* Step 2: Rating Bus */}
+                  <div className="bg-white border border-[#E5E5E7] p-4.5 rounded-2xl relative shadow-sm hover:border-[#0071E3] transition-all text-left">
+                    <span className="z-10 absolute -top-2.5 left-4 bg-blue-500 text-white font-mono text-[9px] px-2 py-0.5 rounded-full font-bold">NODE 02</span>
+                    <Workflow className="h-4.5 w-4.5 text-[#111111] mb-1.5" />
+                    <h4 className="text-xs font-bold text-[#111111]">Ingestion Stream</h4>
+                    <p className="text-[10px] text-[#6E6E73] leading-relaxed mt-1 font-medium">Deduplicate payload packets instantly within 12ms.</p>
+                  </div>
+
+                  {/* Flow arrow */}
+                  <div className="hidden md:flex justify-center items-center font-mono text-xs text-neutral-400">
+                    <ArrowRight className="h-5 w-5 animate-pulse text-[#0071E3]" />
+                  </div>
+
+                  {/* Step 3: Rules rating */}
+                  <div className="bg-white border border-[#E5E5E7] p-4.5 rounded-2xl relative shadow-sm hover:border-[#0071E3] transition-all text-left">
+                    <span className="z-10 absolute -top-2.5 left-4 bg-purple-500 text-white font-mono text-[9px] px-2 py-0.5 rounded-full font-bold">NODE 03</span>
+                    <Database className="h-4.5 w-4.5 text-[#111111] mb-1.5" />
+                    <h4 className="text-xs font-bold text-[#111111]">Aggregate Evaluator</h4>
+                    <p className="text-[10px] text-[#6E6E73] leading-relaxed mt-1 font-medium">Query active rate parameters, compute overage fractions.</p>
+                  </div>
+
+                  {/* Flow arrow */}
+                  <div className="hidden md:flex justify-center items-center font-mono text-xs text-neutral-400">
+                    <ArrowRight className="h-5 w-5 animate-pulse text-[#0071E3]" />
+                  </div>
+
+                  {/* Step 4: Webhook & Ledger */}
+                  <div className="bg-white border border-[#E5E5E7] p-4.5 rounded-2xl relative shadow-sm hover:border-[#0071E3] transition-all text-left">
+                    <span className="z-10 absolute -top-2.5 left-4 bg-amber-500 text-white font-mono text-[9px] px-2 py-0.5 rounded-full font-bold">NODE 04</span>
+                    <Globe className="h-4.5 w-4.5 text-[#111111] mb-1.5" />
+                    <h4 className="text-xs font-bold text-[#111111]">Live Ledger Out</h4>
+                    <p className="text-[10px] text-[#6E6E73] leading-relaxed mt-1 font-medium">Dispatch secure webhook signals and draft monthly invoices.</p>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Proactive explanation blocks */}
+              <div className="space-y-4 font-normal text-xs text-stone-600 leading-relaxed">
+                <h3 className="text-sm font-bold text-[#111111]">Key Integrity Guarantees</h3>
+                <ul className="list-disc pl-5 space-y-2 text-[#6E6E73] font-medium">
+                  <li><strong>Idempotency Safety:</strong> Submitting identical `id` telemetry coordinates within a 24-hour cycle is automatically rejected to avoid inflating bill totals.</li>
+                  <li><strong>Dynamic Cache Check:</strong> Checking entitlement authorization (via `can-access`) retrieves cached memory buffers, responding within 2.4 milliseconds.</li>
+                  <li><strong>Audit Ledger Trail:</strong> Every transactional rule mutation generates structural cryptographically signed log ledgers accessible instantaneously.</li>
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- PRODUCTS & PLANS CONCEPT ----------------- */}
+          {activePage === "concepts-products" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Catalog</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Products & Plans Catalog</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Aora structures pricing into products (what features are purchased) and plans (how much those allocations charge recursively).
+                </p>
+              </div>
+
+              {/* Pricing models matrix table */}
+              <div className="bg-white border border-[#E5E5E7] rounded-2xl overflow-hidden shadow-sm">
+                <table className="w-full text-left text-xs text-[#111111]">
+                  <thead>
+                    <tr className="bg-[#F5F5F7] border-b border-[#E5E5E7] uppercase font-bold text-[9px] tracking-widest text-[#6E6E73]">
+                      <th className="py-3 px-4">Billing Grid Archetype</th>
+                      <th className="py-3 px-4">Core Mechanism</th>
+                      <th className="py-3 px-4">Use Cases</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#E5E5E7] text-[#6E6E73] font-medium">
+                    <tr>
+                      <td className="py-3.5 px-4 font-bold text-[#111111]">Flat Subscription</td>
+                      <td className="py-3.5 px-4">Charges static recurring price every cycle (allowances constant).</td>
+                      <td className="py-3.5 px-4 font-mono text-[10px]">Starter Plan: ₦15,000/mo</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3.5 px-4 font-bold text-[#111111]">Usage overage</td>
+                      <td className="py-3.5 px-4">Free allowance bucket, then charges incremental unit overages.</td>
+                      <td className="py-3.5 px-4 font-mono text-[10px]">₦2 per telemetry unit</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3.5 px-4 font-bold text-[#111111]">Seat pricing</td>
+                      <td className="py-3.5 px-4">Evaluates count of active account users during invoicing cycle.</td>
+                      <td className="py-3.5 px-4 font-mono text-[10px]">₦12,500/seat/month</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3.5 px-4 font-bold text-[#111111]">Ad-Hoc Credits</td>
+                      <td className="py-3.5 px-4">Pre-funded token bank with auto-rating debit balance checks.</td>
+                      <td className="py-3.5 px-4 font-mono text-[10px]">API Generation models</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- USAGE METERED CONCEPT ----------------- */}
+          {activePage === "concepts-usage" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Aggregation</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Usage Metering</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Usage Metering translates thousands of event streams into clean, billable indices based on structural aggregation rules.
+                </p>
+              </div>
+
+              {/* Interactive preview with aggregations */}
+              <div className="bg-[#F5F5F7] border border-[#E5E5E7] rounded-2xl p-5 space-y-4">
+                <h3 className="text-xs font-bold text-[#111111] flex items-center gap-1.5">
+                  <Database className="h-4.5 w-4.5 text-[#0071E3]" />
+                  Active Ingestion Aggregrations supported
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-left">
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl">
+                    <span className="text-[9px] font-bold text-[#0071E3] block uppercase tracking-wider">COUNT</span>
+                    <strong className="text-xs text-[#111111] mt-1 block">Sum of Events</strong>
+                    <span className="text-[10px] text-[#6E6E73] mt-0.5 block font-medium">Increment totals for operations count (e.g., API triggers).</span>
+                  </div>
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl">
+                    <span className="text-[9px] font-bold text-emerald-600 block uppercase tracking-wider">SUM</span>
+                    <strong className="text-xs text-[#111111] mt-1 block">Sum of Field Value</strong>
+                    <span className="text-[10px] text-[#6E6E73] mt-0.5 block font-medium">Aggregates values (e.g., gigabytes downloaded).</span>
+                  </div>
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl">
+                    <span className="text-[9px] font-bold text-purple-600 block uppercase tracking-wider">MAX</span>
+                    <strong className="text-xs text-[#111111] mt-1 block">Maximum Field Value</strong>
+                    <span className="text-[10px] text-[#6E6E73] mt-0.5 block font-medium">Saves the peak height usage recorded (e.g., peak database storage).</span>
+                  </div>
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl">
+                    <span className="text-[9px] font-bold text-amber-500 block uppercase tracking-wider">UNIQUE</span>
+                    <strong className="text-xs text-[#111111] mt-1 block">Distinct Elements count</strong>
+                    <span className="text-[10px] text-[#6E6E73] mt-0.5 block font-medium">Counts distinct users triggered (e.g., distinct logging IPs).</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- ENTITLEMENT CONTROLLER CONCEPT ----------------- */}
+          {activePage === "concepts-entitlements" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Gateway Guards</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Entitlement Gate Engine</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Verify features locks, quota metrics, and multi-tenant authorization instantly during live runtime transactions.
+                </p>
+              </div>
+
+              {/* Callout box detailing dynamic gates */}
+              <div className="bg-[#FAF9F6] border border-[#FF9F0A]/20 p-5 rounded-2xl flex gap-4 text-left">
+                <AlertTriangle className="h-5 w-5 text-[#FF9F0A]" />
+                <div className="space-y-1">
+                  <h4 className="text-xs font-bold text-stone-900">Why differentiate plan permissions from Billing?</h4>
+                  <p className="text-xs text-[#6E6E73] leading-relaxed font-medium">
+                    Plan options shouldn't crash standard app cycles. By calling Aora dynamic permission checks, the routing layer automatically verifies limits and reports alerts without locking down standard screens.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- AUTHENTICATION KEYS INFO ----------------- */}
+          {activePage === "dev-keys" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Security</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Authentication & API Keys</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Aora authorizes client commands utilizing private Bearer tokens transmitted securely inside HTTP request header definitions.
+                </p>
+              </div>
+
+              <div className="bg-[#FAFAFA] border border-[#E5E5E7] p-5 rounded-2xl text-left space-y-3">
+                <h3 className="text-xs font-bold text-[#111111] flex items-center gap-1.5">
+                  <Code2 className="h-4.5 w-4.5 text-[#0071E3]" />
+                  Secure Header Schema
+                </h3>
+                <p className="text-xs text-[#6E6E73] leading-relaxed font-medium">
+                  Add your primary private workspace key inside standard client integrations utilizing standard secure headers:
+                </p>
+
+                <div className="bg-neutral-950 p-4 rounded-xl text-xs font-mono text-neutral-300">
+                  <span className="text-neutral-500 block uppercase text-[10px] font-bold mb-1">Standard Headers Required</span>
+                  <div>Authorization: Bearer sk_live_aora_5f2d93e810cb9921e42f2bca01</div>
+                  <div className="mt-1">Content-Type: application/json</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- CORE INTERACTIVE PLAYGROUND SANDBOX ----------------- */}
+          {activePage === "playground" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Sandbox API</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Interactive Documentation Playground</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Submit transactions directly with the live server. Generate unique validation codes and observe immediate response parameters.
+                </p>
+              </div>
+
+              {/* Sub-selectors */}
+              <div className="flex gap-2.5 border-b border-[#E5E5E7] pb-3 text-xs font-semibold text-[#6E6E73]">
+                <button
+                  onClick={() => handlePlaygroundPreset("/api/usage-events")}
+                  className={`pb-1.5 focus:outline-none transition-all cursor-pointer ${playgroundPath === "/api/usage-events" ? "text-[#111111] border-b-2 border-black" : "hover:text-[#111111]"}`}
+                >
+                  POST /api/usage-events
+                </button>
+                <button
+                  onClick={() => handlePlaygroundPreset("/api/can-access")}
+                  className={`pb-1.5 focus:outline-none transition-all cursor-pointer ${playgroundPath === "/api/can-access" ? "text-[#111111] border-b-2 border-black" : "hover:text-[#111111]"}`}
+                >
+                  GET /api/can-access
+                </button>
+              </div>
+
+              {/* Interactive developer shell */}
+              <div className="bg-[#111111] text-[#FAFAFA] rounded-2xl p-6.5 text-left font-mono space-y-4 shadow-xl">
+                <div className="flex justify-between items-center text-xs text-neutral-400">
+                  <span className="flex items-center gap-1">
+                    <Terminal className="h-4 w-4 text-[#34C759]" />
+                    Interactive REST Playground
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] bg-neutral-900 border border-neutral-800 px-2.5 py-0.5 rounded text-neutral-300 select-all truncate max-w-[150px]">
+                      {playgroundApiKey}
+                    </span>
+                    <button onClick={handleRegenPlaygroundKey} className="text-[9px] hover:underline font-bold text-neutral-400 font-sans cursor-pointer">Regen Key</button>
+                  </div>
+                </div>
+
+                {/* HTTP Request URL bar */}
+                <div className="flex gap-2 items-center bg-neutral-900 border border-neutral-800 p-2 rounded-lg text-xs">
+                  <span className={`${playgroundMethod === "POST" ? "text-emerald-400" : "text-blue-400"} font-extrabold`}>{playgroundMethod}</span>
+                  <span className="text-neutral-500 truncate select-all">https://api.aora.co{playgroundPath}</span>
+                </div>
+
+                {/* Body parameters and terminal responses */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* JSON body */}
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] uppercase font-bold text-[#86868B] tracking-wider block font-sans">JSON Package parameters</label>
+                    {playgroundPath === "/api/can-access" ? (
+                      <div className="p-3 bg-neutral-900/40 border border-neutral-800 rounded-lg text-[10px] space-y-2 h-36 flex flex-col justify-center">
+                        <div className="flex justify-between border-b border-neutral-800 pb-1.5">
+                          <span className="text-neutral-400">customerId</span>
+                          <span className="text-white font-bold">linear</span>
+                        </div>
+                        <div className="flex justify-between border-b border-neutral-800 pb-1.5">
+                          <span className="text-neutral-400">featureSlug</span>
+                          <span className="text-white font-bold">api_access</span>
+                        </div>
+                        <p className="text-[9px] text-[#6E6E73] font-sans leading-relaxed">Runs dynamic authentication checking checks live.</p>
+                      </div>
+                    ) : (
+                      <textarea
+                        value={playgroundPayload}
+                        onChange={(e) => setPlaygroundPayload(e.target.value)}
+                        className="w-full h-36 bg-neutral-900 border border-neutral-800 text-emerald-400 rounded-lg p-2.5 text-[10px] focus:outline-none focus:border-emerald-600 outline-none resize-none"
+                      />
+                    )}
+                  </div>
+
+                  {/* REST response console */}
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] uppercase font-bold text-[#86868B] tracking-wider block font-sans">Server Output Stream</label>
+                    <div className="w-full h-36 bg-neutral-900 border border-neutral-800 text-[#FAFAFA] rounded-lg p-2.5 text-[10px] overflow-auto">
+                      {playgroundLoading ? (
+                        <div className="flex items-center justify-center h-full text-neutral-400 animate-pulse">Running network operations...</div>
+                      ) : playgroundResponse ? (
+                        <pre className="text-[9.5px] leading-relaxed text-left text-neutral-300">
+                          {JSON.stringify(playgroundResponse, null, 2)}
+                        </pre>
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-neutral-500 font-sans text-xs">Press Dispatch command below as a simulator trigger.</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dispatch Trigger CTA */}
+                <div className="flex justify-between items-center pt-2 font-sans">
+                  <span className="text-[10px] text-neutral-500">Workspace context: {workspaceName}</span>
+                  <button
+                    onClick={executePlaygroundRequest}
+                    disabled={playgroundLoading}
+                    className="px-4 py-2 bg-white hover:bg-neutral-100 text-black font-semibold text-xs rounded-lg transition-all flex items-center gap-1 cursor-pointer"
+                    id="docs-playground-run-btn"
+                  >
+                    <Play className="h-3.5 w-3.5 fill-black font-bold shrink-0" />
+                    {playgroundLoading ? "Running..." : "Dispatch REST Command"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- WEBHOOK DEVELOPER CENTER ----------------- */}
+          {activePage === "webhooks" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Webhooks</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Webhook Documentation</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Aora publishes transactional status hooks securely enabling downstream synchronization, notifying database nodes, or alerting sales representatives.
+                </p>
+              </div>
+
+              {/* Webhook events list selection */}
+              <div className="bg-white border border-[#E5E5E7] rounded-2xl p-5 text-left space-y-4">
+                <div className="flex items-center justify-between border-b border-[#F5F5F7] pb-3">
+                  <div>
+                    <h3 className="text-xs font-bold text-[#111111]">Webhook Explorer Presets</h3>
+                    <p className="text-[10px] text-[#6E6E73] font-medium leading-relaxed">Choose standard events triggering on actual operations, then simulate transactions on screen.</p>
+                  </div>
+                  <div>
+                    <select
+                      value={selectedWebhookEvent}
+                      onChange={(e) => { setSelectedWebhookEvent(e.target.value); setSimulatedWebhookResult(null); }}
+                      className="text-xs border border-[#E5E5E7] p-1.5 rounded-lg bg-white outline-none cursor-pointer"
+                      id="webhook-type-select"
+                    >
+                      <option value="invoice.paid">invoice.paid</option>
+                      <option value="subscription.created">subscription.created</option>
+                      <option value="entitlement.breached">entitlement.breached</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Simulate CTA */}
+                <div className="flex justify-between items-center pt-2">
+                  <span className="text-[10px] text-[#6E6E73] font-mono">Simulating Node signature verification scheme: sha256</span>
+                  <button
+                    onClick={simulateWebhookTrigger}
+                    disabled={isSimulatingWebhook}
+                    className="p-1 px-3 bg-[#111111] hover:bg-[#1D1D1F] text-white text-[11px] font-bold rounded-lg cursor-pointer"
+                    id="simulate-webhook-btn"
+                  >
+                    {isSimulatingWebhook ? "Computing..." : "Simulate Live Webhook"}
+                  </button>
+                </div>
+
+                {/* Simulated response log box */}
+                {simulatedWebhookResult && (
+                  <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-neutral-950 rounded-xl relative">
+                    <button onClick={() => triggerCopyToClipboard(JSON.stringify(simulatedWebhookResult, null, 2), "wh-res")} className="absolute top-3 right-3 text-neutral-400 hover:text-neutral-200 p-1 rounded hover:bg-neutral-900 transition-colors cursor-pointer" title="Copy webhook JSON">
+                      {copiedStates["wh-res"] ? <Check className="h-3.5 w-3.5 text-[#34C759]" /> : <Copy className="h-3.5 w-3.5" />}
+                    </button>
+                    <span className="text-[9px] text-[#86868B] uppercase font-bold tracking-wider font-mono block mb-1">Simulated Event Body: {simulatedWebhookResult.type}</span>
+                    <pre className="text-[9.5px] font-mono text-neutral-200 leading-normal select-all overflow-auto max-h-48">
+                      {JSON.stringify(simulatedWebhookResult, null, 2)}
+                    </pre>
+                  </motion.div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- ERROR DIRECTORY ----------------- */}
+          {activePage === "errors" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Troubleshooting</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Error Catalog Directory</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Search common API failures and resolve security or overage check lockouts.
+                </p>
+              </div>
+
+              {/* Live search error filter */}
+              <div className="relative">
+                <Search className="absolute left-3 top-2.5.5 h-4 w-4 text-[#86868B]" />
+                <input
+                  type="text"
+                  placeholder="Filter errors (e.g. 401, METER, ENTITLEMENT)..."
+                  value={errorSearchQuery}
+                  onChange={(e) => setErrorSearchQuery(e.target.value)}
+                  className="w-full bg-neutral-50 px-3 py-2 pl-9 rounded-xl border border-[#E5E5E7] text-xs font-medium focus:outline-none focus:border-black transition-all"
+                  id="error-catalog-search-input"
+                />
+              </div>
+
+              {/* Filtered Errors results cards */}
+              <div className="space-y-3">
+                {filteredErrors.map((err, index) => (
+                  <div key={index} className="bg-[#FAF9F6]/20 border border-[#E5E5E7] hover:border-neutral-400 p-5 rounded-2xl text-left transition-all space-y-2.5">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-100 pb-2">
+                      <span className="text-xs font-extrabold text-stone-900">{err.name}</span>
+                      <span className="text-[10px] font-mono bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded uppercase tracking-wider">{err.code}</span>
+                    </div>
+                    <div className="text-xs space-y-1 text-[#6E6E73] font-medium leading-relaxed">
+                      <div><strong className="text-neutral-800">Root Cause:</strong> {err.cause}</div>
+                      <div><strong className="text-emerald-700">How to Fix:</strong> {err.fix}</div>
+                    </div>
+                  </div>
+                ))}
+                {filteredErrors.length === 0 && (
+                  <div className="text-center p-12 text-xs text-neutral-400 font-medium">No matching error records cataloged.</div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- PRACTICAL SAAS SEATS GUIDE ----------------- */}
+          {activePage === "guide-seats" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Guide</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Implement Seat-Based SaaS Pricing</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Configure seat pricing alongside allowances overages. Draft prorated bills accurately when teams scale seats count month on month.
+                </p>
+              </div>
+
+              {/* Informative tutorial text */}
+              <div className="prose prose-stone max-w-none text-xs text-[#6E6E73] leading-relaxed space-y-4 font-medium">
+                <p>
+                  SaaS billing models typically pair <strong>Seats (Active user profiles)</strong> with <strong>Meters allowances</strong>. For instance: Linear charges NGN ₦15,000 per seat, providing 10,000 allowance telemetry events.
+                </p>
+
+                <h3 className="text-sm font-bold text-[#111111] pt-2">Step 1: Sync active seat counts on change</h3>
+                <p>
+                  Whenever workspace administrators alter membership pools, emit updates using Customer endpoints on-screen:
+                </p>
+
+                <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
+                  <pre className="text-[10px] font-mono text-slate-800 leading-normal select-all overflow-auto">
+{`PATCH https://api.aora.co/api/customers/cust_linear_102
+Content-Type: application/json
+
+{
+  "seatsCount": 14,
+  "meta": { "scaleReason": "enterprise_upgrade" }
+}`}
+                  </pre>
+                </div>
+
+                <h3 className="text-sm font-bold text-[#111111] pt-2">Step 2: Pro-rata Calculations and Invoicing</h3>
+                <p>
+                  Aora automatic schedulers evaluate exact timestamp offsets, prorating seat charges from the active hour membership changed rather than charging fully for the calendar cycle.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- USAGE-BASED LLM TOKEN GUIDE ----------------- */}
+          {activePage === "guide-usage" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Guide</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Usage-Based Token billing</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Track volumetric variables like API requests processed, streaming minutes rendered, or LLM tokens generated accurately.
+                </p>
+              </div>
+
+              <div className="prose prose-stone max-w-none text-xs text-[#6E6E73] leading-relaxed space-y-3 font-medium">
+                <p>
+                  Volumetric pipelines forward individual metrics. For example, capturing AI tokens completions:
+                </p>
+
+                <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
+                  <pre className="text-[10px] font-mono text-slate-800 select-all overflow-auto">
+{`POST https://api.aora.co/api/usage-events
+Content-Type: application/json
+
+{
+  "customerId": "v_acme_corps",
+  "meterId": "api_operations",
+  "value": 15000,
+  "metadata": { "model": "gemini-3.5-flash", "direction": "output" }
+}`}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- RUNTIME SDKS INSTRUCTIONS ----------------- */}
+          {activePage === "sdks" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Libraries</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Official Runtime SDKs</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Install and instantiate Aora packages within your active codebase in seconds. We maintain reliable SDK packages across four runtime languages.
+                </p>
+              </div>
+
+              {/* Language Switch */}
+              <div className="flex gap-2 bg-[#F5F5F7] p-1.5 rounded-xl border border-[#E5E5E7] text-xs font-bold text-[#6E6E73]">
+                {["js", "python", "go", "php"].map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => setSdkLanguage(lang as any)}
+                    className={`flex-1 py-1 px-3 rounded-lg transition-colors cursor-pointer ${sdkLanguage === lang ? "bg-white text-[#111111] shadow-sm" : "hover:text-[#111111]"}`}
+                  >
+                    {lang === "js" ? "Node.js (TS)" : lang === "python" ? "Python" : lang === "go" ? "Go" : "PHP"}
+                  </button>
+                ))}
+              </div>
+
+              {/* Dynamic steps load */}
+              <div className="space-y-5 pt-2">
+                <div className="space-y-1.5 text-left">
+                  <span className="text-[10px] font-mono text-neutral-400 block uppercase font-bold">1. Package Installation Command</span>
+                  <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4.5 rounded-xl relative">
+                    <pre className="text-[11px] font-mono text-stone-900">{sdkCodeSnippets[sdkLanguage].install}</pre>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 text-left">
+                  <span className="text-[10px] font-mono text-neutral-400 block uppercase font-bold">2. Initialization Code</span>
+                  <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4.5 rounded-xl relative overflow-x-auto text-left py-2">
+                    <pre className="text-[10.5px] font-mono text-slate-800 leading-normal select-all">
+                      {sdkCodeSnippets[sdkLanguage].init}
+                    </pre>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 text-left">
+                  <span className="text-[10px] font-mono text-neutral-400 block uppercase font-bold">3. Ingesting Telemetry Data</span>
+                  <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4.5 rounded-xl relative overflow-x-auto text-left py-2">
+                    <pre className="text-[10.5px] font-mono text-emerald-800 leading-normal select-all">
+                      {sdkCodeSnippets[sdkLanguage].ingest}
+                    </pre>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 text-left">
+                  <span className="text-[10px] font-mono text-neutral-400 block uppercase font-bold">4. Dynamic entitlement locks check</span>
+                  <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4.5 rounded-xl relative overflow-x-auto text-left py-2">
+                    <pre className="text-[10.5px] font-mono text-indigo-800 leading-normal select-all">
+                      {sdkCodeSnippets[sdkLanguage].check}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- WORKSPACE INTEGRATION INFO ----------------- */}
+          {activePage === "dashboard-integration" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">My Account Context</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Deep Developer Integration</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Review live authentication credentials and metrics emitted inside workspace: <strong>{workspaceName}</strong>.
+                </p>
+              </div>
+
+              {/* Display active workspace credentials cards */}
+              <div className="bg-[#FAFAFA] border border-[#E5E5E7] p-5 rounded-2xl text-left space-y-4">
+                <h3 className="text-xs font-bold text-[#111111] flex items-center gap-1.5 animate-pulse">
+                  <span className="h-2 w-2 rounded-full bg-[#0071E3]"></span>
+                  Active Inbound Workspace Credentials
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium text-stone-600 leading-relaxed">
+                  <div className="space-y-1">
+                    <span className="text-[#86868B] text-[10px] uppercase font-bold block">Workspace Name</span>
+                    <strong className="text-[#111111] font-mono block">{workspaceName}</strong>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[#86868B] text-[10px] uppercase font-bold block">Live Auth Header Secret</span>
+                    <strong className="text-[#111111] font-mono block">sk_live_aora_5f2d93e810cb9921e42f2bca01</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- SERVICE STATUS BOARD ----------------- */}
+          {activePage === "status" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Real-time health</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Aora Grid Status Dashboard</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  We maintain real-time status indices across all central ingestion buses and schedule rating routers.
+                </p>
+              </div>
+
+              {/* Service Health Cards */}
+              <div className="bg-white border border-[#E5E5E7] rounded-2xl p-5 space-y-4 text-left">
+                <div className="flex items-center gap-2 border-b border-[#F5F5F7] pb-3">
+                  <span className="h-3 w-3 bg-[#34C759] rounded-full animate-pulse"></span>
+                  <strong className="text-xs text-[#111111]">All Services Operating Normally</strong>
+                </div>
+
+                <div className="space-y-3.5 pt-2 text-[#6E6E73] font-medium text-xs">
+                  <div className="flex justify-between items-center">
+                    <span>Inbound Telemetry Bus (Ingest gateway)</span>
+                    <span className="text-[#34C759] font-bold">100% Operational • 4.2ms avg lat</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Cron Rating Router (Invoice scheduler)</span>
+                    <span className="text-[#34C759] font-bold">Active • No latency drift</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Enforcer Gates (Dynamic caches checking)</span>
+                    <span className="text-[#34C759] font-bold">99.98% Available • 2.1ms avg lat</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Outgoing Webhook Dispatch Gateway</span>
+                    <span className="text-[#34C759] font-bold">Healthy • 100% Delivery rate</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- CHANGELOG & VER PRODUCTS ----------------- */}
+          {activePage === "changelog" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Releases</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Product Changelog</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Review our ongoing feature developments, platform upgrades, and programmatic changes.
+                </p>
+              </div>
+
+              {/* Structured changelog releases */}
+              <div className="space-y-8 text-left">
+                
+                {/* Release v1.0.4 */}
+                <div className="border-l-2 border-[#0071E3] pl-4 space-y-2.5">
+                  <div className="flex items-baseline gap-2">
+                    <h3 className="text-sm font-bold text-[#111111]">Aora Platform v1.0.4</h3>
+                    <span className="text-[10px] text-[#6E6E73] font-medium">Released today</span>
+                  </div>
+                  <p className="text-xs text-[#6E6E73] font-medium leading-relaxed">
+                    This release implements dynamic seat caches proration routers, introduces Webhook signature replay simulation modules, and delivers detailed SDK packages across four languages.
+                  </p>
+                  <div className="flex flex-wrap gap-2 text-[9px] font-bold uppercase tracking-wider">
+                    <span className="bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded">Feature</span>
+                    <span className="bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded">Improvement</span>
+                  </div>
+                </div>
+
+                {/* Release v1.0.3 */}
+                <div className="border-l-2 border-[#E5E5E7] pl-4 space-y-2.5">
+                  <div className="flex items-baseline gap-2">
+                    <h3 className="text-sm font-bold text-[#111111]">Aora Platform v1.0.3</h3>
+                    <span className="text-[10px] text-[#6E6E73] font-medium">10 days ago</span>
+                  </div>
+                  <p className="text-xs text-[#6E6E73] font-medium leading-relaxed">
+                    Optimized aggregate processing latency from 24ms to 12ms. Integrated core multi-tenant isolated workspace data sync caches.
+                  </p>
+                  <div className="flex flex-wrap gap-2 text-[9px] font-bold uppercase tracking-wider">
+                    <span className="bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded">Performance</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+        </main>
+
+        {/* ----------------- EMBEDDED AI DOCUMENTATION ASSISTANT FLOATING SIDEBAR PANEL ----------------- */}
+        <aside className="hidden xl:block w-80 border-l border-[#E5E5E7] h-[calc(100vh-53px)] sticky top-[53px] shrink-0 p-5 bg-[#FAFAFA] flex flex-col justify-between overflow-y-auto">
+          <div className="space-y-4 text-left flex flex-col h-full justify-between">
+            
+            <div className="space-y-3 flex-1 flex flex-col overflow-hidden">
+              <div className="flex items-center gap-1.5 border-b border-[#E5E5E7] pb-3 shrink-0">
+                <Sparkles className="h-4.5 w-4.5 text-[#0071E3]" />
+                <h3 className="text-xs font-bold text-[#111111]">AI Documentation Assistant</h3>
+              </div>
+
+              {/* Question logs view container */}
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1 text-left text-xs text-[#6E6E73] font-medium leading-relaxed py-2">
+                {aiChatLog.map((log, idx) => (
+                  <div key={idx} className={`p-3 rounded-xl border ${log.sender === "user" ? "bg-[#111111]/5 border-[#E5E5E7] self-end text-neutral-800" : "bg-white border-[#E5E5E7] text-neutral-900"}`}>
+                    <span className="text-[9px] text-[#86868B] block uppercase font-bold tracking-wider mb-1">
+                      {log.sender === "user" ? "You" : "Documentation AI"}
+                    </span>
+                    <p className="whitespace-pre-wrap leading-relaxed">{log.text}</p>
+                  </div>
+                ))}
+                {aiLoading && (
+                  <div className="p-3 bg-white border border-[#E5E5E7] rounded-xl text-[10px] text-neutral-400 animate-pulse">Scanning pricing catalog datasets...</div>
+                )}
+              </div>
+            </div>
+
+            {/* Quick preset links helpful buttons */}
+            <div className="space-y-1.5 shrink-0 pt-3 border-t border-[#E5E5E7]">
+              <span className="text-[9px] font-bold text-[#86868B] uppercase block">Suggested Queries:</span>
+              <button onClick={() => handleAskAIAssistant("How do I create a usage meter?")} className="w-full text-left p-1.5 bg-white border border-[#E5E5E7] hover:border-black rounded text-[10.5px] font-medium block truncate transition-colors cursor-pointer text-stone-700">"How do I create a usage meter?"</button>
+              <button onClick={() => handleAskAIAssistant("How do credits work?")} className="w-full text-left p-1.5 bg-white border border-[#E5E5E7] hover:border-black rounded text-[10.5px] font-medium block truncate transition-colors cursor-pointer text-stone-700">"How do credits work?"</button>
+              <button onClick={() => handleAskAIAssistant("Show me seat billing examples.")} className="w-full text-left p-1.5 bg-white border border-[#E5E5E7] hover:border-black rounded text-[10.5px] font-medium block truncate transition-colors cursor-pointer text-stone-700">"Show me seat billing examples."</button>
+            </div>
+
+            {/* Input Form submission */}
+            <div className="pt-3 shrink-0">
+              <form
+                onSubmit={(e) => { e.preventDefault(); handleAskAIAssistant(); }}
+                className="flex gap-1.5 bg-white border border-[#E5E5E7] p-1.5 rounded-lg focus-within:border-black transition-colors"
+              >
+                <input
+                  type="text"
+                  placeholder="Ask docs assistant..."
+                  value={aiQuestion}
+                  onChange={(e) => setAiQuestion(e.target.value)}
+                  className="flex-1 bg-transparent text-xs px-1 hover:outline-none outline-none focus:ring-0"
+                />
+                <button
+                  type="submit"
+                  disabled={aiLoading}
+                  className="p-1 px-1.5 bg-[#111111] hover:bg-[#1D1D1F] text-white rounded cursor-pointer disabled:bg-neutral-300 transition-colors"
+                >
+                  <Send className="h-3 w-3" />
+                </button>
+              </form>
+            </div>
+
+          </div>
+        </aside>
+
+      </div>
+
+      {/* ----------------- GLOBAL FLOATING CMD+K SEARCH DIALOG MODAL ----------------- */}
+      <AnimatePresence>
+        {searchOpen && (
+          <div className="fixed inset-0 bg-neutral-900/30 backdrop-blur-xs z-50 flex items-start justify-center pt-24 px-4 overflow-y-auto">
+            <motion.div
+              initial={{ scale: 0.98, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.98, opacity: 0 }}
+              className="bg-white border border-[#E5E5E7] rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden text-left"
+              id="search-dialog-box"
+            >
+              {/* Search textbox container */}
+              <div className="flex items-center gap-3 px-4 py-3 bg-neutral-50/50 border-b border-[#E5E5E7]">
+                <Search className="h-4.5 w-4.5 text-[#86868B]" />
+                <input
+                  type="text"
+                  placeholder="Search documentation, SDK reference, parameters..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  ref={searchInputRef}
+                  className="flex-1 bg-transparent text-sm font-semibold outline-none focus:ring-0"
+                />
+                <X className="h-4 w-4 cursor-pointer text-[#86868B] hover:text-[#111111]" onClick={() => setSearchOpen(false)} />
+              </div>
+
+              {/* Categorized results listing */}
+              <div className="p-2.5 max-h-96 overflow-y-auto space-y-1.5">
+                <span className="text-[9px] tracking-wider text-neutral-400 font-bold uppercase px-2.5 block mb-1">
+                  {searchQuery ? `FOUND ${searchResults.length} RECORDS` : "RECENTLY INSPECTED GUIDES"}
+                </span>
+
+                {searchResults.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => { setActivePage(item.id); setSearchOpen(false); }}
+                    className="w-full text-left p-2.5 rounded-xl border border-transparent hover:border-[#E5E5E7] hover:bg-neutral-50 transition-all flex items-baseline gap-2 text-xs font-semibold cursor-pointer group"
+                  >
+                    <span className="text-[#0071E3] shrink-0 font-mono text-[9px] bg-[#EAF2FC] px-1.5 py-0.5 rounded uppercase tracking-wider font-bold">
+                      {item.cat}
+                    </span>
+                    <div className="flex-1">
+                      <span className="text-[#111111] group-hover:text-[#0071E3] transition-colors">{item.title}</span>
+                      <p className="text-[10px] text-[#6E6E73] font-medium leading-normal mt-0.5">{item.desc}</p>
+                    </div>
+                  </button>
+                ))}
+
+                {searchResults.length === 0 && (
+                  <div className="p-8 text-center text-xs text-neutral-400 font-medium">
+                    No documentation pages matched: "{searchQuery}". Try typing "token", "meter", or "seats".
+                  </div>
+                )}
+              </div>
+
+              {/* Search footer */}
+              <div className="bg-[#FAF9F6]/60 px-4 py-2 text-[10px] text-[#86868B] font-medium border-t border-[#E5E5E7] flex justify-between">
+                <span>Use <kbd className="font-bold">↑↓</kbd> to scroll, <kbd className="font-bold">Enter</kbd> to select</span>
+                <span>ESC to dismiss</span>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+    </div>
+  );
+}

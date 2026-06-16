@@ -1,0 +1,6 @@
+{
+  "name": "Premium Billing Operating System",
+  "description": "Apple-grade cloud-based Billing Operating System for visual pricing model builder, entitlements, customer billing workspaces, revenue operations finance, usage metering, and built-in AI Billing Assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
