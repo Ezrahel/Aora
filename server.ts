@@ -3599,7 +3599,7 @@ async function startServer() {
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(
-      `Premium Billing Engine Server is actively listening on port ${PORT}`,
+      `AoraHQ Billing Engine Server is actively listening on port ${PORT}`,
     );
   });
 }
