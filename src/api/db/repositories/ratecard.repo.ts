@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { RateCard } from "../../types.ts";
 
 export interface RateCardRow {
@@ -39,7 +39,7 @@ export async function findAll(): Promise<RateCard[]> {
   return rows.map(rowToRateCard);
 }
 
-export async function create(client: pg.PoolClient, data: {
+export async function create(client: pg.PoolClient | null, data: {
   id: string;
   name: string;
   description?: string;
@@ -50,7 +50,7 @@ export async function create(client: pg.PoolClient, data: {
   includedUnits?: number;
   currency?: string;
 }): Promise<RateCardRow> {
-  const { rows } = await client.query<RateCardRow>(
+  const { rows } = await (client ?? pool).query<RateCardRow>(
     `INSERT INTO rate_cards (id, name, description, meter_id, price_type, unit_price, tiers, included_units, currency, is_active, created_at)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,true,now())
      RETURNING id, name, description, meter_id, price_type, unit_price, tiers, included_units, currency, is_active, created_at`,

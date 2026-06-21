@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { Price } from "../../types.ts";
 
 export interface PriceRow {
@@ -69,8 +69,8 @@ export async function findById(id: string): Promise<Price | null> {
   return rows[0] ? rowToPrice(rows[0]) : null;
 }
 
-export async function create(client: pg.PoolClient, data: Price): Promise<PriceRow> {
-  const { rows } = await client.query<PriceRow>(
+export async function create(client: pg.PoolClient | null, data: Price): Promise<PriceRow> {
+  const { rows } = await (client ?? pool).query<PriceRow>(
     `INSERT INTO prices (id, plan_id, name, type, billing_period, currency, base_fee,
        seat_price, included_seats, meter_id, included_usage, overage_unit_price,
        tiers, volume_pricing, package_size, package_price, version, is_active, created_at)
@@ -89,12 +89,12 @@ export async function create(client: pg.PoolClient, data: Price): Promise<PriceR
   return rows[0];
 }
 
-export async function deactivateByPlan(client: pg.PoolClient, planId: string): Promise<void> {
-  await client.query("UPDATE prices SET is_active = false WHERE plan_id = $1 AND is_active = true", [planId]);
+export async function deactivateByPlan(client: pg.PoolClient | null, planId: string): Promise<void> {
+  await (client ?? pool).query("UPDATE prices SET is_active = false WHERE plan_id = $1 AND is_active = true", [planId]);
 }
 
-export async function softDelete(client: pg.PoolClient, id: string): Promise<void> {
-  await client.query("UPDATE prices SET is_archived = true, is_active = false WHERE id = $1", [id]);
+export async function softDelete(client: pg.PoolClient | null, id: string): Promise<void> {
+  await (client ?? pool).query("UPDATE prices SET is_archived = true, is_active = false WHERE id = $1", [id]);
 }
 
 export const priceRepo = {

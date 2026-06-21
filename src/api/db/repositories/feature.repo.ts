@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { Feature } from "../../types.ts";
 
 export interface FeatureRow {
@@ -38,10 +38,10 @@ export async function findByWorkspace(
 }
 
 export async function findById(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
 ): Promise<Feature | null> {
-  const { rows } = await client.query<FeatureRow>(
+  const { rows } = await (client ?? pool).query<FeatureRow>(
     "SELECT id, workspace_id, slug, name, description, type, is_archived, created_at FROM features WHERE id = $1",
     [id],
   );
@@ -71,7 +71,7 @@ export async function findBySlugOrId(
 }
 
 export async function create(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   data: {
     id: string;
     workspaceId: string;
@@ -81,7 +81,7 @@ export async function create(
     type: Feature["type"];
   },
 ): Promise<Feature> {
-  const { rows } = await client.query<FeatureRow>(
+  const { rows } = await (client ?? pool).query<FeatureRow>(
     `INSERT INTO features (id, workspace_id, slug, name, description, type, created_at)
      VALUES ($1, $2, $3, $4, $5, $6, now())
      RETURNING id, workspace_id, slug, name, description, type, is_archived, created_at`,
@@ -91,7 +91,7 @@ export async function create(
 }
 
 export async function update(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
   data: { name?: string; description?: string; type?: Feature["type"] },
 ): Promise<Feature | null> {
@@ -103,7 +103,7 @@ export async function update(
   if (data.type !== undefined) { sets.push(`type = $${idx++}`); params.push(data.type); }
   if (sets.length === 0) return findById(client, id);
   params.push(id);
-  const { rows } = await client.query<FeatureRow>(
+  const { rows } = await (client ?? pool).query<FeatureRow>(
     `UPDATE features SET ${sets.join(", ")} WHERE id = $${idx} RETURNING id, workspace_id, slug, name, description, type, is_archived, created_at`,
     params,
   );
@@ -111,10 +111,10 @@ export async function update(
 }
 
 export async function softDelete(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
 ): Promise<void> {
-  await client.query("UPDATE features SET is_archived = true WHERE id = $1", [id]);
+  await (client ?? pool).query("UPDATE features SET is_archived = true WHERE id = $1", [id]);
 }
 
 export const featureRepo = {

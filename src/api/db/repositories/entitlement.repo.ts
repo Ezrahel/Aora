@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { Entitlement } from "../../types.ts";
 
 export interface EntitlementRow {
@@ -43,11 +43,11 @@ export async function findByFeature(
 }
 
 export async function findByPlanAndFeature(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   planId: string,
   featureId: string,
 ): Promise<Entitlement | null> {
-  const { rows } = await client.query<EntitlementRow>(
+  const { rows } = await (client ?? pool).query<EntitlementRow>(
     "SELECT id, plan_id, feature_id, value, is_enabled, created_at FROM entitlements WHERE plan_id = $1 AND feature_id = $2",
     [planId, featureId],
   );
@@ -55,7 +55,7 @@ export async function findByPlanAndFeature(
 }
 
 export async function batchCreateForPlan(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   planId: string,
   features: { id: string; slug: string }[],
   apiAccess: boolean,
@@ -63,7 +63,7 @@ export async function batchCreateForPlan(
   for (const feat of features) {
     const id = `ent_${planId}_${feat.slug}`;
     const value = feat.slug === "api_access" ? apiAccess : false;
-    await client.query(
+    await (client ?? pool).query(
       `INSERT INTO entitlements (id, plan_id, feature_id, value, is_enabled, created_at)
        VALUES ($1, $2, $3, $4, true, now())
        ON CONFLICT DO NOTHING`,
@@ -73,13 +73,13 @@ export async function batchCreateForPlan(
 }
 
 export async function updateValueForFeature(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   featureId: string,
   planIds: string[],
   value: boolean,
 ): Promise<void> {
   for (const planId of planIds) {
-    await client.query(
+    await (client ?? pool).query(
       "UPDATE entitlements SET value = $1 WHERE feature_id = $2 AND plan_id = $3",
       [JSON.stringify(value), featureId, planId],
     );
@@ -87,18 +87,18 @@ export async function updateValueForFeature(
 }
 
 export async function updateEnabledForFeature(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   featureId: string,
   isEnabled: boolean,
 ): Promise<void> {
-  await client.query(
+  await (client ?? pool).query(
     "UPDATE entitlements SET is_enabled = $1 WHERE feature_id = $2",
     [isEnabled, featureId],
   );
 }
 
-export async function findAll(client: pg.PoolClient): Promise<Entitlement[]> {
-  const { rows } = await client.query<EntitlementRow>(
+export async function findAll(client: pg.PoolClient | null): Promise<Entitlement[]> {
+  const { rows } = await (client ?? pool).query<EntitlementRow>(
     "SELECT id, plan_id, feature_id, value, is_enabled, created_at FROM entitlements",
   );
   return rows.map(rowToEntitlement);

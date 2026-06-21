@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { Subscription } from "../../types.ts";
 
 export interface SubscriptionRow {
@@ -58,10 +58,10 @@ export async function findByCustomerIds(
 }
 
 export async function findById(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
 ): Promise<SubscriptionRow | null> {
-  const { rows } = await client.query<SubscriptionRow>(
+  const { rows } = await (client ?? pool).query<SubscriptionRow>(
     `SELECT id, customer_id, plan_id, status, current_period_start, current_period_end,
        trial_end, canceled_at, paused_at, resume_at, cancel_at_period_end,
        seat_quantity, metadata, created_at, updated_at
@@ -72,10 +72,10 @@ export async function findById(
 }
 
 export async function findActiveByCustomer(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   customerId: string,
 ): Promise<SubscriptionRow | null> {
-  const { rows } = await client.query<SubscriptionRow>(
+  const { rows } = await (client ?? pool).query<SubscriptionRow>(
     `SELECT id, customer_id, plan_id, status, current_period_start, current_period_end,
        trial_end, canceled_at, paused_at, resume_at, cancel_at_period_end,
        seat_quantity, metadata, created_at, updated_at
@@ -102,7 +102,7 @@ export async function findByCustomer(
 }
 
 export async function create(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   data: {
     id: string;
     customerId: string;
@@ -115,7 +115,7 @@ export async function create(
     metadata?: any;
   },
 ): Promise<SubscriptionRow> {
-  const { rows } = await client.query<SubscriptionRow>(
+  const { rows } = await (client ?? pool).query<SubscriptionRow>(
     `INSERT INTO subscriptions (id, customer_id, plan_id, status, current_period_start, current_period_end,
        trial_end, seat_quantity, metadata, created_at, updated_at)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now())
@@ -133,7 +133,7 @@ export async function create(
 }
 
 export async function update(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
   data: Partial<{
     planId: string;
@@ -167,7 +167,7 @@ export async function update(
   sets.push("updated_at = now()");
 
   params.push(id);
-  const { rows } = await client.query<SubscriptionRow>(
+  const { rows } = await (client ?? pool).query<SubscriptionRow>(
     `UPDATE subscriptions SET ${sets.join(", ")} WHERE id = $${idx}
      RETURNING id, customer_id, plan_id, status, current_period_start, current_period_end,
        trial_end, canceled_at, paused_at, resume_at, cancel_at_period_end,

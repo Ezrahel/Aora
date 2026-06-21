@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { Customer } from "../../types.ts";
 
 export interface CustomerRow {
@@ -69,10 +69,10 @@ export async function findByWorkspace(
 }
 
 export async function findById(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
 ): Promise<CustomerRow | null> {
-  const { rows } = await client.query<CustomerRow>(
+  const { rows } = await (client ?? pool).query<CustomerRow>(
     `SELECT id, workspace_id, name, domain, email, logo_color, created_date, plan_id, status,
        payment_method, seats_used, usage_units, notes, contracts, is_deleted, deleted_at
      FROM customers WHERE id = $1 AND NOT is_deleted`,
@@ -82,7 +82,7 @@ export async function findById(
 }
 
 export async function create(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   data: {
     id: string;
     workspaceId: string;
@@ -97,7 +97,7 @@ export async function create(
     contracts?: any[];
   },
 ): Promise<CustomerRow> {
-  const { rows } = await client.query<CustomerRow>(
+  const { rows } = await (client ?? pool).query<CustomerRow>(
     `INSERT INTO customers (id, workspace_id, name, domain, email, logo_color, plan_id, status, seats_used, usage_units, notes, contracts, created_date)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 0, $10, $11, current_date)
      RETURNING id, workspace_id, name, domain, email, logo_color, created_date, plan_id, status,
@@ -112,7 +112,7 @@ export async function create(
 }
 
 export async function update(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
   data: Partial<{
     name: string;
@@ -136,7 +136,7 @@ export async function update(
   if (data.status !== undefined) { sets.push(`status = $${idx++}`); params.push(data.status); }
   if (sets.length === 0) return findById(client, id);
   params.push(id);
-  const { rows } = await client.query<CustomerRow>(
+  const { rows } = await (client ?? pool).query<CustomerRow>(
     `UPDATE customers SET ${sets.join(", ")} WHERE id = $${idx} AND NOT is_deleted
      RETURNING id, workspace_id, name, domain, email, logo_color, created_date, plan_id, status,
        payment_method, seats_used, usage_units, notes, contracts, is_deleted, deleted_at`,
@@ -146,32 +146,32 @@ export async function update(
 }
 
 export async function softDelete(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
 ): Promise<void> {
-  await client.query(
+  await (client ?? pool).query(
     "UPDATE customers SET is_deleted = true, deleted_at = now() WHERE id = $1",
     [id],
   );
 }
 
 export async function addNote(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   customerId: string,
   note: any,
 ): Promise<void> {
-  await client.query(
+  await (client ?? pool).query(
     "UPDATE customers SET notes = notes || $1::jsonb WHERE id = $2",
     [JSON.stringify([note]), customerId],
   );
 }
 
 export async function updateUsageUnits(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   customerId: string,
   value: number,
 ): Promise<void> {
-  await client.query(
+  await (client ?? pool).query(
     "UPDATE customers SET usage_units = usage_units + $1 WHERE id = $2",
     [value, customerId],
   );

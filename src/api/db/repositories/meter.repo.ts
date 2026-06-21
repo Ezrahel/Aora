@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { MeterDefinition } from "../../types.ts";
 
 export interface MeterRow {
@@ -37,10 +37,10 @@ export async function findAll(showArchived = true): Promise<MeterDefinition[]> {
 }
 
 export async function findById(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
 ): Promise<MeterDefinition | null> {
-  const { rows } = await client.query<MeterRow>(
+  const { rows } = await (client ?? pool).query<MeterRow>(
     "SELECT id, name, description, aggregation_type, target_field, slug, event_source, unit, status FROM meter_definitions WHERE id = $1",
     [id],
   );
@@ -48,7 +48,7 @@ export async function findById(
 }
 
 export async function create(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   data: {
     id: string;
     name: string;
@@ -59,7 +59,7 @@ export async function create(
     unit?: string;
   },
 ): Promise<MeterDefinition> {
-  const { rows } = await client.query<MeterRow>(
+  const { rows } = await (client ?? pool).query<MeterRow>(
     `INSERT INTO meter_definitions (id, name, description, aggregation_type, target_field, slug, unit, status)
      VALUES ($1, $2, $3, $4, $5, $6, $7, 'active')
      RETURNING id, name, description, aggregation_type, target_field, slug, event_source, unit, status`,
@@ -69,7 +69,7 @@ export async function create(
 }
 
 export async function update(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
   data: Partial<{
     name: string;
@@ -91,7 +91,7 @@ export async function update(
   if (data.status !== undefined) { sets.push(`status = $${idx++}`); params.push(data.status); }
   if (sets.length === 0) return findById(client, id);
   params.push(id);
-  const { rows } = await client.query<MeterRow>(
+  const { rows } = await (client ?? pool).query<MeterRow>(
     `UPDATE meter_definitions SET ${sets.join(", ")} WHERE id = $${idx}
      RETURNING id, name, description, aggregation_type, target_field, slug, event_source, unit, status`,
     params,
@@ -99,8 +99,8 @@ export async function update(
   return rows[0] ? rowToMeter(rows[0]) : null;
 }
 
-export async function softDelete(client: pg.PoolClient, id: string): Promise<void> {
-  await client.query("UPDATE meter_definitions SET status = 'archived' WHERE id = $1", [id]);
+export async function softDelete(client: pg.PoolClient | null, id: string): Promise<void> {
+  await (client ?? pool).query("UPDATE meter_definitions SET status = 'archived' WHERE id = $1", [id]);
 }
 
 export const meterRepo = {

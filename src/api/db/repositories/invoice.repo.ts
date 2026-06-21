@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { Invoice } from "../../types.ts";
 
 export interface InvoiceRow {
@@ -73,10 +73,10 @@ export async function findByWorkspace(
 }
 
 export async function findById(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
 ): Promise<InvoiceRow | null> {
-  const { rows } = await client.query<InvoiceRow>(
+  const { rows } = await (client ?? pool).query<InvoiceRow>(
     `SELECT id, workspace_id, customer_id, subscription_id, amount, currency, status,
        usage_units, period_start, period_end, issued_at, finalized_at, paid_at,
        voided_at, line_items, metadata, created_at
@@ -87,7 +87,7 @@ export async function findById(
 }
 
 export async function create(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   data: {
     id: string;
     workspaceId: string;
@@ -103,7 +103,7 @@ export async function create(
     metadata?: any;
   },
 ): Promise<InvoiceRow> {
-  const { rows } = await client.query<InvoiceRow>(
+  const { rows } = await (client ?? pool).query<InvoiceRow>(
     `INSERT INTO invoices (id, workspace_id, customer_id, subscription_id, amount, currency, status,
        usage_units, period_start, period_end, line_items, metadata, created_at)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, now())
@@ -121,7 +121,7 @@ export async function create(
 }
 
 export async function update(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
   data: Partial<{
     amount: number;
@@ -141,7 +141,7 @@ export async function update(
   if (data.lineItems !== undefined) { sets.push(`line_items = $${idx++}`); params.push(JSON.stringify(data.lineItems)); }
   if (sets.length === 0) return findById(client, id);
   params.push(id);
-  const { rows } = await client.query<InvoiceRow>(
+  const { rows } = await (client ?? pool).query<InvoiceRow>(
     `UPDATE invoices SET ${sets.join(", ")} WHERE id = $${idx}
      RETURNING id, workspace_id, customer_id, subscription_id, amount, currency, status,
        usage_units, period_start, period_end, issued_at, finalized_at, paid_at,
@@ -152,7 +152,7 @@ export async function update(
 }
 
 export async function patchStatus(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
   status: Invoice["status"],
 ): Promise<InvoiceRow | null> {
@@ -162,7 +162,7 @@ export async function patchStatus(
   if (status === "void") { sets.push("voided_at = now()"); }
   if (status === "open") { sets.push("finalized_at = now()"); }
   params.push(id);
-  const { rows } = await client.query<InvoiceRow>(
+  const { rows } = await (client ?? pool).query<InvoiceRow>(
     `UPDATE invoices SET ${sets.join(", ")} WHERE id = $${params.length}
      RETURNING id, workspace_id, customer_id, subscription_id, amount, currency, status,
        usage_units, period_start, period_end, issued_at, finalized_at, paid_at,

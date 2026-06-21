@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { Coupon } from "../../types.ts";
 
 export interface CouponRow {
@@ -52,7 +52,7 @@ export async function findByCode(code: string): Promise<Coupon | null> {
   return rows[0] ? rowToCoupon(rows[0]) : null;
 }
 
-export async function create(client: pg.PoolClient, data: {
+export async function create(client: pg.PoolClient | null, data: {
   id: string;
   name: string;
   discountId: string;
@@ -60,7 +60,7 @@ export async function create(client: pg.PoolClient, data: {
   expireAt?: string;
   maxRedemptions?: number;
 }): Promise<CouponRow> {
-  const { rows } = await client.query<CouponRow>(
+  const { rows } = await (client ?? pool).query<CouponRow>(
     `INSERT INTO coupons (id, name, discount_id, code, is_active, expire_at, max_redemptions, times_redeemed, created_at)
      VALUES ($1,$2,$3,$4,true,$5,$6,0,now())
      RETURNING id, name, discount_id, code, is_active, expire_at, max_redemptions, times_redeemed, created_at`,
@@ -69,7 +69,7 @@ export async function create(client: pg.PoolClient, data: {
   return rows[0];
 }
 
-export async function update(client: pg.PoolClient, id: string, data: {
+export async function update(client: pg.PoolClient | null, id: string, data: {
   isActive?: boolean;
   expireAt?: string;
   maxRedemptions?: number;
@@ -82,7 +82,7 @@ export async function update(client: pg.PoolClient, id: string, data: {
   if (data.maxRedemptions !== undefined) { sets.push(`max_redemptions = $${idx++}`); params.push(data.maxRedemptions); }
   if (sets.length === 0) return;
   params.push(id);
-  await client.query(`UPDATE coupons SET ${sets.join(", ")} WHERE id = $${idx}`, params);
+  await (client ?? pool).query(`UPDATE coupons SET ${sets.join(", ")} WHERE id = $${idx}`, params);
 }
 
 export const couponRepo = {

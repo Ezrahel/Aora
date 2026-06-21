@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query, withTransaction } from "../pool.ts";
+import pool, { query, withTransaction } from "../pool.ts";
 import type { Workspace } from "../../types.ts";
 import { auditRepo } from "./audit.repo.ts";
 
@@ -35,10 +35,10 @@ export async function findAll(): Promise<Workspace[]> {
 }
 
 export async function findById(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
 ): Promise<Workspace | null> {
-  const { rows } = await client.query<WorkspaceRow>(
+  const { rows } = await (client ?? pool).query<WorkspaceRow>(
     "SELECT id, organization_id, name, environment, api_keys, profile, settings, created_at FROM workspaces WHERE id = $1",
     [id],
   );
@@ -59,7 +59,7 @@ export async function resolveWorkspace(
 }
 
 export async function update(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
   data: Partial<Pick<Workspace, "name" | "environment" | "profile" | "settings">>,
 ): Promise<Workspace | null> {
@@ -74,7 +74,7 @@ export async function update(
   if (sets.length === 0) return findById(client, id);
 
   params.push(id);
-  const { rows } = await client.query<WorkspaceRow>(
+  const { rows } = await (client ?? pool).query<WorkspaceRow>(
     `UPDATE workspaces SET ${sets.join(", ")} WHERE id = $${idx} RETURNING id, organization_id, name, environment, api_keys, profile, settings, created_at`,
     params,
   );
@@ -82,11 +82,11 @@ export async function update(
 }
 
 export async function rotateKey(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
   newKey: string,
 ): Promise<void> {
-  await client.query(
+  await (client ?? pool).query(
     "UPDATE workspaces SET api_keys = array_append(api_keys, $1) WHERE id = $2",
     [newKey, id],
   );

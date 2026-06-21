@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { AuditLog } from "../../types.ts";
 
 export interface AuditLogRow {
@@ -58,7 +58,7 @@ export async function findByWorkspace(
 }
 
 export async function create(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   data: {
     id: string;
     workspaceId: string;
@@ -70,7 +70,7 @@ export async function create(
     afterState?: any;
   },
 ): Promise<void> {
-  await client.query(
+  await (client ?? pool).query(
     `INSERT INTO audit_logs (id, workspace_id, actor, action, entity_type, entity_id, before_state, after_state, created_at)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now())`,
     [

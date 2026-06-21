@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { Discount } from "../../types.ts";
 
 export interface DiscountRow {
@@ -43,7 +43,7 @@ export async function findById(id: string): Promise<Discount | null> {
   return rows[0] ? rowToDiscount(rows[0]) : null;
 }
 
-export async function create(client: pg.PoolClient, data: {
+export async function create(client: pg.PoolClient | null, data: {
   id: string;
   name: string;
   type: Discount["type"];
@@ -52,7 +52,7 @@ export async function create(client: pg.PoolClient, data: {
   duration?: Discount["duration"];
   durationMonths?: number;
 }): Promise<DiscountRow> {
-  const { rows } = await client.query<DiscountRow>(
+  const { rows } = await (client ?? pool).query<DiscountRow>(
     `INSERT INTO discounts (id, name, type, value, applies_to, duration, duration_months, created_at)
      VALUES ($1,$2,$3,$4,$5,$6,$7,now())
      RETURNING id, name, type, value, applies_to, duration, duration_months, is_deleted, created_at`,
@@ -61,8 +61,8 @@ export async function create(client: pg.PoolClient, data: {
   return rows[0];
 }
 
-export async function softDelete(client: pg.PoolClient, id: string): Promise<void> {
-  await client.query("UPDATE discounts SET is_deleted = true WHERE id = $1", [id]);
+export async function softDelete(client: pg.PoolClient | null, id: string): Promise<void> {
+  await (client ?? pool).query("UPDATE discounts SET is_deleted = true WHERE id = $1", [id]);
 }
 
 export const discountRepo = {

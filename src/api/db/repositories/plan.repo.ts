@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { Plan } from "../../types.ts";
 
 export interface PlanRow {
@@ -49,10 +49,10 @@ export async function findAll(showArchived = true): Promise<Plan[]> {
 }
 
 export async function findById(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
 ): Promise<Plan | null> {
-  const { rows } = await client.query<PlanRow>(
+  const { rows } = await (client ?? pool).query<PlanRow>(
     "SELECT id, product_id, name, description, code, currency, price, billing_period, included_seats, included_usage, overage_unit_price, api_access, pricing_type, is_archived, created_at FROM plans WHERE id = $1",
     [id],
   );
@@ -60,10 +60,10 @@ export async function findById(
 }
 
 export async function create(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   data: Omit<Plan, "createdAt" | "isArchived">,
 ): Promise<Plan> {
-  const { rows } = await client.query<PlanRow>(
+  const { rows } = await (client ?? pool).query<PlanRow>(
     `INSERT INTO plans (id, product_id, name, description, code, currency, price, billing_period,
        included_seats, included_usage, overage_unit_price, api_access, pricing_type, created_at)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, now())
@@ -80,7 +80,7 @@ export async function create(
 }
 
 export async function update(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
   data: Partial<Omit<Plan, "id" | "createdAt" | "isArchived">>,
 ): Promise<Plan | null> {
@@ -99,7 +99,7 @@ export async function update(
   if (data.pricingType !== undefined) { sets.push(`pricing_type = $${idx++}`); params.push(data.pricingType); }
   if (sets.length === 0) return findById(client, id);
   params.push(id);
-  const { rows } = await client.query<PlanRow>(
+  const { rows } = await (client ?? pool).query<PlanRow>(
     `UPDATE plans SET ${sets.join(", ")} WHERE id = $${idx} RETURNING id, product_id, name, description, code, currency, price, billing_period, included_seats, included_usage, overage_unit_price, api_access, pricing_type, is_archived, created_at`,
     params,
   );
@@ -107,10 +107,10 @@ export async function update(
 }
 
 export async function softDelete(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
 ): Promise<void> {
-  await client.query("UPDATE plans SET is_archived = true WHERE id = $1", [id]);
+  await (client ?? pool).query("UPDATE plans SET is_archived = true WHERE id = $1", [id]);
 }
 
 export const planRepo = {

@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { CustomContract } from "../../types.ts";
 
 export interface ContractRow {
@@ -55,7 +55,7 @@ export async function findByCustomer(customerId: string): Promise<CustomContract
   return rows[0] ? rowToContract(rows[0]) : null;
 }
 
-export async function create(client: pg.PoolClient, data: {
+export async function create(client: pg.PoolClient | null, data: {
   id: string;
   customerId: string;
   name: string;
@@ -66,7 +66,7 @@ export async function create(client: pg.PoolClient, data: {
   additionalDiscountPercentage?: number;
   expireAt: string;
 }): Promise<ContractRow> {
-  const { rows } = await client.query<ContractRow>(
+  const { rows } = await (client ?? pool).query<ContractRow>(
     `INSERT INTO custom_contracts (id, customer_id, name, custom_base_fee, custom_seat_price,
        custom_overage_unit_price, minimum_spend, additional_discount_percentage, expire_at, created_at)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,now())
@@ -79,8 +79,8 @@ export async function create(client: pg.PoolClient, data: {
   return rows[0];
 }
 
-export async function softDelete(client: pg.PoolClient, id: string): Promise<void> {
-  await client.query("UPDATE custom_contracts SET is_deleted = true WHERE id = $1", [id]);
+export async function softDelete(client: pg.PoolClient | null, id: string): Promise<void> {
+  await (client ?? pool).query("UPDATE custom_contracts SET is_deleted = true WHERE id = $1", [id]);
 }
 
 export const contractRepo = {

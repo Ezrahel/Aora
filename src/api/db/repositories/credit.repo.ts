@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { CreditLedgerEntry } from "../../types.ts";
 
 export interface CreditLedgerRow {
@@ -80,10 +80,10 @@ export async function getBalance(
 }
 
 export async function refreshBalance(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   customerId: string,
 ): Promise<void> {
-  await client.query(
+  await (client ?? pool).query(
     `UPSERT INTO credit_balances (customer_id, balance, updated_at)
      SELECT $1, COALESCE(SUM(CASE WHEN type = 'credit_issued' THEN amount ELSE -amount END), 0), now()
      FROM credit_ledger WHERE customer_id = $1`,

@@ -91,7 +91,21 @@ CREATE TABLE entitlements (
     UNIQUE INDEX idx_entitlements_plan_feature (plan_id, feature_id)
 ) LOCALITY GLOBAL;
 
--- ── 2.4 Pricing model ──────────────────────────────────────
+-- ── 2.4 Usage Metering Definitions ──────────────────────────
+
+CREATE TABLE meter_definitions (
+    id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name             STRING(255) NOT NULL,
+    description      STRING(1000) NOT NULL DEFAULT '',
+    aggregation_type STRING(20) NOT NULL CHECK (aggregation_type IN ('sum','count','max','latest','min','average')),
+    target_field     STRING(255) NOT NULL DEFAULT '',
+    slug             STRING(255),
+    event_source     STRING(255),
+    unit             STRING(100),
+    status           STRING(20) NOT NULL DEFAULT 'active' CHECK (status IN ('draft','active','archived'))
+) LOCALITY GLOBAL;
+
+-- ── 2.5 Pricing model ──────────────────────────────────────
 
 CREATE TABLE prices (
     id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -156,7 +170,7 @@ CREATE TABLE coupons (
     UNIQUE INDEX idx_coupons_code (code)
 ) LOCALITY GLOBAL;
 
--- ── 2.5 Customers & Subscriptions ──────────────────────────
+-- ── 2.6 Customers & Subscriptions ──────────────────────────
 
 CREATE TABLE customers (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -172,6 +186,7 @@ CREATE TABLE customers (
     seats_used      INT NOT NULL DEFAULT 0,
     usage_units     DECIMAL(18,4) NOT NULL DEFAULT 0,
     notes           JSONB NOT NULL DEFAULT '[]'::JSONB,
+    invoices        JSONB NOT NULL DEFAULT '[]'::JSONB,
     contracts       JSONB NOT NULL DEFAULT '[]'::JSONB,
     is_deleted      BOOL NOT NULL DEFAULT false,
     deleted_at      TIMESTAMPTZ,
@@ -201,7 +216,7 @@ CREATE TABLE subscriptions (
     INDEX idx_subscriptions_period_end (current_period_end) WHERE status IN ('active', 'trial')
 ) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION;
 
--- ── 2.6 Invoices ───────────────────────────────────────────
+-- ── 2.7 Invoices ───────────────────────────────────────────
 
 CREATE TABLE invoices (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -226,19 +241,7 @@ CREATE TABLE invoices (
     INDEX idx_invoices_due (status, created_at) WHERE status = 'open' OR status = 'past_due'
 ) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION;
 
--- ── 2.7 Usage Metering ─────────────────────────────────────
-
-CREATE TABLE meter_definitions (
-    id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name             STRING(255) NOT NULL,
-    description      STRING(1000) NOT NULL DEFAULT '',
-    aggregation_type STRING(20) NOT NULL CHECK (aggregation_type IN ('sum','count','max','latest','min','average')),
-    target_field     STRING(255) NOT NULL DEFAULT '',
-    slug             STRING(255),
-    event_source     STRING(255),
-    unit             STRING(100),
-    status           STRING(20) NOT NULL DEFAULT 'active' CHECK (status IN ('draft','active','archived'))
-) LOCALITY GLOBAL;
+-- ── 2.8 Usage Metering ─────────────────────────────────────
 
 CREATE TABLE usage_events (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -290,7 +293,7 @@ CREATE TABLE credit_balances (
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- ── 2.8 Custom Contracts ──────────────────────────────────
+-- ── 2.9 Custom Contracts ──────────────────────────────────
 
 CREATE TABLE custom_contracts (
     id                             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -307,7 +310,7 @@ CREATE TABLE custom_contracts (
     INDEX idx_contracts_customer (customer_id) WHERE NOT is_deleted
 ) LOCALITY GLOBAL;
 
--- ── 2.9 Audit Logs ────────────────────────────────────────
+-- ── 2.10 Audit Logs ────────────────────────────────────────
 
 CREATE TABLE audit_logs (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -323,7 +326,7 @@ CREATE TABLE audit_logs (
     INDEX idx_audit_entity (entity_type, entity_id, created_at DESC)
 ) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION;
 
--- ── 2.10 Webhooks ─────────────────────────────────────────
+-- ── 2.11 Webhooks ─────────────────────────────────────────
 
 CREATE TABLE webhook_endpoints (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -351,7 +354,7 @@ CREATE TABLE webhook_deliveries (
     INDEX idx_delivery_pending (status, created_at) WHERE status = 'pending'
 ) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION;
 
--- ── 2.11 Schema Migrations Tracking ──────────────────────
+-- ── 2.12 Schema Migrations Tracking ──────────────────────
 
 CREATE TABLE schema_migrations (
     version     INT PRIMARY KEY,

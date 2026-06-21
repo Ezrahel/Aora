@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { Product } from "../../types.ts";
 
 export interface ProductRow {
@@ -34,10 +34,10 @@ export async function findByWorkspace(
 }
 
 export async function findById(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
 ): Promise<Product | null> {
-  const { rows } = await client.query<ProductRow>(
+  const { rows } = await (client ?? pool).query<ProductRow>(
     "SELECT id, workspace_id, name, description, is_archived, created_at FROM products WHERE id = $1",
     [id],
   );
@@ -45,10 +45,10 @@ export async function findById(
 }
 
 export async function create(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   data: { id: string; workspaceId: string; name: string; description?: string },
 ): Promise<Product> {
-  const { rows } = await client.query<ProductRow>(
+  const { rows } = await (client ?? pool).query<ProductRow>(
     `INSERT INTO products (id, workspace_id, name, description, created_at)
      VALUES ($1, $2, $3, $4, now())
      RETURNING id, workspace_id, name, description, is_archived, created_at`,
@@ -58,7 +58,7 @@ export async function create(
 }
 
 export async function update(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
   data: { name?: string; description?: string },
 ): Promise<Product | null> {
@@ -69,7 +69,7 @@ export async function update(
   if (data.description !== undefined) { sets.push(`description = $${idx++}`); params.push(data.description); }
   if (sets.length === 0) return findById(client, id);
   params.push(id);
-  const { rows } = await client.query<ProductRow>(
+  const { rows } = await (client ?? pool).query<ProductRow>(
     `UPDATE products SET ${sets.join(", ")} WHERE id = $${idx} RETURNING id, workspace_id, name, description, is_archived, created_at`,
     params,
   );
@@ -77,10 +77,10 @@ export async function update(
 }
 
 export async function softDelete(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
 ): Promise<void> {
-  await client.query("UPDATE products SET is_archived = true WHERE id = $1", [id]);
+  await (client ?? pool).query("UPDATE products SET is_archived = true WHERE id = $1", [id]);
 }
 
 export const productRepo = {

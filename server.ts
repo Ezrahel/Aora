@@ -5,20 +5,7 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { runMigrations, pool, query, customerRepo, planRepo, featureRepo, entitlementRepo, priceRepo, discountRepo, couponRepo, rateCardRepo, contractRepo, subscriptionRepo, invoiceRepo, meterRepo, usageRepo, quotaRepo, creditRepo, organizationRepo, workspaceRepo, memberRepo, productRepo, auditRepo, webhookRepo, addChatMessage, getChatMessages, genId, toNum, resolveWorkspace } from "./src/api/db.ts";
 import { asyncHandler, badRequest, notFound } from "./src/api/middleware.ts";
-import { router as healthRouter } from "./src/api/routes/health.ts";
-import { router as workspacesRouter } from "./src/api/routes/workspaces.ts";
-import { router as plansRouter } from "./src/api/routes/plans.ts";
-import { router as productsRouter } from "./src/api/routes/products.ts";
-import { router as customersRouter } from "./src/api/routes/customers.ts";
-import { router as subscriptionsRouter } from "./src/api/routes/subscriptions.ts";
-import { router as metersRouter } from "./src/api/routes/meters.ts";
-import { router as usageRouter } from "./src/api/routes/usage.ts";
-import { router as entitlementsRouter } from "./src/api/routes/entitlements.ts";
-import { router as invoicesRouter } from "./src/api/routes/invoices.ts";
-import { router as pricingRouter } from "./src/api/routes/pricing.ts";
-import { router as analyticsRouter } from "./src/api/routes/analytics.ts";
-import { router as webhooksRouter } from "./src/api/routes/webhooks.ts";
-import { router as chatRouter } from "./src/api/routes/chat.ts";
+import apiRouter from "./src/api/router.ts";
 
 dotenv.config();
 
@@ -69,22 +56,9 @@ function requireDb() {
 }
 
 // ==========================================
-// MOUNT API ROUTES
+// MOUNT API ROUTES (via master router)
 // ==========================================
-app.use("/api", healthRouter);
-app.use("/api", workspacesRouter);
-app.use("/api", plansRouter);
-app.use("/api", productsRouter);
-app.use("/api", customersRouter);
-app.use("/api", subscriptionsRouter);
-app.use("/api", metersRouter);
-app.use("/api", usageRouter);
-app.use("/api", entitlementsRouter);
-app.use("/api", invoicesRouter);
-app.use("/api", pricingRouter);
-app.use("/api", analyticsRouter);
-app.use("/api", webhooksRouter);
-app.use("/api", chatRouter);
+app.use("/api", apiRouter);
 
 // ==========================================
 // LEGACY COMPATIBILITY: /api/revenue-metrics

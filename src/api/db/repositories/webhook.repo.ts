@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { WebhookEndpoint, WebhookDelivery, WebhookEventType } from "../../types.ts";
 
 export interface WebhookEndpointRow {
@@ -73,7 +73,7 @@ export async function findEndpointById(
   return rows[0] ? rowToEndpoint(rows[0]) : null;
 }
 
-export async function createEndpoint(client: pg.PoolClient, data: {
+export async function createEndpoint(client: pg.PoolClient | null, data: {
   id: string;
   workspaceId: string;
   url: string;
@@ -82,7 +82,7 @@ export async function createEndpoint(client: pg.PoolClient, data: {
   secret: string;
   isActive: boolean;
 }): Promise<WebhookEndpointRow> {
-  const { rows } = await client.query<WebhookEndpointRow>(
+  const { rows } = await (client ?? pool).query<WebhookEndpointRow>(
     `INSERT INTO webhook_endpoints (id, workspace_id, url, description, events, secret, is_active, created_at)
      VALUES ($1,$2,$3,$4,$5,$6,$7,now())
      RETURNING id, workspace_id, url, description, events, secret, is_active, created_at`,
@@ -92,7 +92,7 @@ export async function createEndpoint(client: pg.PoolClient, data: {
 }
 
 export async function updateEndpoint(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   workspaceId: string,
   id: string,
   data: { url?: string; description?: string; events?: string[]; isActive?: boolean },
@@ -107,18 +107,18 @@ export async function updateEndpoint(
   if (sets.length === 0) return;
   params.push(id);
   params.push(workspaceId);
-  await client.query(
+  await (client ?? pool).query(
     `UPDATE webhook_endpoints SET ${sets.join(", ")} WHERE id = $${idx} AND workspace_id = $${idx + 1}`,
     params,
   );
 }
 
 export async function deleteEndpoint(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   workspaceId: string,
   id: string,
 ): Promise<void> {
-  await client.query(
+  await (client ?? pool).query(
     "DELETE FROM webhook_endpoints WHERE id = $1 AND workspace_id = $2",
     [id, workspaceId],
   );

@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { Quota } from "../../types.ts";
 
 export interface QuotaRow {
@@ -52,7 +52,7 @@ export async function findByCustomerAndMeter(
 }
 
 export async function upsert(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   data: {
     id: string;
     customerId: string;
@@ -63,7 +63,7 @@ export async function upsert(
     createdAt: string;
   },
 ): Promise<QuotaRow> {
-  const { rows } = await client.query<QuotaRow>(
+  const { rows } = await (client ?? pool).query<QuotaRow>(
     `UPSERT INTO quotas (id, customer_id, meter_id, limit_value, used_value, period, created_at)
      VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING id, customer_id, meter_id, limit_value, used_value, period, created_at`,
@@ -73,19 +73,19 @@ export async function upsert(
 }
 
 export async function incrementUsed(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   customerId: string,
   meterId: string,
   value: number,
 ): Promise<void> {
-  await client.query(
+  await (client ?? pool).query(
     "UPDATE quotas SET used_value = used_value + $1 WHERE customer_id = $2 AND meter_id = $3",
     [value, customerId, meterId],
   );
 }
 
-export async function remove(client: pg.PoolClient, id: string): Promise<void> {
-  await client.query("DELETE FROM quotas WHERE id = $1", [id]);
+export async function remove(client: pg.PoolClient | null, id: string): Promise<void> {
+  await (client ?? pool).query("DELETE FROM quotas WHERE id = $1", [id]);
 }
 
 export const quotaRepo = {

@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { Member } from "../../types.ts";
 
 export interface MemberRow {
@@ -33,10 +33,10 @@ export async function findByWorkspace(
 }
 
 export async function findById(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
 ): Promise<Member | null> {
-  const { rows } = await client.query<MemberRow>(
+  const { rows } = await (client ?? pool).query<MemberRow>(
     "SELECT id, workspace_id, email, role, permissions, created_at FROM members WHERE id = $1",
     [id],
   );
@@ -55,7 +55,7 @@ export async function findByEmail(
 }
 
 export async function create(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   data: {
     id: string;
     workspaceId: string;
@@ -64,7 +64,7 @@ export async function create(
     permissions: string[];
   },
 ): Promise<Member> {
-  const { rows } = await client.query<MemberRow>(
+  const { rows } = await (client ?? pool).query<MemberRow>(
     `INSERT INTO members (id, workspace_id, email, role, permissions, created_at)
      VALUES ($1, $2, $3, $4, $5, now())
      RETURNING id, workspace_id, email, role, permissions, created_at`,
@@ -74,7 +74,7 @@ export async function create(
 }
 
 export async function update(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
   data: { role?: Member["role"]; permissions?: string[] },
 ): Promise<Member | null> {
@@ -85,7 +85,7 @@ export async function update(
   if (data.permissions !== undefined) { sets.push(`permissions = $${idx++}`); params.push(data.permissions); }
   if (sets.length === 0) return findById(client, id);
   params.push(id);
-  const { rows } = await client.query<MemberRow>(
+  const { rows } = await (client ?? pool).query<MemberRow>(
     `UPDATE members SET ${sets.join(", ")} WHERE id = $${idx} RETURNING id, workspace_id, email, role, permissions, created_at`,
     params,
   );
@@ -93,10 +93,10 @@ export async function update(
 }
 
 export async function remove(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
 ): Promise<void> {
-  await client.query("DELETE FROM members WHERE id = $1", [id]);
+  await (client ?? pool).query("DELETE FROM members WHERE id = $1", [id]);
 }
 
 export async function countOwners(

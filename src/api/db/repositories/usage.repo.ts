@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { UsageEvent } from "../../types.ts";
 
 export interface UsageEventRow {
@@ -74,7 +74,7 @@ export async function findById(id: string): Promise<UsageEvent | null> {
 }
 
 export async function create(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   data: {
     id: string;
     customerId: string;
@@ -84,7 +84,7 @@ export async function create(
     timestamp?: string;
   },
 ): Promise<UsageEventRow> {
-  const { rows } = await client.query<UsageEventRow>(
+  const { rows } = await (client ?? pool).query<UsageEventRow>(
     `INSERT INTO usage_events (id, customer_id, meter_id, timestamp, value, metadata)
      VALUES ($1, $2, $3, $4, $5, $6)
      RETURNING id, customer_id, meter_id, timestamp, value, metadata`,
@@ -98,7 +98,7 @@ export async function create(
 }
 
 export async function bulkCreate(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   events: Array<{
     id: string;
     customerId: string;

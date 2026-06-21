@@ -1,5 +1,5 @@
 import type pg from "pg";
-import { query } from "../pool.ts";
+import pool, { query } from "../pool.ts";
 import type { Organization } from "../../types.ts";
 
 export interface OrganizationRow {
@@ -28,10 +28,10 @@ export async function findAll(): Promise<Organization[]> {
 }
 
 export async function findById(
-  client: pg.PoolClient,
+  client: pg.PoolClient | null,
   id: string,
 ): Promise<Organization | null> {
-  const { rows } = await client.query<OrganizationRow>(
+  const { rows } = await (client ?? pool).query<OrganizationRow>(
     "SELECT id, name, status, created_at, updated_at FROM organizations WHERE id = $1",
     [id],
   );
