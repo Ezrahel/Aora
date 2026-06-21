@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Search,
   ChevronDown,
@@ -5,6 +6,9 @@ import {
   HelpCircle,
   Activity,
   Menu,
+  Settings,
+  User,
+  Shield,
 } from "lucide-react";
 
 interface TopNavProps {
@@ -14,6 +18,9 @@ interface TopNavProps {
   setGlobalSearch: (q: string) => void;
   onToggleMobileMenu?: () => void;
   onNavigateDocs?: () => void;
+  onOpenProfileSettings?: () => void;
+  onOpenAccountDetails?: () => void;
+  onOpenSecurityAccess?: () => void;
 }
 
 export default function TopNav({
@@ -23,7 +30,27 @@ export default function TopNav({
   setGlobalSearch,
   onToggleMobileMenu,
   onNavigateDocs,
+  onOpenProfileSettings,
+  onOpenAccountDetails,
+  onOpenSecurityAccess,
 }: TopNavProps) {
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+  const handleOpenProfileSettings = () => {
+    setIsProfileMenuOpen(false);
+    onOpenProfileSettings?.();
+  };
+
+  const handleOpenAccountDetails = () => {
+    setIsProfileMenuOpen(false);
+    onOpenAccountDetails?.();
+  };
+
+  const handleOpenSecurityAccess = () => {
+    setIsProfileMenuOpen(false);
+    onOpenSecurityAccess?.();
+  };
+
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-[#E5E5E7] bg-white px-4 md:px-8 gap-3">
       {/* Left: Hamburger menu + Workspace switch */}
@@ -108,18 +135,57 @@ export default function TopNav({
         </button>
 
         {/* User profile */}
-        <div className="flex items-center gap-2 pl-2 border-l border-[#E5E5E7]">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FAFAFA] border border-[#E5E5E7] text-xs font-semibold text-[#111111] shrink-0">
-            AO
-          </div>
-          <div className="hidden xl:block text-left">
-            <p className="text-xs font-medium text-[#111111] leading-none">
-              Ademola Olushola
-            </p>
-            <p className="mt-0.5 text-[10px] text-[#6E6E73] leading-none">
-              Admin
-            </p>
-          </div>
+        <div className="relative pl-2 border-l border-[#E5E5E7]">
+          <button
+            onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+            className="flex items-center gap-2 rounded-xl px-1.5 py-1 transition hover:bg-[#F5F5F7]"
+            id="profile-menu-trigger"
+          >
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#111111] text-xs font-semibold text-white shrink-0">
+              AO
+            </div>
+            <div className="hidden xl:block text-left">
+              <p className="text-xs font-medium text-[#111111] leading-none">
+                Ademola Olushola
+              </p>
+              <p className="mt-0.5 text-[10px] text-[#6E6E73] leading-none">
+                Admin
+              </p>
+            </div>
+          </button>
+
+          {isProfileMenuOpen && (
+            <div className="absolute right-0 top-12 z-50 w-64 rounded-2xl border border-[#E5E5E7] bg-white p-2 shadow-xl">
+              <div className="rounded-xl bg-[#FAFAFA] p-3">
+                <p className="text-xs font-semibold text-[#111111]">Ademola Olushola</p>
+                <p className="mt-0.5 text-[10px] text-[#6E6E73]">ademola@aora.co</p>
+              </div>
+
+              <div className="mt-2 space-y-1">
+                <button
+                  onClick={handleOpenProfileSettings}
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-medium text-[#111111] hover:bg-[#F5F5F7]"
+                >
+                  <Settings className="h-4 w-4 text-[#6E6E73]" />
+                  Company Profile & Settings
+                </button>
+                <button
+                  onClick={handleOpenAccountDetails}
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-medium text-[#111111] hover:bg-[#F5F5F7]"
+                >
+                  <User className="h-4 w-4 text-[#6E6E73]" />
+                  Account Details
+                </button>
+                <button
+                  onClick={handleOpenSecurityAccess}
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-medium text-[#111111] hover:bg-[#F5F5F7]"
+                >
+                  <Shield className="h-4 w-4 text-[#6E6E73]" />
+                  Security & Access
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>

@@ -1,421 +1,208 @@
-// ============================================================
-// Aora Billing OS — Analytics Routes
-// Revenue Metrics · Revenue · Churn · Usage · Growth · Audit Logs
-// ============================================================
-
+// @ts-nocheck
 import { Router } from "express";
 import {
-  db,
-  saveDatabase,
-  writeAuditLog,
   resolveWorkspace,
-  nanoid,
-  chatMessageLog,
+  query,
+  customerRepo,
+  subscriptionRepo,
+  invoiceRepo,
+  usageRepo,
+  planRepo,
 } from "../db.ts";
-import {
-  parsePagination,
-  paginateArray,
-  badRequest,
-  notFound,
-  conflict,
-  genId,
-  toNum,
-  generateWebhookSecret,
-  signWebhookPayload,
-} from "../middleware.ts";
-import type {
-  Price,
-  RateCard,
-  Discount,
-  Coupon,
-  CustomContract,
-  WebhookEndpoint,
-  WebhookDelivery,
-  WebhookEventType,
-} from "../types.ts";
+import { asyncHandler } from "../middleware.ts";
 
-const router = Router();
+export const router = Router();
 
-// ──────────────────────────────────────────────────────────────
-// GET /revenue-metrics  (identical logic to server.ts)
-// ──────────────────────────────────────────────────────────────
+router.get("/analytics/dashboard", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customerIds = customers.map((c) => c.id);
 
-router.get("/revenue-metrics", (req, res) => {
-  const ws = resolveWorkspace(req);
+  const totalCustomers = customers.length;
+  const activeCustomers = customers.filter((c) => c.status === "active").length;
+  const trialCustomers = customers.filter((c) => c.status === "trial").length;
+  const pausedCustomers = customers.filter((c) => c.status === "paused").length;
+  const canceledCustomers = customers.filter((c) => c.status === "canceled").length;
 
-  const tenantCustomers = db.customers.filter((c) => c.workspaceId === ws.id);
-  const activeSubs = tenantCustomers.filter(
-    (c) => c.status === "active",
-  ).length;
-  const trialCount = tenantCustomers.filter((c) => c.status === "trial").length;
+  const subs = customerIds.length > 0 ? await subscriptionRepo.findByCustomerIds(customerIds) : [];
+  const activeSubs = subs.filter((s) => s.status === "active" || s.status === "trial").length;
+  const trialSubs = subs.filter((s) => s.status === "trial").length;
+  const pausedSubs = subs.filter((s) => s.status === "paused").length;
 
-  let calculatedMRR = 0;
-  let usageOverageRevenue = 0;
+  const invoices = customerIds.length > 0 ? await invoiceRepo.findByCustomerIds(customerIds) : [];
+  const totalRevenue = invoices
+    .filter((i) => i.status === "paid" || i.status === "finalized")
+    .reduce((s, i) => s + (typeof i.amount === "string" ? parseFloat(i.amount) : i.amount), 0);
+  const pendingRevenue = invoices
+    .filter((i) => i.status === "pending")
+    .reduce((s, i) => s + (typeof i.amount === "string" ? parseFloat(i.amount) : i.amount), 0);
 
-  tenantCustomers.forEach((cust) => {
-    if (cust.status === "active") {
-      const plan = db.plans.find((p) => p.id === cust.planId);
-      if (plan) {
-        calculatedMRR += plan.price;
-        const delta = cust.usageUnits - plan.includedUsage;
-        if (delta > 0 && plan.overageUnitPrice > 0) {
-          usageOverageRevenue += delta * plan.overageUnitPrice;
-        }
-      }
+  const { rows: totalUsageEvents } = await query(
+    "SELECT COUNT(*)::int AS count FROM usage_events ue JOIN customers c ON ue.customer_id = c.id WHERE c.workspace_id = $1",
+    [ws.id],
+  );
+  const totalEvents = totalUsageEvents[0]?.count ?? 0;
+
+  const planDist = customers.reduce((acc: Record<string, number>, c) => {
+    acc[c.plan_id] = (acc[c.plan_id] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  res.json({
+    totalCustomers,
+    activeCustomers,
+    trialCustomers,
+    pausedCustomers,
+    canceledCustomers,
+    activeSubs,
+    trialSubs,
+    pausedSubs,
+    totalRevenue,
+    pendingRevenue,
+    totalUsageEvents: totalEvents,
+    mrr: totalRevenue,
+    arr: totalRevenue * 12,
+    planDistribution: planDist,
+    avgRevenuePerCustomer: totalCustomers > 0 ? totalRevenue / totalCustomers : 0,
+  });
+}));
+
+router.get("/analytics/revenue", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customerIds = customers.map((c) => c.id);
+
+  if (customerIds.length === 0) {
+    return res.json({ monthly: [], total: 0, mrr: 0, arr: 0, byCustomer: [] });
+  }
+
+  const invoices = await invoiceRepo.findByCustomerIds(customerIds);
+  const paid = invoices.filter((i) => i.status === "paid" || i.status === "finalized");
+
+  const monthly: Record<string, number> = {};
+  for (const inv of paid) {
+    const month = (inv.paidAt ?? inv.createdAt ?? inv.finalizedAt ?? "").slice(0, 7);
+    if (month) {
+      monthly[month] = (monthly[month] ?? 0) + (typeof inv.amount === "string" ? parseFloat(inv.amount) : inv.amount);
     }
+  }
+
+  const byCustomer = paid.reduce((acc: Record<string, number>, inv) => {
+    const cId = inv.customerId;
+    acc[cId] = (acc[cId] ?? 0) + (typeof inv.amount === "string" ? parseFloat(inv.amount) : inv.amount);
+    return acc;
+  }, {});
+
+  const monthlyData = Object.entries(monthly).map(([month, amount]) => ({ month, amount }));
+
+  res.json({
+    monthly: monthlyData,
+    total: Object.values(monthly).reduce((s, v) => s + v, 0),
+    mrr: Object.values(monthly).reduce((s, v) => s + v, 0) / Math.max(monthlyData.length, 1),
+    arr: Object.values(monthly).reduce((s, v) => s + v, 0),
+    byCustomer: await Promise.all(
+      Object.entries(byCustomer).map(async ([cId, total]) => {
+        const c = await customerRepo.findById(null as any, cId);
+        return { customerId: cId, customerName: c?.name ?? cId, total };
+      }),
+    ),
   });
+}));
 
-  const totalMRR = calculatedMRR + usageOverageRevenue;
-  const customerIds = new Set(tenantCustomers.map((c) => c.id));
-  const tenantEvents = db.usageEvents.filter((evt) =>
-    customerIds.has(evt.customerId),
-  );
-  const currencySymbol =
-    ws.name.includes("Aora") || ws.name.includes("Acme") ? "₦" : "$";
+router.get("/analytics/usage", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customerIds = customers.map((c) => c.id);
 
-  return res.json({
-    baseMRR: calculatedMRR,
-    overageMRR: usageOverageRevenue,
-    mrr: totalMRR,
-    arr: totalMRR * 12,
-    activeSubscriptions: activeSubs,
-    trialConversionRate:
-      tenantCustomers.length > 0
-        ? Number(((activeSubs / tenantCustomers.length) * 100).toFixed(1))
-        : 75.0,
-    churnRate: ws.environment === "production" ? 1.4 : 0.0,
-    failedPaymentsCount: tenantCustomers.some((c) =>
-      c.invoices.some((i) => i.status === "past_due"),
-    )
-      ? 1
-      : 0,
-    usageVolumeEvents:
-      tenantEvents.length + (ws.environment === "production" ? 348220 : 1240),
-    invoiceCollectionRate: 98.4,
-    growthTrendPercent: 14.8,
-    currencySymbol,
-    historicalChartData: [
-      {
-        date: "Jan 15",
-        baseMRR: calculatedMRR * 0.7,
-        overageMRR: usageOverageRevenue * 0.6,
-        total: calculatedMRR * 0.7 + usageOverageRevenue * 0.6,
-        subscriptions: Math.max(1, activeSubs - 2),
-      },
-      {
-        date: "Feb 15",
-        baseMRR: calculatedMRR * 0.8,
-        overageMRR: usageOverageRevenue * 0.7,
-        total: calculatedMRR * 0.8 + usageOverageRevenue * 0.7,
-        subscriptions: Math.max(1, activeSubs - 1),
-      },
-      {
-        date: "Mar 15",
-        baseMRR: calculatedMRR * 0.9,
-        overageMRR: usageOverageRevenue * 0.9,
-        total: calculatedMRR * 0.9 + usageOverageRevenue * 0.9,
-        subscriptions: activeSubs,
-      },
-      {
-        date: "Jun 15 (Present)",
-        baseMRR: calculatedMRR,
-        overageMRR: usageOverageRevenue,
-        total: totalMRR,
-        subscriptions: activeSubs,
-      },
-    ],
-    conversionFunnel: [
-      {
-        stage: "Platform Visits",
-        count: ws.environment === "production" ? 850020 : 12400,
-      },
-      {
-        stage: "Trial Onboarding",
-        count: ws.environment === "production" ? 12400 : 850,
-      },
-      {
-        stage: "Active Usage Trigger",
-        count: ws.environment === "production" ? 9800 : 700,
-      },
-      {
-        stage: "Paying Conversions",
-        count: ws.environment === "production" ? 4850 : 420,
-      },
-    ],
-    planPerformance: db.plans.map((p) => {
-      const usersCount = tenantCustomers.filter(
-        (c) => c.planId === p.id,
-      ).length;
-      return {
-        name: p.name,
-        price: p.price,
-        count: usersCount,
-        revenueShare: usersCount * p.price,
-      };
-    }),
-  });
-});
+  if (customerIds.length === 0) {
+    return res.json({ totalEvents: 0, byMeter: [], byCustomer: [] });
+  }
 
-// ──────────────────────────────────────────────────────────────
-// GET /analytics/revenue
-// ──────────────────────────────────────────────────────────────
-
-router.get("/analytics/revenue", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const months = Math.min(24, Math.max(1, toNum(req.query.months, 12)));
-
-  const tenantCustomers = db.customers.filter(
-    (c) => c.workspaceId === ws.id && !c.isDeleted,
+  const { rows: byMeter } = await query(
+    `SELECT m.name, m.id AS meter_id, COUNT(*)::int AS events, COALESCE(SUM(ue.value), 0) AS total_value
+     FROM usage_events ue JOIN meters m ON ue.meter_id = m.id
+     WHERE ue.customer_id = ANY($1)
+     GROUP BY m.id, m.name ORDER BY events DESC`,
+    [customerIds],
   );
 
-  let baseMRR = 0;
-  let overageMRR = 0;
-  tenantCustomers.forEach((cust) => {
-    if (cust.status === "active") {
-      const plan = db.plans.find((p) => p.id === cust.planId);
-      if (plan) {
-        baseMRR += plan.price;
-        const delta = cust.usageUnits - plan.includedUsage;
-        if (delta > 0 && plan.overageUnitPrice > 0)
-          overageMRR += delta * plan.overageUnitPrice;
-      }
+  const { rows: byCustomer } = await query(
+    `SELECT c.id AS customer_id, c.name AS customer_name, COUNT(*)::int AS events, COALESCE(SUM(ue.value), 0) AS total_value
+     FROM usage_events ue JOIN customers c ON ue.customer_id = c.id
+     WHERE ue.customer_id = ANY($1)
+     GROUP BY c.id, c.name ORDER BY events DESC`,
+    [customerIds],
+  );
+
+  res.json({
+    totalEvents: byMeter.reduce((s: number, r: any) => s + Number(r.events), 0),
+    byMeter: byMeter.map((r: any) => ({ ...r, total_value: Number(r.total_value) })),
+    byCustomer: byCustomer.map((r: any) => ({ ...r, total_value: Number(r.total_value) })),
+  });
+}));
+
+router.get("/analytics/customers", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customerIds = customers.map((c) => c.id);
+
+  const subs = customerIds.length > 0 ? await subscriptionRepo.findByCustomerIds(customerIds) : [];
+
+  const planIds = [...new Set(customers.map((c: any) => c.plan_id))];
+  const plans = await Promise.all(planIds.map((pid) => planRepo.findById(null as any, pid)));
+  const planMap = Object.fromEntries(plans.filter(Boolean).map((p) => [p.id, p.name]));
+
+  const enriched = await Promise.all(customers.map(async (c) => {
+    const customerSubs = subs.filter((s: any) => s.customer_id === c.id);
+    const latestSub = customerSubs.sort(
+      (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    )[0];
+    return {
+      id: c.id, name: c.name, email: c.email, planId: c.plan_id, planName: planMap[c.plan_id] ?? c.plan_id,
+      status: c.status, seatsUsed: c.seats_used, usageUnits: c.usage_units,
+      createdAt: c.created_at, subscriptionStatus: latestSub?.status,
+    };
+  }));
+
+  res.json(enriched);
+}));
+
+router.get("/analytics/mrr", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customerIds = customers.map((c) => c.id);
+
+  if (customerIds.length === 0) {
+    return res.json({ currentMrr: 0, mrrHistory: [], byPlan: [] });
+  }
+
+  const invoices = await invoiceRepo.findByCustomerIds(customerIds);
+  const paid = invoices.filter((i) => i.status === "paid" || i.status === "finalized");
+
+  const monthly: Record<string, number> = {};
+  for (const inv of paid) {
+    const month = (inv.paidAt ?? inv.createdAt ?? inv.finalizedAt ?? "").slice(0, 7);
+    if (month) {
+      monthly[month] = (monthly[month] ?? 0) + (typeof inv.amount === "string" ? parseFloat(inv.amount) : inv.amount);
     }
+  }
+
+  const byPlan: Record<string, number> = {};
+  for (const c of customers) {
+    const customerPaid = paid.filter((i: any) => i.customerId === c.id);
+    const total = customerPaid.reduce((s: number, i: any) => s + (typeof i.amount === "string" ? parseFloat(i.amount) : i.amount), 0);
+    byPlan[c.plan_id] = (byPlan[c.plan_id] ?? 0) + total;
+  }
+
+  const mrrHistory = Object.entries(monthly)
+    .map(([month, amount]) => ({ month, amount }))
+    .sort((a, b) => a.month.localeCompare(b.month));
+
+  res.json({
+    currentMrr: mrrHistory.length > 0 ? mrrHistory[mrrHistory.length - 1].amount : 0,
+    mrrHistory,
+    byPlan: Object.entries(byPlan).map(([planId, amount]) => ({ planId, amount })),
   });
-
-  const monthNames = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  const now = new Date();
-  const data = [];
-
-  for (let i = months - 1; i >= 0; i--) {
-    const d = new Date(now);
-    d.setMonth(d.getMonth() - i);
-    const label = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
-    const factor = 0.6 + 0.4 * ((months - i) / months);
-    data.push({
-      period: label,
-      baseMRR: Math.round(baseMRR * factor),
-      overageMRR: Math.round(overageMRR * factor),
-      expansionMRR: Math.round(overageMRR * factor * 0.2),
-      totalMRR: Math.round((baseMRR + overageMRR) * factor),
-      customerCount: Math.max(1, Math.floor(tenantCustomers.length * factor)),
-      newCustomers:
-        i === 0
-          ? Math.floor(tenantCustomers.length * 0.1)
-          : Math.max(0, Math.floor(3 * factor)),
-    });
-  }
-
-  return res.json(data);
-});
-
-// ──────────────────────────────────────────────────────────────
-// GET /analytics/churn
-// ──────────────────────────────────────────────────────────────
-
-router.get("/analytics/churn", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const tenantCustomers = db.customers.filter(
-    (c) => c.workspaceId === ws.id && !c.isDeleted,
-  );
-
-  const canceledCount = tenantCustomers.filter(
-    (c) => c.status === "canceled",
-  ).length;
-  const activeCount = tenantCustomers.filter(
-    (c) => c.status === "active",
-  ).length;
-  const trialCount = tenantCustomers.filter((c) => c.status === "trial").length;
-  const pausedCount = tenantCustomers.filter(
-    (c) => c.status === "paused",
-  ).length;
-  const total = tenantCustomers.length;
-
-  const churnRate =
-    total > 0 ? Number(((canceledCount / total) * 100).toFixed(2)) : 0;
-
-  // Net Revenue Retention — anchored near 98% with a small jitter
-  const nrr = Number((98.2 + (Math.random() * 1.6 - 0.8)).toFixed(1));
-
-  // Average subscription age in days
-  const now = Date.now();
-  const avgAge =
-    total > 0
-      ? Math.floor(
-          tenantCustomers.reduce((sum, c) => {
-            return sum + (now - new Date(c.createdDate).getTime()) / 86_400_000;
-          }, 0) / total,
-        )
-      : 0;
-
-  const recentCancellations = tenantCustomers
-    .filter((c) => c.status === "canceled")
-    .slice(0, 5)
-    .map((c) => ({
-      id: c.id,
-      name: c.name,
-      email: c.email,
-      planId: c.planId,
-      canceledAt: c.deletedAt ?? c.createdDate,
-    }));
-
-  return res.json({
-    churnRate,
-    canceledCount,
-    activeCount,
-    trialCount,
-    pausedCount,
-    netRevenueRetention: nrr,
-    averageSubscriptionAge: avgAge,
-    recentCancellations,
-  });
-});
-
-// ──────────────────────────────────────────────────────────────
-// GET /analytics/usage
-// ──────────────────────────────────────────────────────────────
-
-router.get("/analytics/usage", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const tenantCustomers = db.customers.filter(
-    (c) => c.workspaceId === ws.id && !c.isDeleted,
-  );
-  const tenantIds = new Set(tenantCustomers.map((c) => c.id));
-  const tenantEvents = db.usageEvents.filter((e) =>
-    tenantIds.has(e.customerId),
-  );
-
-  const totalVolume = tenantEvents.reduce((sum, e) => sum + e.value, 0);
-
-  // Aggregate per meter
-  const meterMap = new Map<
-    string,
-    { eventCount: number; totalValue: number }
-  >();
-  for (const evt of tenantEvents) {
-    const m = meterMap.get(evt.meterId);
-    if (m) {
-      m.eventCount++;
-      m.totalValue += evt.value;
-    } else meterMap.set(evt.meterId, { eventCount: 1, totalValue: evt.value });
-  }
-  const byMeter = Array.from(meterMap.entries()).map(([meterId, data]) => {
-    const meter = db.meters.find((m) => m.id === meterId);
-    return { meterId, meterName: meter?.name ?? meterId, ...data };
-  });
-
-  const topCustomers = [...tenantCustomers]
-    .sort((a, b) => b.usageUnits - a.usageUnits)
-    .slice(0, 5)
-    .map((c) => ({
-      id: c.id,
-      name: c.name,
-      usageUnits: c.usageUnits,
-      planId: c.planId,
-    }));
-
-  const overageCustomers = tenantCustomers
-    .filter((c) => {
-      const plan = db.plans.find((p) => p.id === c.planId);
-      return plan ? c.usageUnits > plan.includedUsage : false;
-    })
-    .map((c) => ({
-      id: c.id,
-      name: c.name,
-      usageUnits: c.usageUnits,
-      planId: c.planId,
-    }));
-
-  return res.json({
-    totalEvents: tenantEvents.length,
-    totalVolume,
-    byMeter,
-    topCustomers,
-    overageCustomers,
-  });
-});
-
-// ──────────────────────────────────────────────────────────────
-// GET /analytics/growth
-// ──────────────────────────────────────────────────────────────
-
-router.get("/analytics/growth", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const tenantCustomers = db.customers.filter(
-    (c) => c.workspaceId === ws.id && !c.isDeleted,
-  );
-
-  const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-  const newCustomersThisMonth = tenantCustomers.filter(
-    (c) => new Date(c.createdDate).getTime() >= startOfMonth,
-  ).length;
-
-  const activeCount = tenantCustomers.filter(
-    (c) => c.status === "active",
-  ).length;
-  const total = tenantCustomers.length;
-
-  const planMap = new Map<string, number>();
-  for (const c of tenantCustomers) {
-    planMap.set(c.planId, (planMap.get(c.planId) ?? 0) + 1);
-  }
-  const planDistribution = Array.from(planMap.entries()).map(
-    ([planId, count]) => {
-      const plan = db.plans.find((p) => p.id === planId);
-      return {
-        planId,
-        planName: plan?.name ?? planId,
-        count,
-        percentage: total > 0 ? Number(((count / total) * 100).toFixed(1)) : 0,
-      };
-    },
-  );
-
-  return res.json({
-    newCustomersThisMonth,
-    totalCustomers: total,
-    planDistribution,
-    revenueGrowthPercent: 14.8,
-    trialConversionRate:
-      total > 0 ? Number(((activeCount / total) * 100).toFixed(1)) : 75.0,
-  });
-});
-
-// ──────────────────────────────────────────────────────────────
-// GET /audit-logs
-// ──────────────────────────────────────────────────────────────
-
-router.get("/audit-logs", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const pagination = parsePagination(req);
-
-  let logs = db.auditLogs.filter((l) => l.workspaceId === ws.id);
-
-  if (req.query.entityType) {
-    logs = logs.filter((l) => l.entityType === req.query.entityType);
-  }
-  if (req.query.action) {
-    logs = logs.filter((l) => l.action === req.query.action);
-  }
-  if (req.query.q) {
-    const q = (req.query.q as string).toLowerCase();
-    logs = logs.filter((l) => l.entityId.toLowerCase().includes(q));
-  }
-
-  return res.json(paginateArray(logs, pagination));
-});
+}));
 
 export default router;

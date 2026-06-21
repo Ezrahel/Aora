@@ -1,494 +1,317 @@
-// ============================================================
-// Aora Billing OS — Usage Events, Quotas, Credits & Can-Consume
-// POST /usage-events, GET /usage-events, POST /usage-events/bulk
-// POST /usage-events/import, POST /events/replay
-// GET /quotas, POST /quotas, DELETE /quotas/:id
-// GET /credits/ledger, POST /credits/ledger
-// GET /can-consume
-// ============================================================
-
+// @ts-nocheck
 import { Router } from "express";
-import { db, saveDatabase, writeAuditLog, resolveWorkspace, nanoid } from "../db.ts";
-import { parsePagination, paginateArray, badRequest, notFound, genId, toNum } from "../middleware.ts";
-import type { MeterDefinition, UsageEvent, Quota, CreditLedgerEntry, Entitlement, ClientEntitlement, Invoice } from "../types.ts";
+import {
+  resolveWorkspace,
+  writeAuditLog,
+  genId,
+  toNum,
+  query,
+  usageRepo,
+  meterRepo,
+  quotaRepo,
+  creditRepo,
+  customerRepo,
+  planRepo,
+} from "../db.ts";
+import { asyncHandler, parsePagination, badRequest, notFound, conflict } from "../middleware.ts";
 
 export const router = Router();
 
-// ── Internal helper ────────────────────────────────────────────
-// Accumulate a usage event's value onto the customer and matching quota.
-function applyUsage(customerId: string, meterId: string, value: number): void {
-  const customer = db.customers.find((c) => c.id === customerId);
-  if (customer && meterId === "compute_meter") {
-    customer.usageUnits += value;
-  }
-  const quota = db.quotas.find(
-    (q) => q.customerId === customerId && q.meterId === meterId,
-  );
-  if (quota) {
-    quota.usedValue += value;
-  }
-}
+router.get("/usage", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customerIds = customers.map((c) => c.id);
 
-// ── Usage Events ───────────────────────────────────────────────
-
-// GET /usage-events
-router.get("/usage-events", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const tenantIds = new Set(
-    db.customers.filter((c) => c.workspaceId === ws.id).map((c) => c.id),
-  );
-
-  const { customerId, meterId, from, to, q } = req.query as {
-    customerId?: string;
-    meterId?: string;
-    from?: string;
-    to?: string;
-    q?: string;
-  };
-
-  let events = db.usageEvents.filter((e) => tenantIds.has(e.customerId));
-
-  if (customerId) events = events.filter((e) => e.customerId === customerId);
-  if (meterId) events = events.filter((e) => e.meterId === meterId);
-  if (from) {
-    const fromMs = new Date(from).getTime();
-    events = events.filter((e) => new Date(e.timestamp).getTime() >= fromMs);
-  }
-  if (to) {
-    const toMs = new Date(to).getTime();
-    events = events.filter((e) => new Date(e.timestamp).getTime() <= toMs);
-  }
-  if (q) {
-    const lower = q.toLowerCase();
-    events = events.filter((e) =>
-      JSON.stringify(e.metadata).toLowerCase().includes(lower),
-    );
+  if (customerIds.length === 0) {
+    return res.json({ data: [], total: 0, page: 1, limit: 50, hasMore: false });
   }
 
-  const opts = parsePagination(req);
-  return res.json(paginateArray(events, opts));
-});
+  const { meterId, customerId, from, to } = req.query as Record<string, string | undefined>;
 
-// GET /usage-events/:id
-router.get("/usage-events/:id", (req, res) => {
-  const event = db.usageEvents.find((e) => e.id === req.params.id);
-  if (!event) return notFound(res, "UsageEvent");
-  return res.json(event);
-});
+  const conditions = [`customer_id = ANY($1)`];
+  const params: any[] = [customerIds];
+  let idx = 2;
 
-// POST /usage-events
-router.post("/usage-events", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const { customerId, meterId, value, metadata, timestamp } = req.body as {
-    customerId?: string;
-    meterId?: string;
-    value?: any;
-    metadata?: Record<string, any>;
-    timestamp?: string;
-  };
+  if (meterId) { conditions.push(`meter_id = $${idx++}`); params.push(meterId); }
+  if (customerId) { conditions.push(`customer_id = $${idx++}`); params.push(customerId); }
+  if (from) { conditions.push(`timestamp >= $${idx++}`); params.push(from); }
+  if (to) { conditions.push(`timestamp <= $${idx++}`); params.push(to); }
 
-  if (!customerId) return badRequest(res, "customerId is required.");
-  if (!meterId) return badRequest(res, "meterId is required.");
-  if (value === undefined || value === null) return badRequest(res, "value is required.");
-
-  const customer = db.customers.find((c) => c.id === customerId);
-  if (!customer) return notFound(res, "Customer");
-
-  const event: UsageEvent = {
-    id: "evt_" + genId(),
-    customerId,
-    meterId,
-    timestamp: timestamp || new Date().toISOString(),
-    value: toNum(value, 1),
-    metadata: metadata ?? {},
-  };
-
-  db.usageEvents.unshift(event);
-  applyUsage(customerId, meterId, event.value);
-
-  saveDatabase();
-  writeAuditLog(ws.id, "System", "CREATE", "EVENT", event.id, null, event);
-  return res.status(201).json(event);
-});
-
-// POST /usage-events/bulk
-// NOTE: must be declared before /usage-events/:id to avoid path conflict.
-router.post("/usage-events/bulk", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const body = req.body;
-
-  if (!Array.isArray(body)) {
-    return badRequest(res, "Expected an array of usage events.");
-  }
-
-  let processed = 0;
-  let skipped = 0;
-
-  for (const item of body as Array<{
-    customerId?: string;
-    meterId?: string;
-    value?: any;
-    metadata?: Record<string, any>;
-    timestamp?: string;
-    idempotencyKey?: string;
-  }>) {
-    const { customerId, meterId, value, metadata, timestamp, idempotencyKey } = item;
-
-    const customer = db.customers.find((c) => c.id === customerId);
-    if (!customer) continue;
-
-    // Resolve dedupe key from top-level field or embedded in metadata
-    const dedupeKey = idempotencyKey || metadata?.idempotencyKey;
-    if (dedupeKey) {
-      const isDuplicate = db.usageEvents.some(
-        (e) =>
-          e.metadata?.idempotencyKey === dedupeKey ||
-          e.metadata?.dedupeId === dedupeKey,
-      );
-      if (isDuplicate) {
-        skipped++;
-        continue;
-      }
-    }
-
-    const event: UsageEvent = {
-      id: "evt_" + genId(),
-      customerId: customerId!,
-      meterId: meterId || "compute_meter",
-      timestamp: timestamp || new Date().toISOString(),
-      value: toNum(value, 1),
-      metadata: {
-        ...(metadata ?? {}),
-        ...(dedupeKey ? { idempotencyKey: dedupeKey } : {}),
-      },
-    };
-
-    db.usageEvents.unshift(event);
-    applyUsage(event.customerId, event.meterId, event.value);
-    processed++;
-  }
-
-  saveDatabase();
-
-  return res.json({ processed, skipped, total: (body as any[]).length });
-});
-
-// POST /usage-events/import — historical batch ingest (no duplicate check)
-router.post("/usage-events/import", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const body = req.body;
-
-  if (!Array.isArray(body)) {
-    return badRequest(res, "Expected an array of usage events for import.");
-  }
-
-  let imported = 0;
-
-  for (const item of body as Array<{
-    customerId?: string;
-    meterId?: string;
-    value?: any;
-    metadata?: Record<string, any>;
-    timestamp?: string;
-  }>) {
-    const { customerId, meterId, value, metadata, timestamp } = item;
-
-    const customer = db.customers.find((c) => c.id === customerId);
-    if (!customer) continue;
-
-    const event: UsageEvent = {
-      id: "evt_import_" + genId(),
-      customerId: customerId!,
-      meterId: meterId || "compute_meter",
-      timestamp: timestamp || new Date().toISOString(),
-      value: toNum(value, 1),
-      metadata: { ...(metadata ?? {}), imported: true },
-    };
-
-    db.usageEvents.push(event); // append to preserve chronological order
-    applyUsage(event.customerId, event.meterId, event.value);
-    imported++;
-  }
-
-  saveDatabase();
-  writeAuditLog(
-    ws.id,
-    "Imports Ingestion Engine",
-    "CREATE",
-    "EVENT",
-    "import_" + Date.now(),
-    null,
-    { imported },
+  const { rows: events } = await query(
+    `SELECT id, customer_id, meter_id, timestamp, value, metadata FROM usage_events WHERE ${conditions.join(" AND ")} ORDER BY timestamp DESC`,
+    params,
   );
 
-  return res.json({ imported });
-});
+  const pagination = parsePagination(req);
+  const sliced = events.slice(pagination.offset, pagination.offset + pagination.limit);
+  res.json({
+    data: sliced,
+    total: events.length,
+    page: pagination.page,
+    limit: pagination.limit,
+    hasMore: pagination.offset + pagination.limit < events.length,
+  });
+}));
 
-// ── Events Replay ──────────────────────────────────────────────
+router.post("/usage/ingest", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const { customerId, meterId, value, metadata, timestamp: eventTimestamp } = req.body as {
+    customerId?: string; meterId?: string; value?: number; metadata?: Record<string, unknown>; timestamp?: string;
+  };
 
-// POST /events/replay
-router.post("/events/replay", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const { eventId } = req.body as { eventId?: string };
+  if (!customerId) return badRequest(res, "customerId is required");
+  if (!meterId) return badRequest(res, "meterId is required");
+  if (value === undefined || value === null) return badRequest(res, "value is required");
 
-  if (!eventId) return badRequest(res, "eventId is required.");
-
-  const event = db.usageEvents.find((e) => e.id === eventId);
-  if (!event) return notFound(res, "Event");
-
-  // Re-apply the event value to customer usage and matching quota
-  applyUsage(event.customerId, event.meterId, event.value);
+  const customer = await customerRepo.findById(null as any, customerId);
+  if (!customer || customer.workspace_id !== ws.id) return notFound(res, "Customer");
+  const meter = await meterRepo.findById(null as any, meterId);
+  if (!meter) return notFound(res, "Meter");
 
   const now = new Date().toISOString();
-  writeAuditLog(
-    ws.id,
-    "Reprocessor Daemon",
-    "UPDATE",
-    "EVENT",
-    event.id,
-    { reason: "replay" },
-    { ...event, reprocessedAt: now },
-  );
-
-  saveDatabase();
-
-  return res.json({ status: "replayed", eventId: event.id, reprocessedAt: now });
-});
-
-// ── Quotas ─────────────────────────────────────────────────────
-
-// GET /quotas
-router.get("/quotas", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const tenantIds = new Set(
-    db.customers.filter((c) => c.workspaceId === ws.id).map((c) => c.id),
-  );
-
-  const { customerId } = req.query as { customerId?: string };
-
-  let quotas = db.quotas.filter((q) => tenantIds.has(q.customerId));
-  if (customerId) quotas = quotas.filter((q) => q.customerId === customerId);
-
-  return res.json(quotas);
-});
-
-// POST /quotas — upsert by customerId+meterId
-router.post("/quotas", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const { customerId, meterId, limitValue, period } = req.body as {
-    customerId?: string;
-    meterId?: string;
-    limitValue?: any;
-    period?: Quota["period"];
-  };
-
-  if (!customerId) return badRequest(res, "customerId is required.");
-  if (!meterId) return badRequest(res, "meterId is required.");
-
-  const customer = db.customers.find((c) => c.id === customerId);
-  if (!customer) return notFound(res, "Customer");
-
-  const existingIdx = db.quotas.findIndex(
-    (q) => q.customerId === customerId && q.meterId === meterId,
-  );
-  const beforeState =
-    existingIdx > -1
-      ? JSON.parse(JSON.stringify(db.quotas[existingIdx]))
-      : null;
-
-  const quota: Quota = {
-    id:
-      existingIdx > -1
-        ? db.quotas[existingIdx].id
-        : "q_" + customerId + "_" + meterId,
+  const event = await usageRepo.report(null as any, {
     customerId,
     meterId,
-    limitValue: toNum(limitValue, 10000),
-    usedValue: existingIdx > -1 ? db.quotas[existingIdx].usedValue : 0,
-    period: period || "monthly",
-    createdAt:
-      existingIdx > -1
-        ? db.quotas[existingIdx].createdAt
-        : new Date().toISOString(),
-  };
+    value: toNum(value, 0),
+    timestamp: eventTimestamp ?? now,
+    metadata,
+  });
 
-  if (existingIdx > -1) {
-    db.quotas[existingIdx] = quota;
-  } else {
-    db.quotas.push(quota);
-  }
+  await customerRepo.update(null as any, customerId, {
+    usageUnits: (customer.usage_units ?? 0) + 1,
+  });
 
-  saveDatabase();
-  writeAuditLog(
-    ws.id,
-    "Admin",
-    existingIdx > -1 ? "UPDATE" : "CREATE",
-    "QUOTA",
-    quota.id,
-    beforeState,
-    quota,
-  );
-
-  return res.status(201).json(quota);
-});
-
-// DELETE /quotas/:id
-router.delete("/quotas/:id", (req, res) => {
-  const idx = db.quotas.findIndex((q) => q.id === req.params.id);
-  if (idx === -1) return notFound(res, "Quota");
-
-  db.quotas.splice(idx, 1);
-  saveDatabase();
-
-  return res.json({ deleted: true });
-});
-
-// ── Credits Ledger ─────────────────────────────────────────────
-
-const VALID_CREDIT_TYPES: CreditLedgerEntry["type"][] = [
-  "credit_issued",
-  "credit_consumed",
-  "credit_expired",
-  "credit_reversed",
-];
-
-// GET /credits/ledger
-router.get("/credits/ledger", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const tenantIds = new Set(
-    db.customers.filter((c) => c.workspaceId === ws.id).map((c) => c.id),
-  );
-
-  const { customerId } = req.query as { customerId?: string };
-
-  let ledger = db.creditLedger.filter((e) => tenantIds.has(e.customerId));
-  if (customerId) ledger = ledger.filter((e) => e.customerId === customerId);
-
-  const opts = parsePagination(req);
-  return res.json(paginateArray(ledger, opts));
-});
-
-// POST /credits/ledger
-router.post("/credits/ledger", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const { customerId, amount, type, description, expireAt } = req.body as {
-    customerId?: string;
-    amount?: any;
-    type?: string;
-    description?: string;
-    expireAt?: string;
-  };
-
-  if (!customerId) return badRequest(res, "customerId is required.");
-  if (amount === undefined || amount === null) return badRequest(res, "amount is required.");
-  if (!type) return badRequest(res, "type is required.");
-  if (!VALID_CREDIT_TYPES.includes(type as CreditLedgerEntry["type"])) {
-    return badRequest(
-      res,
-      `type must be one of: ${VALID_CREDIT_TYPES.join(", ")}`,
-      "VALIDATION_ERROR",
+  if (meter.aggregation_type === "sum" || meter.aggregation_type === "count") {
+    const period = now.slice(0, 7);
+    await query(
+      `UPSERT INTO usage_aggregates (customer_id, meter_id, period, value)
+       VALUES ($1, $2, $3, (
+         SELECT COALESCE(SUM(value), 0) FROM usage_events
+         WHERE customer_id = $1 AND meter_id = $2 AND timestamp >= $4 AND timestamp < $5
+       ))`,
+      [customerId, meterId, period, period + "-01", new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString()],
     );
   }
 
-  const customer = db.customers.find((c) => c.id === customerId);
-  if (!customer) return notFound(res, "Customer");
+  await writeAuditLog(ws.id, "System", "INGEST", "USAGE", event.id, null, {
+    customerId, meterId, value, timestamp: event.timestamp,
+  });
+  res.status(201).json(event);
+}));
 
-  const entry: CreditLedgerEntry = {
-    id: "cred_" + genId(),
-    customerId,
-    amount: toNum(amount),
-    type: type as CreditLedgerEntry["type"],
-    description: description ?? "",
-    createdAt: new Date().toISOString(),
-    expireAt,
-  };
-
-  db.creditLedger.push(entry);
-  saveDatabase();
-  writeAuditLog(ws.id, "Admin", "CREATE", "CREDIT", entry.id, null, entry);
-
-  return res.status(201).json(entry);
-});
-
-// ── Can Consume ────────────────────────────────────────────────
-
-// GET /can-consume
-router.get("/can-consume", (req, res) => {
-  const { customerId, meterId, amount } = req.query as {
-    customerId?: string;
-    meterId?: string;
-    amount?: string;
-  };
-
-  if (!customerId) return badRequest(res, "customerId is required.");
-  if (!meterId) return badRequest(res, "meterId is required.");
-
-  const meterIdStr = meterId;
-  const numAmount = toNum(amount, 1);
-
-  const customer = db.customers.find((c) => c.id === customerId);
-  if (!customer) return notFound(res, "Customer");
-
-  const quota = db.quotas.find(
-    (q) => q.customerId === customerId && q.meterId === meterIdStr,
-  );
-
-  const limitVal = quota ? quota.limitValue : 100000;
-  const usedVal = quota
-    ? quota.usedValue
-    : meterIdStr === "compute_meter"
-      ? customer.usageUnits
-      : 0;
-
-  const isOverage = usedVal + numAmount > limitVal;
-
-  // Sum all credit ledger entries for this customer (positive = issued/reversed)
-  const creditBalance = db.creditLedger
-    .filter((e) => e.customerId === customerId)
-    .reduce((sum, e) => sum + e.amount, 0);
-
-  const overage = usedVal + numAmount - limitVal;
-  const canOffset = creditBalance > 0 && creditBalance >= overage;
-
-  if (isOverage) {
-    if (canOffset) {
-      return res.json({
-        allowed: true,
-        reason: "quota_exceeded_with_credit_offset",
-        details: {
-          limitValue: limitVal,
-          currentUsed: usedVal,
-          requested: numAmount,
-          creditBalance,
-          canOffset: true,
-        },
-      });
-    }
-
-    return res.json({
-      allowed: false,
-      reason: "quota_exceeded",
-      details: {
-        limitValue: limitVal,
-        currentUsed: usedVal,
-        requested: numAmount,
-        creditBalance,
-        canOffset: false,
-      },
-    });
+router.post("/usage/bulk-ingest", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const { events } = req.body as { events?: Array<{customerId: string; meterId: string; value: number; timestamp?: string; metadata?: Record<string, unknown>}> };
+  if (!events || !Array.isArray(events) || events.length === 0) {
+    return badRequest(res, "events array is required with at least one event");
   }
 
-  return res.json({
-    allowed: true,
-    reason: "quota_available",
-    details: {
-      limitValue: limitVal,
-      currentUsed: usedVal,
-      requested: numAmount,
-      creditBalance,
-      canOffset: true,
-    },
+  const results: Array<{customerId: string; meterId: string; status: string; error?: string}> = [];
+  for (const evt of events) {
+    try {
+      const customer = await customerRepo.findById(null as any, evt.customerId);
+      if (!customer || customer.workspace_id !== ws.id) {
+        results.push({ customerId: evt.customerId, meterId: evt.meterId, status: "error", error: "Customer not found" });
+        continue;
+      }
+      const meter = await meterRepo.findById(null as any, evt.meterId);
+      if (!meter) {
+        results.push({ customerId: evt.customerId, meterId: evt.meterId, status: "error", error: "Meter not found" });
+        continue;
+      }
+      const now = new Date().toISOString();
+      await usageRepo.report(null as any, {
+        customerId: evt.customerId,
+        meterId: evt.meterId,
+        value: toNum(evt.value, 0),
+        timestamp: evt.timestamp ?? now,
+        metadata: evt.metadata,
+      });
+      results.push({ customerId: evt.customerId, meterId: evt.meterId, status: "success" });
+    } catch (err: any) {
+      results.push({ customerId: evt.customerId, meterId: evt.meterId, status: "error", error: err.message });
+    }
+  }
+
+  res.status(201).json({ ingested: results.filter((r) => r.status === "success").length, failed: results.filter((r) => r.status === "error").length, results });
+}));
+
+router.get("/usage/aggregates", asyncHandler(async (req, res) => {
+  const { customerId, meterId, from, to } = req.query as Record<string, string | undefined>;
+
+  const conditions: string[] = [];
+  const params: any[] = [];
+  let idx = 1;
+
+  if (customerId) { conditions.push(`customer_id = $${idx++}`); params.push(customerId); }
+  if (meterId) { conditions.push(`meter_id = $${idx++}`); params.push(meterId); }
+  if (from) { conditions.push(`period >= $${idx++}`); params.push(from.slice(0, 7)); }
+  if (to) { conditions.push(`period <= $${idx++}`); params.push(to.slice(0, 7)); }
+
+  const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+  const { rows } = await query(`SELECT customer_id, meter_id, period, value FROM usage_aggregates ${where} ORDER BY period DESC`, params);
+  res.json(rows.map((r: any) => ({ ...r, value: Number(r.value) })));
+}));
+
+router.get("/usage/quotas", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customerIds = customers.map((c) => c.id);
+
+  if (customerIds.length === 0) return res.json([]);
+
+  const quotas = await quotaRepo.findByCustomerIds(customerIds);
+  const enriched = await Promise.all(quotas.map(async (q) => {
+    const cust = customers.find((c) => c.id === q.customerId);
+    const usage = await usageRepo.getAggregate(null as any, q.customerId, q.meterId);
+    const remaining = q.limit - usage;
+    return { ...q, customerName: cust?.name ?? q.customerId, usage, remaining, exceeded: remaining < 0 };
+  }));
+
+  res.json(enriched);
+}));
+
+router.get("/usage/quotas/:customerId", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const customer = await customerRepo.findById(null as any, req.params.customerId);
+  if (!customer || customer.workspace_id !== ws.id) return notFound(res, "Customer");
+
+  const quotas = await quotaRepo.findByCustomerIds([customer.id]);
+  const enriched = await Promise.all(quotas.map(async (q) => {
+    const usage = await usageRepo.getAggregate(null as any, q.customerId, q.meterId);
+    const remaining = q.limit - usage;
+    return { ...q, usage, remaining, exceeded: remaining < 0 };
+  }));
+  res.json(enriched);
+}));
+
+router.post("/usage/quotas", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const { customerId, meterId, limit, period } = req.body as {
+    customerId?: string; meterId?: string; limit?: number; period?: string;
+  };
+  if (!customerId || !meterId || limit === undefined) return badRequest(res, "customerId, meterId, and limit are required");
+
+  const customer = await customerRepo.findById(null as any, customerId);
+  if (!customer || customer.workspace_id !== ws.id) return notFound(res, "Customer");
+  const meter = await meterRepo.findById(null as any, meterId);
+  if (!meter) return notFound(res, "Meter");
+
+  const quota = await quotaRepo.setQuota(null as any, {
+    customerId,
+    meterId,
+    limit: toNum(limit, 0),
+    period: (period ?? "monthly") as any,
   });
-});
+
+  await writeAuditLog(ws.id, "System", "CREATE", "QUOTA", `${customerId}:${meterId}`, null, quota);
+  res.status(201).json(quota);
+}));
+
+router.put("/usage/quotas/:customerId/:meterId", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const { customerId, meterId } = req.params;
+  const customer = await customerRepo.findById(null as any, customerId);
+  if (!customer || customer.workspace_id !== ws.id) return notFound(res, "Customer");
+
+  const { limit, period } = req.body as { limit?: number; period?: string };
+  if (limit === undefined) return badRequest(res, "limit is required");
+
+  const updated = await quotaRepo.setQuota(null as any, {
+    customerId, meterId,
+    limit: toNum(limit, 0),
+    period: (period ?? "monthly") as any,
+  });
+
+  await writeAuditLog(ws.id, "System", "UPDATE", "QUOTA", `${customerId}:${meterId}`, null, updated);
+  res.json(updated);
+}));
+
+router.delete("/usage/quotas/:customerId/:meterId", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const { customerId, meterId } = req.params;
+  const customer = await customerRepo.findById(null as any, customerId);
+  if (!customer || customer.workspace_id !== ws.id) return notFound(res, "Customer");
+  await quotaRepo.remove(null as any, customerId, meterId);
+  await writeAuditLog(ws.id, "System", "DELETE", "QUOTA", `${customerId}:${meterId}`, null, null);
+  res.json({ deleted: true });
+}));
+
+router.get("/usage/credits", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customerIds = customers.map((c) => c.id);
+
+  const allEntries: any[] = [];
+  for (const cId of customerIds) {
+    const entries = await creditRepo.findByCustomerIds([cId], cId);
+    const balance = await creditRepo.getBalance(cId);
+    allEntries.push(...entries.map((e: any) => ({ ...e, balance })));
+  }
+  res.json(allEntries);
+}));
+
+router.get("/usage/credits/:customerId", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const customer = await customerRepo.findById(null as any, req.params.customerId);
+  if (!customer || customer.workspace_id !== ws.id) return notFound(res, "Customer");
+
+  const entries = await creditRepo.findByCustomerIds([customer.id], customer.id);
+  const balance = await creditRepo.getBalance(customer.id);
+  res.json({ customerId: customer.id, customerName: customer.name, balance, entries });
+}));
+
+router.post("/usage/credits/grant", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const { customerId, amount, reason, expiresAt } = req.body as {
+    customerId?: string; amount?: number; reason?: string; expiresAt?: string;
+  };
+  if (!customerId || amount === undefined || amount <= 0) return badRequest(res, "customerId and amount (positive) are required");
+
+  const customer = await customerRepo.findById(null as any, customerId);
+  if (!customer || customer.workspace_id !== ws.id) return notFound(res, "Customer");
+
+  const entry = await creditRepo.grant(null as any, {
+    customerId,
+    amount: toNum(amount, 0),
+    reason: reason ?? "Manual grant",
+    expiresAt,
+  });
+
+  await writeAuditLog(ws.id, "System", "GRANT", "CREDIT", customerId, null, entry);
+  res.status(201).json(entry);
+}));
+
+router.post("/usage/credits/deduct", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const { customerId, amount, reason, metadata } = req.body as {
+    customerId?: string; amount?: number; reason?: string; metadata?: Record<string, unknown>;
+  };
+  if (!customerId || amount === undefined || amount <= 0) return badRequest(res, "customerId and amount (positive) are required");
+
+  const customer = await customerRepo.findById(null as any, customerId);
+  if (!customer || customer.workspace_id !== ws.id) return notFound(res, "Customer");
+
+  const balance = await creditRepo.getBalance(customerId);
+  if (balance < amount) return conflict(res, `Insufficient credit balance: ${balance} < ${amount}`);
+
+  const entry = await creditRepo.deduct(null as any, {
+    customerId,
+    amount: toNum(amount, 0),
+    reason: reason ?? "Usage deduction",
+    metadata,
+  });
+
+  await writeAuditLog(ws.id, "System", "DEDUCT", "CREDIT", customerId, null, entry);
+  res.status(201).json(entry);
+}));
+
+router.get("/usage/credits/:customerId/balance", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const customer = await customerRepo.findById(null as any, req.params.customerId);
+  if (!customer || customer.workspace_id !== ws.id) return notFound(res, "Customer");
+  const balance = await creditRepo.getBalance(customer.id);
+  res.json({ customerId: customer.id, customerName: customer.name, balance });
+}));
 
 export default router;

@@ -68,7 +68,7 @@ export default function Sidebar({
     { id: "portal", label: "Customer Portal", icon: Globe },
     { id: "integrations", label: "Integrations", icon: Layers },
     { id: "developers", label: "Developers", icon: Code2 },
-    { id: "settings", label: "Settings", icon: SettingsIcon },
+    { id: "settings", label: "Settings & Security", icon: SettingsIcon },
   ];
 
   const handleTabClick = (tabId: SidebarTab) => {

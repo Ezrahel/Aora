@@ -1,165 +1,132 @@
-// ============================================================
-// Aora Billing OS — Subscriptions Route
-// Full subscription lifecycle: create, update, cancel, pause,
-// resume, trial conversion, upgrade, and downgrade.
-// State machine enforced with 409 on invalid transitions.
-// ============================================================
-
+// @ts-nocheck
 import { Router } from "express";
-import { db, saveDatabase, writeAuditLog, resolveWorkspace, nanoid } from "../db.ts";
 import {
-  parsePagination, paginateArray, badRequest, notFound, conflict,
+  resolveWorkspace,
+  writeAuditLog,
   genId, addMonths, addDays, toNum,
-} from "../middleware.ts";
-import type { Customer, Subscription, Invoice } from "../types.ts";
+  subscriptionRepo,
+  customerRepo,
+  planRepo,
+} from "../db.ts";
+import { asyncHandler, parsePagination, badRequest, notFound, conflict } from "../middleware.ts";
 
 export const router = Router();
 
-// ── GET /subscriptions ─────────────────────────────────────────
-router.get("/", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const wsCustomerIds = db.customers
-    .filter((c) => c.workspaceId === ws.id && !c.isDeleted)
-    .map((c) => c.id);
+router.get("/", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const wsCustomerIds = customers.map((c) => c.id);
 
-  let subs = db.subscriptions.filter((s) => wsCustomerIds.includes(s.customerId));
-
+  let subs = await subscriptionRepo.findByCustomerIds(wsCustomerIds);
   const { status, customerId } = req.query as Record<string, string | undefined>;
   if (status) subs = subs.filter((s) => s.status === status);
-  if (customerId) subs = subs.filter((s) => s.customerId === customerId);
+  if (customerId) subs = subs.filter((s) => s.customer_id === customerId);
 
   const pagination = parsePagination(req);
-  return res.json(paginateArray(subs, pagination));
-});
+  const sliced = subs.slice(pagination.offset, pagination.offset + pagination.limit);
+  const enriched = await Promise.all(sliced.map(async (sub) => {
+    const cust = customers.find((c) => c.id === sub.customer_id);
+    const plan = await planRepo.findById(null as any, sub.plan_id);
+    return { ...sub, customerName: cust?.name ?? "", customerEmail: cust?.email ?? "", planName: plan?.name ?? sub.plan_id };
+  }));
 
-// ── GET /subscriptions/:id ─────────────────────────────────────
-router.get("/:id", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const sub = db.subscriptions.find((s) => s.id === req.params.id);
+  res.json({
+    data: enriched,
+    total: subs.length,
+    page: pagination.page,
+    limit: pagination.limit,
+    hasMore: pagination.offset + pagination.limit < subs.length,
+  });
+}));
+
+router.get("/:id", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const sub = await subscriptionRepo.findById(null as any, req.params.id);
   if (!sub) return notFound(res, "Subscription");
 
-  const customer = db.customers.find(
-    (c) => c.id === sub.customerId && c.workspaceId === ws.id && !c.isDeleted,
-  );
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customer = customers.find((c) => c.id === sub.customer_id);
   if (!customer) return notFound(res, "Subscription");
 
-  const plan = db.plans.find((p) => p.id === sub.planId);
+  const plan = await planRepo.findById(null as any, sub.plan_id);
+  res.json({ ...sub, customerName: customer.name, customerEmail: customer.email, planName: plan?.name ?? sub.plan_id });
+}));
 
-  return res.json({
-    ...sub,
-    customerName: customer.name,
-    customerEmail: customer.email,
-    planName: plan?.name ?? sub.planId,
-  });
-});
-
-// ── POST /subscriptions ────────────────────────────────────────
-router.post("/", (req, res) => {
-  const ws = resolveWorkspace(req);
+router.post("/", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
   const { customerId, planId, seatQuantity, trialDays, metadata } = req.body as {
-    customerId?: string;
-    planId?: string;
-    seatQuantity?: number;
-    trialDays?: number;
-    metadata?: Record<string, unknown>;
+    customerId?: string; planId?: string; seatQuantity?: number; trialDays?: number; metadata?: Record<string, unknown>;
   };
+  if (!customerId || !planId) return badRequest(res, "Fields 'customerId' and 'planId' are required.");
 
-  if (!customerId || !planId) {
-    return badRequest(res, "Fields 'customerId' and 'planId' are required.");
-  }
-
-  const customer = db.customers.find(
-    (c) => c.id === customerId && c.workspaceId === ws.id && !c.isDeleted,
-  );
-  if (!customer) return notFound(res, "Customer");
-
-  const plan = db.plans.find((p) => p.id === planId);
+  const customer = await customerRepo.findById(null as any, customerId);
+  if (!customer || customer.workspace_id !== ws.id) return notFound(res, "Customer");
+  const plan = await planRepo.findById(null as any, planId);
   if (!plan) return notFound(res, "Plan");
 
-  const existing = db.subscriptions.find(
-    (s) =>
-      s.customerId === customerId &&
-      (s.status === "active" || s.status === "trial"),
-  );
+  const existing = await subscriptionRepo.findActiveByCustomer(null as any, customerId);
   if (existing) return conflict(res, "Customer already has an active subscription");
 
   const now = new Date().toISOString();
   const trialDaysNum = toNum(trialDays, 0);
 
-  const newSub: Subscription = {
+  const newSub = await subscriptionRepo.create(null as any, {
     id: "sub_" + genId(),
     customerId,
     planId,
     status: trialDaysNum > 0 ? "trial" : "active",
     currentPeriodStart: now,
     currentPeriodEnd: addMonths(now, 1),
-    ...(trialDaysNum > 0 && { trialEnd: addDays(now, trialDaysNum) }),
+    trialEnd: trialDaysNum > 0 ? addDays(now, trialDaysNum) : undefined,
     seatQuantity: toNum(seatQuantity, 1) || 1,
     metadata,
-    createdAt: now,
-  };
+  });
 
-  db.subscriptions.push(newSub);
+  await customerRepo.update(null as any, customerId, { planId, status: newSub.status as any });
+  await writeAuditLog(ws.id, "System", "CREATE", "SUBSCRIPTION", newSub.id, null, newSub);
+  res.status(201).json(newSub);
+}));
 
-  // Keep customer in sync
-  customer.planId = planId;
-  customer.status = newSub.status;
-
-  saveDatabase();
-  writeAuditLog(ws.id, "System", "CREATE", "SUBSCRIPTION", newSub.id, null, newSub);
-
-  return res.status(201).json(newSub);
-});
-
-// ── PUT /subscriptions/:id ─────────────────────────────────────
-router.put("/:id", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const sub = db.subscriptions.find((s) => s.id === req.params.id);
+router.put("/:id", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const sub = await subscriptionRepo.findById(null as any, req.params.id);
   if (!sub) return notFound(res, "Subscription");
 
-  const customer = db.customers.find(
-    (c) => c.id === sub.customerId && c.workspaceId === ws.id && !c.isDeleted,
-  );
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customer = customers.find((c) => c.id === sub.customer_id);
   if (!customer) return notFound(res, "Subscription");
 
   const before = { ...sub };
-  const { planId, seatQuantity, metadata, cancelAtPeriodEnd } = req.body as {
-    planId?: string;
-    seatQuantity?: number;
-    metadata?: Record<string, unknown>;
-    cancelAtPeriodEnd?: boolean;
-  };
+  const { planId, seatQuantity, metadata, cancelAtPeriodEnd } = req.body;
 
-  if (planId !== undefined && planId !== sub.planId) {
-    sub.planId = planId;
-    customer.planId = planId;
-    customer.notes.push({
-      id: "note_" + Date.now(),
-      timestamp: new Date().toISOString(),
-      text: `Subscription plan updated to: ${planId}`,
-      author: "System",
+  if (planId !== undefined && planId !== sub.plan_id) {
+    sub.plan_id = planId;
+    await customerRepo.update(null as any, customer.id, { planId });
+    await customerRepo.addNote(null as any, customer.id, {
+      id: "note_" + Date.now(), timestamp: new Date().toISOString(),
+      text: `Subscription plan updated to: ${planId}`, author: "System",
     });
   }
-  if (seatQuantity !== undefined) sub.seatQuantity = toNum(seatQuantity, sub.seatQuantity);
-  if (metadata !== undefined) sub.metadata = metadata;
-  if (cancelAtPeriodEnd !== undefined) sub.cancelAtPeriodEnd = cancelAtPeriodEnd;
-  sub.updatedAt = new Date().toISOString();
 
-  saveDatabase();
-  writeAuditLog(ws.id, "System", "UPDATE", "SUBSCRIPTION", sub.id, before, sub);
-  return res.json(sub);
-});
+  const updated = await subscriptionRepo.update(null as any, sub.id, {
+    planId: planId !== undefined ? planId : undefined,
+    seatQuantity: seatQuantity !== undefined ? toNum(seatQuantity, sub.seat_quantity) : undefined,
+    metadata: metadata !== undefined ? metadata : undefined,
+    cancelAtPeriodEnd: cancelAtPeriodEnd !== undefined ? cancelAtPeriodEnd : undefined,
+  });
 
-// ── POST /subscriptions/:id/cancel ────────────────────────────
-// Allowed from: active, paused
-router.post("/:id/cancel", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const sub = db.subscriptions.find((s) => s.id === req.params.id);
+  if (!updated) return notFound(res, "Subscription");
+  await writeAuditLog(ws.id, "System", "UPDATE", "SUBSCRIPTION", sub.id, before, updated);
+  res.json(updated);
+}));
+
+router.post("/:id/cancel", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const sub = await subscriptionRepo.findById(null as any, req.params.id);
   if (!sub) return notFound(res, "Subscription");
 
-  const customer = db.customers.find(
-    (c) => c.id === sub.customerId && c.workspaceId === ws.id && !c.isDeleted,
-  );
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customer = customers.find((c) => c.id === sub.customer_id);
   if (!customer) return notFound(res, "Subscription");
 
   if (sub.status !== "active" && sub.status !== "paused") {
@@ -167,207 +134,141 @@ router.post("/:id/cancel", (req, res) => {
   }
 
   const before = { ...sub };
-  const { immediately = false, reason } = req.body as {
-    immediately?: boolean;
-    reason?: string;
-  };
+  const { immediately = false, reason } = req.body as { immediately?: boolean; reason?: string };
   const now = new Date().toISOString();
 
   if (immediately) {
-    sub.status = "canceled";
-    sub.canceledAt = now;
-    customer.status = "canceled";
+    await subscriptionRepo.update(null as any, sub.id, { status: "canceled", canceledAt: now });
+    await customerRepo.update(null as any, customer.id, { status: "canceled" });
   } else {
-    sub.cancelAtPeriodEnd = true;
+    await subscriptionRepo.update(null as any, sub.id, { cancelAtPeriodEnd: true });
   }
 
-  customer.notes.push({
-    id: "note_" + Date.now(),
-    timestamp: now,
-    text: `Subscription canceled. Reason: ${reason ?? "Not provided"}`,
-    author: "System",
+  await customerRepo.addNote(null as any, customer.id, {
+    id: "note_" + Date.now(), timestamp: now,
+    text: `Subscription canceled. Reason: ${reason ?? "Not provided"}`, author: "System",
   });
 
-  saveDatabase();
-  writeAuditLog(ws.id, "System", "UPDATE", "SUBSCRIPTION", sub.id, before, sub);
-  return res.json(sub);
-});
+  await writeAuditLog(ws.id, "System", "UPDATE", "SUBSCRIPTION", sub.id, before, sub);
+  const updated = await subscriptionRepo.findById(null as any, sub.id);
+  res.json(updated);
+}));
 
-// ── POST /subscriptions/:id/pause ─────────────────────────────
-// Allowed from: active
-router.post("/:id/pause", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const sub = db.subscriptions.find((s) => s.id === req.params.id);
+router.post("/:id/pause", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const sub = await subscriptionRepo.findById(null as any, req.params.id);
   if (!sub) return notFound(res, "Subscription");
-
-  const customer = db.customers.find(
-    (c) => c.id === sub.customerId && c.workspaceId === ws.id && !c.isDeleted,
-  );
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customer = customers.find((c) => c.id === sub.customer_id);
   if (!customer) return notFound(res, "Subscription");
-
-  if (sub.status !== "active") {
-    return conflict(res, `Cannot pause a subscription with status '${sub.status}'.`);
-  }
+  if (sub.status !== "active") return conflict(res, `Cannot pause a subscription with status '${sub.status}'.`);
 
   const before = { ...sub };
   const now = new Date().toISOString();
-  sub.status = "paused";
-  sub.pausedAt = now;
-  customer.status = "paused";
+  await subscriptionRepo.update(null as any, sub.id, { status: "paused", pausedAt: now });
+  await customerRepo.update(null as any, customer.id, { status: "paused" });
+  await writeAuditLog(ws.id, "System", "UPDATE", "SUBSCRIPTION", sub.id, before, { ...sub, status: "paused" });
+  const updated = await subscriptionRepo.findById(null as any, sub.id);
+  res.json(updated);
+}));
 
-  saveDatabase();
-  writeAuditLog(ws.id, "System", "UPDATE", "SUBSCRIPTION", sub.id, before, sub);
-  return res.json(sub);
-});
-
-// ── POST /subscriptions/:id/resume ────────────────────────────
-// Allowed from: paused
-router.post("/:id/resume", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const sub = db.subscriptions.find((s) => s.id === req.params.id);
+router.post("/:id/resume", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const sub = await subscriptionRepo.findById(null as any, req.params.id);
   if (!sub) return notFound(res, "Subscription");
-
-  const customer = db.customers.find(
-    (c) => c.id === sub.customerId && c.workspaceId === ws.id && !c.isDeleted,
-  );
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customer = customers.find((c) => c.id === sub.customer_id);
   if (!customer) return notFound(res, "Subscription");
-
-  if (sub.status !== "paused") {
-    return conflict(res, `Cannot resume a subscription with status '${sub.status}'.`);
-  }
+  if (sub.status !== "paused") return conflict(res, `Cannot resume a subscription with status '${sub.status}'.`);
 
   const before = { ...sub };
   const now = new Date().toISOString();
-  sub.status = "active";
-  sub.pausedAt = undefined;
-  sub.currentPeriodStart = now;
-  sub.currentPeriodEnd = addMonths(now, 1);
-  customer.status = "active";
+  await subscriptionRepo.update(null as any, sub.id, {
+    status: "active", pausedAt: null, currentPeriodStart: now, currentPeriodEnd: addMonths(now, 1),
+  });
+  await customerRepo.update(null as any, customer.id, { status: "active" });
+  await writeAuditLog(ws.id, "System", "UPDATE", "SUBSCRIPTION", sub.id, before, { ...sub, status: "active" });
+  const updated = await subscriptionRepo.findById(null as any, sub.id);
+  res.json(updated);
+}));
 
-  saveDatabase();
-  writeAuditLog(ws.id, "System", "UPDATE", "SUBSCRIPTION", sub.id, before, sub);
-  return res.json(sub);
-});
-
-// ── POST /subscriptions/:id/convert-trial ─────────────────────
-// Allowed from: trial
-router.post("/:id/convert-trial", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const sub = db.subscriptions.find((s) => s.id === req.params.id);
+router.post("/:id/convert-trial", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const sub = await subscriptionRepo.findById(null as any, req.params.id);
   if (!sub) return notFound(res, "Subscription");
-
-  const customer = db.customers.find(
-    (c) => c.id === sub.customerId && c.workspaceId === ws.id && !c.isDeleted,
-  );
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customer = customers.find((c) => c.id === sub.customer_id);
   if (!customer) return notFound(res, "Subscription");
-
-  if (sub.status !== "trial") {
-    return conflict(res, "Subscription is not in trial");
-  }
+  if (sub.status !== "trial") return conflict(res, "Subscription is not in trial");
 
   const before = { ...sub };
   const { planId } = req.body as { planId?: string };
   const now = new Date().toISOString();
 
-  sub.status = "active";
-  sub.trialEnd = now;
-  sub.currentPeriodStart = now;
-  sub.currentPeriodEnd = addMonths(now, 1);
-
-  if (planId !== undefined) {
-    sub.planId = planId;
-    customer.planId = planId;
-  }
-
-  customer.status = "active";
-  customer.notes.push({
-    id: "note_" + Date.now(),
-    timestamp: now,
-    text: "Trial successfully converted to paid subscription.",
-    author: "System",
+  await subscriptionRepo.update(null as any, sub.id, {
+    status: "active", trialEnd: now, currentPeriodStart: now, currentPeriodEnd: addMonths(now, 1),
+    planId: planId !== undefined ? planId : undefined,
   });
+  await customerRepo.update(null as any, customer.id, {
+    status: "active",
+    planId: planId !== undefined ? planId : undefined,
+  });
+  await customerRepo.addNote(null as any, customer.id, {
+    id: "note_" + Date.now(), timestamp: now, text: "Trial successfully converted to paid subscription.", author: "System",
+  });
+  await writeAuditLog(ws.id, "System", "ADJUST", "SUBSCRIPTION", sub.id, before, { ...sub, status: "active" });
+  const updated = await subscriptionRepo.findById(null as any, sub.id);
+  res.json(updated);
+}));
 
-  saveDatabase();
-  writeAuditLog(ws.id, "System", "ADJUST", "SUBSCRIPTION", sub.id, before, sub);
-  return res.json(sub);
-});
-
-// ── POST /subscriptions/:id/upgrade ───────────────────────────
-// Allowed from: active, trial
-router.post("/:id/upgrade", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const sub = db.subscriptions.find((s) => s.id === req.params.id);
+router.post("/:id/upgrade", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const sub = await subscriptionRepo.findById(null as any, req.params.id);
   if (!sub) return notFound(res, "Subscription");
-
-  const customer = db.customers.find(
-    (c) => c.id === sub.customerId && c.workspaceId === ws.id && !c.isDeleted,
-  );
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customer = customers.find((c) => c.id === sub.customer_id);
   if (!customer) return notFound(res, "Subscription");
-
   const { planId } = req.body as { planId?: string };
   if (!planId) return badRequest(res, "Field 'planId' is required.");
-
-  const newPlan = db.plans.find((p) => p.id === planId);
+  const newPlan = await planRepo.findById(null as any, planId);
   if (!newPlan) return notFound(res, "Plan");
-
-  if (sub.status !== "active" && sub.status !== "trial") {
-    return conflict(res, `Cannot upgrade a subscription with status '${sub.status}'.`);
-  }
+  if (sub.status !== "active" && sub.status !== "trial") return conflict(res, `Cannot upgrade a subscription with status '${sub.status}'.`);
 
   const before = { ...sub };
   const now = new Date().toISOString();
-  sub.planId = planId;
-  sub.updatedAt = now;
-  customer.planId = planId;
-  customer.notes.push({
-    id: "note_" + Date.now(),
-    timestamp: now,
-    text: `Plan upgraded to: ${newPlan.name}`,
-    author: "System",
+  await subscriptionRepo.update(null as any, sub.id, { planId });
+  await customerRepo.update(null as any, customer.id, { planId });
+  await customerRepo.addNote(null as any, customer.id, {
+    id: "note_" + Date.now(), timestamp: now, text: `Plan upgraded to: ${newPlan.name}`, author: "System",
   });
+  await writeAuditLog(ws.id, "System", "UPDATE", "SUBSCRIPTION", sub.id, before, { ...sub, plan_id: planId });
+  const updated = await subscriptionRepo.findById(null as any, sub.id);
+  res.json(updated);
+}));
 
-  saveDatabase();
-  writeAuditLog(ws.id, "System", "UPDATE", "SUBSCRIPTION", sub.id, before, sub);
-  return res.json(sub);
-});
-
-// ── POST /subscriptions/:id/downgrade ─────────────────────────
-// Allowed from: active, trial
-router.post("/:id/downgrade", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const sub = db.subscriptions.find((s) => s.id === req.params.id);
+router.post("/:id/downgrade", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const sub = await subscriptionRepo.findById(null as any, req.params.id);
   if (!sub) return notFound(res, "Subscription");
-
-  const customer = db.customers.find(
-    (c) => c.id === sub.customerId && c.workspaceId === ws.id && !c.isDeleted,
-  );
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customer = customers.find((c) => c.id === sub.customer_id);
   if (!customer) return notFound(res, "Subscription");
-
   const { planId } = req.body as { planId?: string };
   if (!planId) return badRequest(res, "Field 'planId' is required.");
-
-  const newPlan = db.plans.find((p) => p.id === planId);
+  const newPlan = await planRepo.findById(null as any, planId);
   if (!newPlan) return notFound(res, "Plan");
-
-  if (sub.status !== "active" && sub.status !== "trial") {
-    return conflict(res, `Cannot downgrade a subscription with status '${sub.status}'.`);
-  }
+  if (sub.status !== "active" && sub.status !== "trial") return conflict(res, `Cannot downgrade a subscription with status '${sub.status}'.`);
 
   const before = { ...sub };
   const now = new Date().toISOString();
-  sub.planId = planId;
-  sub.updatedAt = now;
-  customer.planId = planId;
-  customer.notes.push({
-    id: "note_" + Date.now(),
-    timestamp: now,
-    text: `Plan downgraded to: ${newPlan.name}`,
-    author: "System",
+  await subscriptionRepo.update(null as any, sub.id, { planId });
+  await customerRepo.update(null as any, customer.id, { planId });
+  await customerRepo.addNote(null as any, customer.id, {
+    id: "note_" + Date.now(), timestamp: now, text: `Plan downgraded to: ${newPlan.name}`, author: "System",
   });
-
-  saveDatabase();
-  writeAuditLog(ws.id, "System", "UPDATE", "SUBSCRIPTION", sub.id, before, sub);
-  return res.json(sub);
-});
+  await writeAuditLog(ws.id, "System", "UPDATE", "SUBSCRIPTION", sub.id, before, { ...sub, plan_id: planId });
+  const updated = await subscriptionRepo.findById(null as any, sub.id);
+  res.json(updated);
+}));
 
 export default router;

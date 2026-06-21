@@ -7,20 +7,20 @@
 import { Router } from "express";
 import { rateLimit } from "./middleware.ts";
 
-import { router as healthRouter }        from "./routes/health.ts";
-import { router as workspacesRouter }    from "./routes/workspaces.ts";
-import { router as plansRouter }         from "./routes/plans.ts";
-import { router as productsRouter }      from "./routes/products.ts";
-import { router as customersRouter }     from "./routes/customers.ts";
-import { router as subscriptionsRouter } from "./routes/subscriptions.ts";
-import { router as metersRouter }        from "./routes/meters.ts";
-import { router as usageRouter }         from "./routes/usage.ts";
-import { router as entitlementsRouter }  from "./routes/entitlements.ts";
-import { router as invoicesRouter }      from "./routes/invoices.ts";
-import { router as pricingRouter }       from "./routes/pricing.ts";
-import { router as analyticsRouter }     from "./routes/analytics.ts";
-import { router as webhooksRouter }      from "./routes/webhooks.ts";
-import { router as chatRouter }          from "./routes/chat.ts";
+import healthRouter        from "./routes/health.ts";
+import workspacesRouter    from "./routes/workspaces.ts";
+import plansRouter         from "./routes/plans.ts";
+import productsRouter      from "./routes/products.ts";
+import customersRouter     from "./routes/customers.ts";
+import subscriptionsRouter from "./routes/subscriptions.ts";
+import metersRouter        from "./routes/meters.ts";
+import usageRouter         from "./routes/usage.ts";
+import entitlementsRouter  from "./routes/entitlements.ts";
+import invoicesRouter      from "./routes/invoices.ts";
+import pricingRouter       from "./routes/pricing.ts";
+import analyticsRouter     from "./routes/analytics.ts";
+import webhooksRouter      from "./routes/webhooks.ts";
+import chatRouter          from "./routes/chat.ts";
 
 const apiRouter = Router();
 

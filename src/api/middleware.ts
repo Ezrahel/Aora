@@ -179,3 +179,12 @@ export function toNum(val: any, fallback = 0): number {
   const n = Number(val);
   return isNaN(n) ? fallback : n;
 }
+
+/** Wraps an async route handler so Express 4 catches promise rejections. */
+export function asyncHandler(
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<any>,
+) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+}

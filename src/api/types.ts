@@ -11,6 +11,30 @@ export interface Organization {
   updatedAt: string;
 }
 
+export interface WorkspaceProfile {
+  tagline: string;
+  description: string;
+  website: string;
+  industry: string;
+  region: string;
+  timezone: string;
+  address: string;
+  billingEmail: string;
+  supportEmail: string;
+  phone: string;
+  logoUrl: string;
+  coverUrl: string;
+  accentColor: string;
+  locale: string;
+}
+
+export interface WorkspaceSettings {
+  currency: string;
+  taxId: string;
+  enableAutomaticDunning: boolean;
+  enforceEntitlements: boolean;
+}
+
 export interface Workspace {
   id: string;
   organizationId: string;
@@ -18,6 +42,8 @@ export interface Workspace {
   environment: "production" | "sandbox" | "development";
   apiKeys: string[];
   createdAt: string;
+  profile: WorkspaceProfile;
+  settings: WorkspaceSettings;
 }
 
 export interface Member {
@@ -209,12 +235,13 @@ export interface AuditLog {
   id: string;
   workspaceId: string;
   actor: string;
-  action: "CREATE" | "UPDATE" | "DELETE" | "ACCESS_VERIFY" | "ADJUST";
+  action: "CREATE" | "UPDATE" | "DELETE" | "ACCESS_VERIFY" | "ADJUST" | "INGEST" | "GRANT" | "DEDUCT" | "FINALIZE" | "PAY" | "VOID" | "REFUND" | "REVOKE" | "TEST";
   entityType:
     | "ORGANIZATION" | "WORKSPACE" | "MEMBER" | "PRODUCT" | "FEATURE"
     | "PLAN" | "ENTITLEMENT" | "CUSTOMER" | "SUBSCRIPTION" | "INVOICE"
     | "EVENT" | "METER" | "QUOTA" | "CREDIT" | "PRICE" | "RATE_CARD"
-    | "DISCOUNT" | "COUPON" | "CONTRACT" | "WEBHOOK";
+    | "DISCOUNT" | "COUPON" | "CONTRACT" | "WEBHOOK"
+    | "CHAT_MESSAGE" | "USAGE";
   entityId: string;
   beforeState: any;
   afterState: any;

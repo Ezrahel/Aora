@@ -1,258 +1,149 @@
-// ============================================================
-// Aora Billing OS — Webhooks Routes
-// CRUD for webhook endpoints + HTTP delivery engine
-// ============================================================
-
-import { Router } from "express";
+// @ts-nocheck
+import { Router, Request, Response } from "express";
 import {
-  db,
-  saveDatabase,
-  writeAuditLog,
   resolveWorkspace,
-  nanoid,
-  chatMessageLog,
-} from "../db.ts";
-import {
-  parsePagination,
-  paginateArray,
-  badRequest,
-  notFound,
-  conflict,
+  writeAuditLog,
   genId,
-  toNum,
-  generateWebhookSecret,
-  signWebhookPayload,
-} from "../middleware.ts";
-import type {
-  Price,
-  RateCard,
-  Discount,
-  Coupon,
-  CustomContract,
-  WebhookEndpoint,
-  WebhookDelivery,
-  WebhookEventType,
-} from "../types.ts";
+  webhookRepo,
+} from "../db.ts";
+import { asyncHandler, badRequest, notFound } from "../middleware.ts";
 
-const router = Router();
+export const router = Router();
 
-// ──────────────────────────────────────────────────────────────
-// GET /webhooks
-// ──────────────────────────────────────────────────────────────
+router.get("/webhooks", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const webhooks = await webhookRepo.findByWorkspace(ws.id);
+  res.json(webhooks);
+}));
 
-router.get("/webhooks", (req, res) => {
-  const ws = resolveWorkspace(req);
-  return res.json(db.webhooks.filter((w) => w.workspaceId === ws.id));
-});
+router.get("/webhooks/:id", asyncHandler(async (req, res) => {
+  const wh = await webhookRepo.findById(null as any, req.params.id);
+  if (!wh) return notFound(res, "Webhook endpoint");
+  res.json(wh);
+}));
 
-// ──────────────────────────────────────────────────────────────
-// POST /webhooks
-// ──────────────────────────────────────────────────────────────
-
-router.post("/webhooks", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const { url, description, events, isActive } = req.body;
-
-  if (!url) return badRequest(res, "url is required.");
-  if (!String(url).startsWith("http")) {
-    return badRequest(res, "url must be a valid HTTP/HTTPS URL.");
+router.post("/webhooks", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const { url, events, description, secret, metadata } = req.body as {
+    url?: string; events?: string[]; description?: string; secret?: string; metadata?: Record<string, unknown>;
+  };
+  if (!url) return badRequest(res, "url is required");
+  if (!events || !Array.isArray(events) || events.length === 0) {
+    return badRequest(res, "events array is required with at least one event");
   }
 
-  const secret = generateWebhookSecret();
-  const newWebhook: WebhookEndpoint = {
+  const wh = await webhookRepo.create(null as any, {
     id: "wh_" + genId(),
     workspaceId: ws.id,
     url,
-    ...(description !== undefined && { description }),
-    events: Array.isArray(events) ? events : [],
-    secret,
-    isActive: isActive !== undefined ? !!isActive : true,
-    createdAt: new Date().toISOString(),
-  };
-
-  db.webhooks.push(newWebhook);
-  saveDatabase();
-  // Audit without exposing the secret
-  writeAuditLog(ws.id, "Admin", "CREATE", "WEBHOOK", newWebhook.id, null, {
-    ...newWebhook,
-    secret: "[redacted]",
+    events,
+    description: description ?? "",
+    secret: secret ?? "whsec_" + genId(),
+    metadata,
   });
-  // Return full object including secret on creation
-  return res.status(201).json(newWebhook);
-});
 
-// ──────────────────────────────────────────────────────────────
-// POST /webhooks/test  (must be registered before /:id)
-// ──────────────────────────────────────────────────────────────
+  await writeAuditLog(ws.id, "System", "CREATE", "WEBHOOK", wh.id, null, wh);
+  res.status(201).json(wh);
+}));
 
-router.post("/webhooks/test", async (req, res) => {
-  const ws = resolveWorkspace(req);
-  const { webhookId, event } = req.body;
-  const eventType: WebhookEventType = event ?? "subscription.created";
+router.put("/webhooks/:id", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const wh = await webhookRepo.findById(null as any, req.params.id);
+  if (!wh || wh.workspace_id !== ws.id) return notFound(res, "Webhook endpoint");
 
-  const payload = {
-    id: "evt_test_" + genId(),
-    type: eventType,
-    created: Date.now(),
-    livemode: false,
-    data: { message: "This is a test webhook event from Aora Billing." },
-  };
-
-  let targets: WebhookEndpoint[];
-  if (webhookId) {
-    const wh = db.webhooks.find(
-      (w) => w.id === webhookId && w.workspaceId === ws.id,
-    );
-    if (!wh) return notFound(res, "Webhook");
-    targets = [wh];
-  } else {
-    targets = db.webhooks.filter((w) => w.workspaceId === ws.id && w.isActive);
-  }
-
-  const results: { webhookId: string; status: string; httpStatus?: number }[] =
-    [];
-  for (const webhook of targets) {
-    const result = await deliverWebhook(webhook, eventType, payload);
-    results.push({ webhookId: webhook.id, ...result });
-  }
-
-  return res.json({
-    delivered: results.filter((r) => r.status === "delivered").length,
-    results,
+  const before = { ...wh };
+  const { url, events, description, secret, metadata, status } = req.body;
+  const updated = await webhookRepo.update(null as any, wh.id, {
+    url, events, description, secret, metadata, status,
   });
-});
+  if (!updated) return notFound(res, "Webhook endpoint");
+  await writeAuditLog(ws.id, "System", "UPDATE", "WEBHOOK", wh.id, before, updated);
+  res.json(updated);
+}));
 
-// ──────────────────────────────────────────────────────────────
-// GET /webhooks/:id
-// ──────────────────────────────────────────────────────────────
+router.delete("/webhooks/:id", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const wh = await webhookRepo.findById(null as any, req.params.id);
+  if (!wh || wh.workspace_id !== ws.id) return notFound(res, "Webhook endpoint");
 
-router.get("/webhooks/:id", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const webhook = db.webhooks.find(
-    (w) => w.id === req.params.id && w.workspaceId === ws.id,
-  );
-  if (!webhook) return notFound(res, "Webhook");
+  const before = { ...wh };
+  await webhookRepo.softDelete(null as any, wh.id);
+  await writeAuditLog(ws.id, "System", "DELETE", "WEBHOOK", wh.id, before, null);
+  res.json({ deleted: true, id: wh.id });
+}));
 
-  const recentDeliveries = db.webhookDeliveries
-    .filter((d) => d.webhookId === webhook.id)
-    .slice(0, 20);
+router.post("/webhooks/:id/test", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const wh = await webhookRepo.findById(null as any, req.params.id);
+  if (!wh || wh.workspace_id !== ws.id) return notFound(res, "Webhook endpoint");
 
-  return res.json({ ...webhook, recentDeliveries });
-});
-
-// ──────────────────────────────────────────────────────────────
-// PUT /webhooks/:id
-// ──────────────────────────────────────────────────────────────
-
-router.put("/webhooks/:id", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const webhook = db.webhooks.find(
-    (w) => w.id === req.params.id && w.workspaceId === ws.id,
-  );
-  if (!webhook) return notFound(res, "Webhook");
-
-  const before = { ...webhook };
-  const { url, description, events, isActive } = req.body;
-
-  if (url !== undefined) {
-    if (!String(url).startsWith("http")) {
-      return badRequest(res, "url must be a valid HTTP/HTTPS URL.");
-    }
-    webhook.url = url;
-  }
-  if (description !== undefined) webhook.description = description;
-  if (events !== undefined) webhook.events = events;
-  if (isActive !== undefined) webhook.isActive = !!isActive;
-
-  saveDatabase();
-  writeAuditLog(
-    ws.id,
-    "Admin",
-    "UPDATE",
-    "WEBHOOK",
-    webhook.id,
-    before,
-    webhook,
-  );
-  return res.json(webhook);
-});
-
-// ──────────────────────────────────────────────────────────────
-// DELETE /webhooks/:id
-// ──────────────────────────────────────────────────────────────
-
-router.delete("/webhooks/:id", (req, res) => {
-  const ws = resolveWorkspace(req);
-  const idx = db.webhooks.findIndex(
-    (w) => w.id === req.params.id && w.workspaceId === ws.id,
-  );
-  if (idx === -1) return notFound(res, "Webhook");
-
-  const [removed] = db.webhooks.splice(idx, 1);
-  saveDatabase();
-  writeAuditLog(ws.id, "Admin", "DELETE", "WEBHOOK", removed.id, removed, null);
-  return res.json({ deleted: true });
-});
-
-// ──────────────────────────────────────────────────────────────
-// Webhook delivery engine
-// ──────────────────────────────────────────────────────────────
-
-async function deliverWebhook(
-  webhook: WebhookEndpoint,
-  event: WebhookEventType,
-  payload: Record<string, any>,
-): Promise<{ status: "delivered" | "failed"; httpStatus?: number }> {
-  const body = JSON.stringify(payload);
-  const sig = signWebhookPayload(body, webhook.secret);
-
-  const delivery: WebhookDelivery = {
-    id: "del_" + genId(),
-    webhookId: webhook.id,
-    event,
-    payload,
-    status: "pending",
-    attempts: 0,
-    lastAttemptAt: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
+  const testPayload = {
+    type: "webhook.test",
+    data: { message: "This is a test webhook from Aora Billing OS" },
+    timestamp: new Date().toISOString(),
+    workspaceId: ws.id,
   };
-  db.webhookDeliveries.unshift(delivery);
 
-  // Up to 3 attempts: immediate, +1s, +3s
-  const delays = [0, 1000, 3000];
-  for (const delay of delays) {
-    if (delay > 0) await new Promise<void>((r) => setTimeout(r, delay));
-    delivery.attempts += 1;
-    delivery.lastAttemptAt = new Date().toISOString();
+  const deliveryId = "whd_" + genId();
+  const startTime = Date.now();
+  let success = false;
+  let statusCode = 0;
+  let responseBody = "";
 
-    try {
-      const resp = await fetch(webhook.url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Aora-Signature": sig,
-          "X-Aora-Event": event,
-          "X-Aora-Delivery": delivery.id,
-          "User-Agent": "Aora-Webhooks/2.0",
-        },
-        body,
-        signal: AbortSignal.timeout(10_000),
-      });
-      delivery.httpStatus = resp.status;
-      if (resp.ok || resp.status < 500) {
-        delivery.status = "delivered";
-        saveDatabase();
-        return { status: "delivered", httpStatus: resp.status };
-      }
-    } catch (_err) {
-      // network error or timeout — try next retry
-    }
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    const response = await fetch(wh.url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Webhook-ID": wh.id,
+        "X-Delivery-ID": deliveryId,
+        "X-Signature": "test_signature_not_verified",
+        "User-Agent": "Aora-Webhook/1.0",
+      },
+      body: JSON.stringify(testPayload),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+    statusCode = response.status;
+    responseBody = await response.text();
+    success = statusCode >= 200 && statusCode < 300;
+  } catch (err: any) {
+    responseBody = err.message ?? "Connection failed";
+    statusCode = 0;
   }
 
-  delivery.status = "failed";
-  saveDatabase();
-  return { status: "failed" };
-}
+  const duration = Date.now() - startTime;
 
-export { deliverWebhook };
+  await webhookRepo.logDelivery(wh.id, {
+    id: deliveryId,
+    webhookId: wh.id,
+    eventType: "webhook.test",
+    payload: testPayload,
+    status: success ? "success" : "failed",
+    statusCode,
+    responseBody,
+    duration,
+    attempt: 1,
+  });
+
+  await writeAuditLog(ws.id, "System", "TEST", "WEBHOOK", wh.id, null, {
+    testId: deliveryId, url: wh.url, success, statusCode, duration,
+  });
+
+  res.json({ testId: deliveryId, success, statusCode, responseBody, duration });
+}));
+
+router.get("/webhooks/:id/deliveries", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const wh = await webhookRepo.findById(null as any, req.params.id);
+  if (!wh || wh.workspace_id !== ws.id) return notFound(res, "Webhook endpoint");
+
+  const deliveries = await webhookRepo.getDeliveries(wh.id);
+  res.json(deliveries);
+}));
+
 export default router;

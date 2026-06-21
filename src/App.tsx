@@ -16,6 +16,8 @@ import DeveloperExperienceView from "./components/DeveloperExperienceView";
 import InvoicesView from "./components/InvoicesView";
 import IntegrationsView from "./components/IntegrationsView";
 import SettingsView from "./components/SettingsView";
+import AccountDetailsView from "./components/AccountDetailsView";
+import SecurityAccessView from "./components/SecurityAccessView";
 import DocumentationView from "./components/DocumentationView";
 import AIAssistantWidget from "./components/AIAssistantWidget";
 import {
@@ -34,6 +36,7 @@ export default function App() {
   const [workspace, setWorkspace] = useState("Aora Technologies Ltd");
   const [globalSearch, setGlobalSearch] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [profileSection, setProfileSection] = useState<"settings" | "account" | "security" | null>(null);
 
   // Server-Synced Active States (Database)
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -241,6 +244,23 @@ export default function App() {
     }
   };
 
+  const renderProfileSection = () => {
+    switch (profileSection) {
+      case "account":
+        return <AccountDetailsView onBack={() => setProfileSection(null)} />;
+      case "security":
+        return <SecurityAccessView onBack={() => setProfileSection(null)} />;
+      case "settings":
+      default:
+        return (
+          <SettingsView
+            workspace={workspace}
+            onWorkspaceConfigUpdated={fetchDatabaseState}
+          />
+        );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white text-[#111111] font-sans antialiased selection:bg-neutral-100 selection:text-black">
       {/* Left Sidebar navigation panel */}
@@ -276,6 +296,18 @@ export default function App() {
             setGlobalSearch={setGlobalSearch}
             onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             onNavigateDocs={() => setActiveTab("docs")}
+            onOpenProfileSettings={() => {
+              setProfileSection("settings");
+              setActiveTab("settings");
+            }}
+            onOpenAccountDetails={() => {
+              setProfileSection("account");
+              setActiveTab("settings");
+            }}
+            onOpenSecurityAccess={() => {
+              setProfileSection("security");
+              setActiveTab("settings");
+            }}
           />
         )}
 
@@ -283,7 +315,7 @@ export default function App() {
         <main
           className={`flex-1 w-full pb-24 ${activeTab === "landing" || activeTab === "docs" ? "max-w-none" : "px-4 py-6 md:px-8 md:py-8 max-w-7xl mx-auto"}`}
         >
-          {renderActiveView()}
+          {activeTab === "settings" ? renderProfileSection() : renderActiveView()}
         </main>
       </div>
 
