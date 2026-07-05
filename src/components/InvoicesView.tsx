@@ -128,6 +128,7 @@ export default function InvoicesView({
                   <th className="px-5 py-3.5">Customer Profile</th>
                   <th className="px-5 py-3.5 text-center">Consumption</th>
                   <th className="px-5 py-3.5 text-right">Settled Amount</th>
+                  <th className="px-5 py-3.5 text-center">Gateway</th>
                   <th className="px-5 py-3.5 text-right">Status</th>
                 </tr>
               </thead>
@@ -162,6 +163,13 @@ export default function InvoicesView({
                     {/* Cost */}
                     <td className="px-5 py-4 text-right font-extrabold text-[#111111]">
                       {formatCurrency(inv.amount, inv.currency)}
+                    </td>
+
+                    {/* Gateway Status */}
+                    <td className="px-5 py-4 text-center">
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 uppercase tracking-wider">
+                        Local
+                      </span>
                     </td>
 
                     {/* Label states */}

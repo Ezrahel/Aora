@@ -12,9 +12,11 @@ import EntitlementsView from "./components/EntitlementsView";
 import CustomerWorkspaceView from "./components/CustomerWorkspaceView";
 import RevenueOpsView from "./components/RevenueOpsView";
 import AnalyticsView from "./components/AnalyticsView";
+import ReconciliationView from "./components/ReconciliationView";
 import DeveloperExperienceView from "./components/DeveloperExperienceView";
 import InvoicesView from "./components/InvoicesView";
 import IntegrationsView from "./components/IntegrationsView";
+import GatewayManagementView from "./components/GatewayManagementView";
 import SettingsView from "./components/SettingsView";
 import AccountDetailsView from "./components/AccountDetailsView";
 import SecurityAccessView from "./components/SecurityAccessView";
@@ -216,10 +218,14 @@ export default function App() {
         );
       case "analytics":
         return <AnalyticsView />;
+      case "reconciliation":
+        return <ReconciliationView />;
       case "developers":
         return <DeveloperExperienceView workspace={workspace} />;
       case "integrations":
         return <IntegrationsView />;
+      case "gateways":
+        return <GatewayManagementView />;
       case "settings":
         return (
           <SettingsView

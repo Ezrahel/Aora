@@ -5,6 +5,7 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { runMigrations, pool, query, customerRepo, planRepo, featureRepo, entitlementRepo, priceRepo, discountRepo, couponRepo, rateCardRepo, contractRepo, subscriptionRepo, invoiceRepo, meterRepo, usageRepo, quotaRepo, creditRepo, organizationRepo, workspaceRepo, memberRepo, productRepo, auditRepo, webhookRepo, addChatMessage, getChatMessages, genId, toNum, resolveWorkspace } from "./src/api/db.ts";
 import { asyncHandler, badRequest, notFound } from "./src/api/middleware.ts";
+import { startEventProcessor } from "./src/api/services/gateway-event-processor.ts";
 import apiRouter from "./src/api/router.ts";
 
 dotenv.config();
@@ -586,6 +587,9 @@ async function startServer() {
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`AoraHQ Billing Engine Server is actively listening on port ${PORT}`);
   });
+
+  // Start background gateway event processor
+  startEventProcessor(10_000);
 }
 
 startServer();

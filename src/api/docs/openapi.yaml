@@ -1,0 +1,833 @@
+openapi: "3.1.0"
+info:
+  title: AoraHQ Billing API
+  version: "2.0.0"
+  description: |
+    Developer-first, cloud-based billing orchestration and usage-based metering engine.
+    Bring your own Stripe/Paystack/Flutterwave keys — AoraHQ handles the billing logic.
+
+servers:
+  - url: https://{workspace}.aorahq.com/api
+    variables:
+      workspace:
+        default: "app"
+  - url: http://localhost:3000/api
+    description: Local development
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API key
+      description: Workspace API key from AoraHQ dashboard
+    ApiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  headers:
+    X-RateLimit-Limit:
+      schema:
+        type: integer
+      description: Rate limit per minute
+    X-RateLimit-Remaining:
+      schema:
+        type: integer
+      description: Remaining requests in current window
+    X-Request-ID:
+      schema:
+        type: string
+        format: uuid
+      description: Unique request identifier
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+      required:
+        - error
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded]
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        uptime:
+          type: integer
+        database:
+          type: object
+          properties:
+            connected:
+              type: boolean
+            poolSize:
+              type: integer
+            entityCounts:
+              type: object
+        gateways:
+          type: object
+
+    PaginatedResponse:
+      type: object
+      properties:
+        data:
+          type: array
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        hasMore:
+          type: boolean
+
+    Plan:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        currency:
+          type: string
+        billingPeriod:
+          type: string
+          enum: [monthly, yearly]
+        includedSeats:
+          type: integer
+        includedUsage:
+          type: number
+        apiAccess:
+          type: boolean
+        overageUnitPrice:
+          type: number
+        pricingType:
+          type: string
+          enum: [flat, per_seat, usage, hybrid]
+      required:
+        - id
+        - name
+        - price
+
+    GatewayConnection:
+      type: object
+      properties:
+        id:
+          type: string
+        gateway:
+          type: string
+          enum: [stripe, paystack, flutterwave]
+        mode:
+          type: string
+          enum: [live, test]
+        is_verified:
+          type: boolean
+        gateway_account_name:
+          type: string
+          nullable: true
+        key_preview:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    GatewayEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        gateway:
+          type: string
+        event_type:
+          type: string
+        status:
+          type: string
+          enum: [received, processed, skipped, failed]
+        created_at:
+          type: string
+          format: date-time
+
+    ReconciliationReport:
+      type: object
+      properties:
+        periodStart:
+          type: string
+          format: date
+        periodEnd:
+          type: string
+          format: date
+        totals:
+          type: object
+          properties:
+            internalRevenue:
+              type: number
+            gatewayRevenue:
+              type: number
+            variance:
+              type: number
+        customers:
+          type: array
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      tags: [System]
+      responses:
+        "200":
+          description: Service health
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  # ── Plans ──────────────────────────────────────────────────
+  /plans:
+    get:
+      summary: List all plans
+      tags: [Plans]
+      parameters:
+        - name: archived
+          in: query
+          schema:
+            type: string
+            enum: [true, false]
+      responses:
+        "200":
+          description: List of plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Plan"
+    post:
+      summary: Create a plan
+      tags: [Plans]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                price:
+                  type: number
+                currency:
+                  type: string
+                billingPeriod:
+                  type: string
+                  enum: [monthly, yearly]
+                pricingType:
+                  type: string
+                  enum: [flat, per_seat, usage, hybrid]
+      responses:
+        "201":
+          description: Created plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+
+  # ── Gateways ───────────────────────────────────────────────
+  /gateways:
+    get:
+      summary: List connected gateways
+      tags: [Gateways]
+      responses:
+        "200":
+          description: List of gateway connections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GatewayConnection"
+
+  /gateways/connect:
+    post:
+      summary: Connect a payment gateway
+      tags: [Gateways]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [gateway, apiKey]
+              properties:
+                gateway:
+                  type: string
+                  enum: [stripe, paystack, flutterwave]
+                apiKey:
+                  type: string
+                  description: Secret API key (encrypted at rest)
+                mode:
+                  type: string
+                  enum: [test, live]
+                  default: test
+                webhookSecret:
+                  type: string
+                  description: Webhook signing secret (optional)
+      responses:
+        "201":
+          description: Gateway connected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayConnection"
+        "422":
+          description: Gateway verification failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /gateways/{id}:
+    get:
+      summary: Get gateway connection details
+      tags: [Gateways]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Gateway connection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayConnection"
+    delete:
+      summary: Disconnect a gateway
+      tags: [Gateways]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Gateway disconnected
+
+  /gateways/{id}/verify:
+    post:
+      summary: Re-verify a gateway connection
+      tags: [Gateways]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Verification result
+
+  /gateways/webhooks/stripe:
+    post:
+      summary: Stripe webhook receiver
+      tags: [Webhooks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Webhook acknowledged
+
+  /gateways/webhooks/paystack:
+    post:
+      summary: Paystack webhook receiver
+      tags: [Webhooks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Webhook acknowledged
+
+  /gateways/webhooks/flutterwave:
+    post:
+      summary: Flutterwave webhook receiver
+      tags: [Webhooks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Webhook acknowledged
+
+  /gateways/events:
+    get:
+      summary: List gateway events
+      tags: [Gateways]
+      parameters:
+        - name: gateway
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [received, processed, skipped, failed]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: Paginated gateway events
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/GatewayEvent"
+
+  /gateways/events/retry:
+    post:
+      summary: Retry processing a failed gateway event
+      tags: [Gateways]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [eventId]
+              properties:
+                eventId:
+                  type: string
+      responses:
+        "200":
+          description: Event queued for retry
+
+  /gateways/reconciliation:
+    get:
+      summary: Revenue reconciliation report
+      tags: [Analytics]
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: customerId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Reconciliation report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReconciliationReport"
+
+  # ── Subscriptions ──────────────────────────────────────────
+  /subscriptions:
+    get:
+      summary: List subscriptions
+      tags: [Subscriptions]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, trial, canceled, paused]
+        - name: customerId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated subscriptions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse"
+    post:
+      summary: Create a subscription
+      tags: [Subscriptions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customerId, planId]
+              properties:
+                customerId:
+                  type: string
+                planId:
+                  type: string
+                seatQuantity:
+                  type: integer
+                trialDays:
+                  type: integer
+      responses:
+        "201":
+          description: Created subscription
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /subscriptions/{id}/cancel:
+    post:
+      summary: Cancel a subscription
+      tags: [Subscriptions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                immediately:
+                  type: boolean
+                reason:
+                  type: string
+      responses:
+        "200":
+          description: Subscription canceled
+
+  /subscriptions/{id}/sync-gateway:
+    post:
+      summary: Sync subscription from gateway
+      tags: [Subscriptions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Subscription synced
+
+  # ── Webhooks ───────────────────────────────────────────────
+  /webhooks:
+    get:
+      summary: List webhook endpoints
+      tags: [Webhooks]
+      responses:
+        "200":
+          description: List of webhook endpoints
+    post:
+      summary: Create webhook endpoint
+      tags: [Webhooks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url, events]
+              properties:
+                url:
+                  type: string
+                  format: uri
+                events:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "201":
+          description: Webhook endpoint created
+
+  # ── Customers ──────────────────────────────────────────────
+  /customers:
+    get:
+      summary: List customers
+      tags: [Customers]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, trial, canceled, paused]
+        - name: q
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated customers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse"
+    post:
+      summary: Create a customer
+      tags: [Customers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                planId:
+                  type: string
+      responses:
+        "201":
+          description: Customer created
+
+  # ── Invoices ───────────────────────────────────────────────
+  /invoices:
+    get:
+      summary: List invoices
+      tags: [Invoices]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [paid, open, past_due, draft]
+        - name: customerId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated invoices
+    post:
+      summary: Create an invoice
+      tags: [Invoices]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customerId]
+              properties:
+                customerId:
+                  type: string
+                amount:
+                  type: number
+                currency:
+                  type: string
+      responses:
+        "201":
+          description: Invoice created
+
+  /invoices/{id}/finalize:
+    post:
+      summary: Finalize an invoice
+      tags: [Invoices]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Invoice finalized
+
+  /invoices/{id}/pay:
+    post:
+      summary: Pay an invoice
+      tags: [Invoices]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Invoice paid
+
+  # ── Usage ──────────────────────────────────────────────────
+  /usage/ingest:
+    post:
+      summary: Ingest a usage event
+      tags: [Usage]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customerId, meterId, value]
+              properties:
+                customerId:
+                  type: string
+                meterId:
+                  type: string
+                value:
+                  type: number
+                timestamp:
+                  type: string
+                  format: date-time
+                metadata:
+                  type: object
+      responses:
+        "201":
+          description: Usage event recorded
+
+  /usage/quotas:
+    get:
+      summary: List usage quotas
+      tags: [Usage]
+      responses:
+        "200":
+          description: List of quotas
+    post:
+      summary: Set a usage quota
+      tags: [Usage]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customerId, meterId, limit]
+              properties:
+                customerId:
+                  type: string
+                meterId:
+                  type: string
+                limit:
+                  type: number
+                period:
+                  type: string
+                  enum: [hourly, daily, weekly, monthly, yearly]
+      responses:
+        "201":
+          description: Quota set
+
+  /usage/credits/grant:
+    post:
+      summary: Grant credits to a customer
+      tags: [Credits]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customerId, amount]
+              properties:
+                customerId:
+                  type: string
+                amount:
+                  type: number
+                reason:
+                  type: string
+      responses:
+        "201":
+          description: Credits granted
+
+  # ── Pricing ────────────────────────────────────────────────
+  /pricing-calculate:
+    post:
+      summary: Calculate pricing
+      tags: [Pricing]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customerId:
+                  type: string
+                planId:
+                  type: string
+                seatsCount:
+                  type: integer
+                usageUnits:
+                  type: number
+                couponCode:
+                  type: string
+                useCredits:
+                  type: boolean
+      responses:
+        "200":
+          description: Pricing calculation
+
+  # ── Chat ───────────────────────────────────────────────────
+  /chat:
+    post:
+      summary: Send a message to the AI billing assistant
+      tags: [AI]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text:
+                  type: string
+      responses:
+        "200":
+          description: AI response
+
+  /chat-history:
+    get:
+      summary: Get chat message history
+      tags: [AI]
+      responses:
+        "200":
+          description: Chat history

@@ -31,6 +31,9 @@ export interface Invoice {
   customerId?: string;
   customerName?: string;
   customerEmail?: string;
+  gatewayInvoiceId?: string;
+  gatewayHostedUrl?: string;
+  gatewaySynced?: boolean;
 }
 
 export interface Customer {

@@ -21,6 +21,7 @@ import pricingRouter       from "./routes/pricing.ts";
 import analyticsRouter     from "./routes/analytics.ts";
 import webhooksRouter      from "./routes/webhooks.ts";
 import chatRouter          from "./routes/chat.ts";
+import gatewaysRouter      from "./routes/gateways.ts";
 
 const apiRouter = Router();
 
@@ -42,5 +43,6 @@ apiRouter.use(pricingRouter);         // /prices, /rate-cards, /discounts, /coup
 apiRouter.use(analyticsRouter);       // /revenue-metrics, /analytics/*
 apiRouter.use(webhooksRouter);        // /webhooks
 apiRouter.use(chatRouter);            // /chat, /chat-history
+apiRouter.use(gatewaysRouter);        // /gateways/*
 
 export default apiRouter;

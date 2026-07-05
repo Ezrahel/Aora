@@ -13,6 +13,7 @@ import {
   usageRepo,
 } from "../db.ts";
 import { asyncHandler, parsePagination, badRequest, notFound, conflict } from "../middleware.ts";
+import { createInvoiceOnGateway } from "../services/billing-sync.ts";
 
 export const router = Router();
 
@@ -75,20 +76,22 @@ router.post("/", asyncHandler(async (req, res) => {
   const now = new Date().toISOString();
   const usageUnits = (customer.usage_units ?? 0) + 1;
 
-  const invoice = await invoiceRepo.create(null as any, {
-    id,
-    customerId: customer.id,
-    amount: amount ?? 0,
-    currency: currency ?? "usd",
-    status: "pending",
-    description: description ?? `Invoice for ${customer.name}`,
-    lineItems: lineItems ?? [],
-    metadata,
-    usageUnits,
+  // Create on gateway if connected, then locally
+  const result = await createInvoiceOnGateway(ws.id, customer.id, amount ?? 0, currency ?? "usd");
+  const invoice = result.local;
+
+  await writeAuditLog(ws.id, "System", "CREATE", "INVOICE", invoice.id, null, {
+    ...invoice,
+    gateway_synced: !!result.gateway,
+    gateway_hosted_url: result.gateway?.hostedUrl,
   });
 
-  await writeAuditLog(ws.id, "System", "CREATE", "INVOICE", invoice.id, null, invoice);
-  res.status(201).json(invoice);
+  res.status(201).json({
+    ...invoice,
+    gateway_synced: !!result.gateway,
+    gateway_hosted_url: result.gateway?.hostedUrl || undefined,
+    gateway_invoice_id: result.gateway?.gatewayId || undefined,
+  });
 }));
 
 router.post("/:id/finalize", asyncHandler(async (req, res) => {

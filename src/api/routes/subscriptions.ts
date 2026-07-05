@@ -10,6 +10,7 @@ import {
   planRepo,
 } from "../db.ts";
 import { asyncHandler, parsePagination, badRequest, notFound, conflict } from "../middleware.ts";
+import { createSubscriptionOnGateway, cancelSubscriptionOnGateway, syncSubscriptionFromGateway } from "../services/billing-sync.ts";
 
 export const router = Router();
 
@@ -68,24 +69,26 @@ router.post("/", asyncHandler(async (req, res) => {
   const existing = await subscriptionRepo.findActiveByCustomer(null as any, customerId);
   if (existing) return conflict(res, "Customer already has an active subscription");
 
-  const now = new Date().toISOString();
-  const trialDaysNum = toNum(trialDays, 0);
-
-  const newSub = await subscriptionRepo.create(null as any, {
-    id: "sub_" + genId(),
-    customerId,
-    planId,
-    status: trialDaysNum > 0 ? "trial" : "active",
-    currentPeriodStart: now,
-    currentPeriodEnd: addMonths(now, 1),
-    trialEnd: trialDaysNum > 0 ? addDays(now, trialDaysNum) : undefined,
+  // Create on gateway if connected, then locally
+  const result = await createSubscriptionOnGateway(ws.id, customerId, planId, {
+    trialDays: toNum(trialDays, 0),
     seatQuantity: toNum(seatQuantity, 1) || 1,
-    metadata,
   });
 
+  const newSub = result.local;
+
   await customerRepo.update(null as any, customerId, { planId, status: newSub.status as any });
-  await writeAuditLog(ws.id, "System", "CREATE", "SUBSCRIPTION", newSub.id, null, newSub);
-  res.status(201).json(newSub);
+  await writeAuditLog(ws.id, "System", "CREATE", "SUBSCRIPTION", newSub.id, null, {
+    ...newSub,
+    gateway_subscription_id: result.gateway?.gatewayId,
+    gateway_synced: !!result.gateway,
+  });
+
+  res.status(201).json({
+    ...newSub,
+    gateway_synced: !!result.gateway,
+    gateway_subscription_id: result.gateway?.gatewayId,
+  });
 }));
 
 router.put("/:id", asyncHandler(async (req, res) => {
@@ -137,6 +140,15 @@ router.post("/:id/cancel", asyncHandler(async (req, res) => {
   const before = { ...sub };
   const { immediately = false, reason } = req.body as { immediately?: boolean; reason?: string };
   const now = new Date().toISOString();
+
+  // Cancel on gateway if connected
+  if (sub.gateway_subscription_id) {
+    try {
+      await cancelSubscriptionOnGateway(ws.id, sub.id, immediately);
+    } catch (err) {
+      console.error("Gateway cancellation failed:", err);
+    }
+  }
 
   if (immediately) {
     await subscriptionRepo.update(null as any, sub.id, { status: "canceled", canceledAt: now });
@@ -270,6 +282,20 @@ router.post("/:id/downgrade", asyncHandler(async (req, res) => {
   await writeAuditLog(ws.id, "System", "UPDATE", "SUBSCRIPTION", sub.id, before, { ...sub, plan_id: planId });
   const updated = await subscriptionRepo.findById(null as any, sub.id);
   res.json(updated);
+}));
+
+router.post("/:id/sync-gateway", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const sub = await subscriptionRepo.findById(null as any, req.params.id);
+  if (!sub) return notFound(res, "Subscription");
+
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customer = customers.find((c) => c.id === sub.customer_id);
+  if (!customer) return notFound(res, "Subscription");
+
+  const result = await syncSubscriptionFromGateway(ws.id, sub.id);
+  await writeAuditLog(ws.id, "System", "ACCESS_VERIFY", "SUBSCRIPTION", sub.id, null, { synced: !!result });
+  res.json({ synced: !!result, subscription: result });
 }));
 
 export default router;

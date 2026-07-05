@@ -34,6 +34,9 @@ import {
   couponRepo,
   contractRepo,
   webhookRepo,
+  gatewayRepo,
+  gatewayEventRepo,
+  dunningRepo,
 } from "./db/index.ts";
 
 // ── ID generators (synchronous, not DB-bound) ──────────────
@@ -161,4 +164,7 @@ export {
   contractRepo,
   webhookRepo,
   auditRepo,
+  gatewayRepo,
+  gatewayEventRepo,
+  dunningRepo,
 };

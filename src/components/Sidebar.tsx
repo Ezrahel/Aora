@@ -16,6 +16,8 @@ import {
   TrendingUp,
   BarChart3,
   Layers,
+  Plug,
+  Scale,
 } from "lucide-react";
 
 export type SidebarTab =
@@ -31,6 +33,8 @@ export type SidebarTab =
   | "revenue"
   | "analytics"
   | "portal"
+  | "gateways"
+  | "reconciliation"
   | "integrations"
   | "developers"
   | "settings"
@@ -64,9 +68,11 @@ export default function Sidebar({
     { id: "pricing", label: "Pricing", icon: CreditCard },
     { id: "invoices", label: "Invoices", icon: Receipt },
     { id: "revenue", label: "Revenue Ops", icon: TrendingUp },
+    { id: "reconciliation", label: "Reconciliation", icon: Scale },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
     { id: "portal", label: "Customer Portal", icon: Globe },
     { id: "integrations", label: "Integrations", icon: Layers },
+    { id: "gateways", label: "Gateways", icon: Plug },
     { id: "developers", label: "Developers", icon: Code2 },
     { id: "settings", label: "Settings & Security", icon: SettingsIcon },
   ];

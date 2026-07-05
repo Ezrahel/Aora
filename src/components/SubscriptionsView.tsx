@@ -126,6 +126,7 @@ export default function SubscriptionsView({
                 <th className="px-5 py-4">Active Plan Tier</th>
                 <th className="px-5 py-4 text-center">Cycle Usage tracker</th>
                 <th className="px-5 py-4 text-right">Amt / Cycle</th>
+                <th className="px-5 py-4 text-center">Gateway</th>
                 <th className="px-5 py-4 text-right">Status</th>
                 <th className="px-5 py-4 text-right">Actions</th>
               </tr>
@@ -170,6 +171,13 @@ export default function SubscriptionsView({
                     {/* Cost */}
                     <td className="px-5 py-4 text-right font-bold text-[#111111]">
                       {planObj ? formatCurrency(planObj.price, planObj.currency) : "₦0"}
+                    </td>
+
+                    {/* Gateway Status */}
+                    <td className="px-5 py-4 text-center">
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 uppercase tracking-wider">
+                        Local
+                      </span>
                     </td>
 
                     {/* Status */}

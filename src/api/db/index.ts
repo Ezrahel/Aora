@@ -21,3 +21,6 @@ export { discountRepo } from "./repositories/discount.repo.ts";
 export { couponRepo } from "./repositories/coupon.repo.ts";
 export { contractRepo } from "./repositories/contract.repo.ts";
 export { webhookRepo } from "./repositories/webhook.repo.ts";
+export { gatewayRepo } from "./repositories/gateway.repo.ts";
+export { gatewayEventRepo } from "./repositories/gateway-events.repo.ts";
+export { dunningRepo } from "./repositories/dunning.repo.ts";
