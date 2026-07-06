@@ -588,8 +588,10 @@ async function startServer() {
     console.log(`AoraHQ Billing Engine Server is actively listening on port ${PORT}`);
   });
 
-  // Start background gateway event processor
-  startEventProcessor(10_000);
+  // Start background gateway event processor only if DB is available
+  if (dbAvailable) {
+    startEventProcessor(10_000);
+  }
 }
 
 startServer();

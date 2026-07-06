@@ -31,10 +31,24 @@ import {
   DashboardStats,
   Invoice,
 } from "./types";
+import { routeToTab, syncUrl } from "./routes";
 
 export default function App() {
-  // High-Level View Coordinators
-  const [activeTab, setActiveTab] = useState<SidebarTab>("dashboard");
+  const [activeTab, setActiveTab] = useState<SidebarTab>(() =>
+    routeToTab(window.location.pathname),
+  );
+
+  // Sync URL whenever tab changes
+  useEffect(() => {
+    syncUrl(activeTab);
+  }, [activeTab]);
+
+  // Handle browser back / forward
+  useEffect(() => {
+    const onPop = () => setActiveTab(routeToTab(window.location.pathname));
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
   const [workspace, setWorkspace] = useState("Aora Technologies Ltd");
   const [globalSearch, setGlobalSearch] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

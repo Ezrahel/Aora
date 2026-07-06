@@ -1,1 +1,104 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --animate-fade-in-up: fade-in-up 0.6s ease-out forwards;
+  --animate-fade-in: fade-in 0.6s ease-out forwards;
+  --animate-slide-left: slide-left 0.7s ease-out forwards;
+  --animate-slide-right: slide-right 0.7s ease-out forwards;
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-left {
+    from { opacity: 0; transform: translateX(-40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slide-right {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-[#111011] text-white antialiased;
+}
+
+/* ============================================
+   Landing page theming — scoped to .landing-page
+   Light mode is the default.
+   ============================================ */
+.landing-page {
+  --lp-bg: #F5F5F7;
+  --lp-text: #111011;
+  --lp-secondary: #6E6E73;
+  --lp-muted: #A3A3A6;
+  --lp-accent: #F5F5F7;
+  --lp-btn-bg: #111011;
+  --lp-btn-text: #ffffff;
+  --lp-card: rgba(255,255,255,0.95);
+  --lp-card-border: #E5E5E7;
+  --lp-glass: rgba(255,255,255,0.8);
+  --lp-glass-border: rgba(0,0,0,0.06);
+  --lp-surface: rgba(0,0,0,0.03);
+  --lp-hover: rgba(0,0,0,0.06);
+  --lp-tooltip-bg: rgba(255,255,255,0.98);
+  --lp-tooltip-border: rgba(0,0,0,0.08);
+  --lp-glow: rgba(0,0,0,0.03);
+  --lp-grad-stop: rgba(0,0,0,0.02);
+  --lp-chart-grid: rgba(0,0,0,0.06);
+  --lp-chart-axis: rgba(0,0,0,0.15);
+  --lp-chart-fill: rgba(17,16,17,0.08);
+  --lp-divider: rgba(0,0,0,0.06);
+  --lp-system-dot: #34C759;
+  --lp-text-on-bg: #111011;
+}
+
+.landing-page[data-theme="dark"] {
+  --lp-bg: #111011;
+  --lp-text: #ffffff;
+  --lp-secondary: #A3A3A6;
+  --lp-muted: rgba(255,255,255,0.3);
+  --lp-accent: #F5F5F7;
+  --lp-btn-bg: #F5F5F7;
+  --lp-btn-text: #111011;
+  --lp-card: rgba(17,16,17,0.8);
+  --lp-card-border: rgba(255,255,255,0.05);
+  --lp-glass: rgba(17,16,17,0.8);
+  --lp-glass-border: rgba(255,255,255,0.05);
+  --lp-surface: rgba(255,255,255,0.03);
+  --lp-hover: rgba(255,255,255,0.06);
+  --lp-tooltip-bg: rgba(17,16,17,0.95);
+  --lp-tooltip-border: rgba(255,255,255,0.1);
+  --lp-glow: rgba(255,255,255,0.05);
+  --lp-grad-stop: rgba(255,255,255,0.02);
+  --lp-chart-grid: rgba(255,255,255,0.05);
+  --lp-chart-axis: rgba(255,255,255,0.15);
+  --lp-chart-fill: rgba(245,245,247,0.12);
+  --lp-divider: rgba(255,255,255,0.05);
+  --lp-system-dot: #34C759;
+  --lp-text-on-bg: #ffffff;
+}
+
+/* Reusable landing utilities */
+.lp-bg { background-color: var(--lp-bg); }
+.lp-text { color: var(--lp-text); }
+.lp-secondary { color: var(--lp-secondary); }
+.lp-muted { color: var(--lp-muted); }
+.lp-card { background-color: var(--lp-card); border-color: var(--lp-card-border); }
+.lp-glass { background-color: var(--lp-glass); border-color: var(--lp-glass-border); backdrop-filter: blur(24px); }
+.lp-surface { background-color: var(--lp-surface); }
+.lp-border { border-color: var(--lp-card-border); }
+.lp-border-glass { border-color: var(--lp-glass-border); }
+.lp-divider { border-color: var(--lp-divider); }
