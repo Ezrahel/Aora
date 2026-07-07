@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { ArrowRight, CheckCircle2, Activity, Sparkles, Shield } from "lucide-react";
 import { motion } from "motion/react";
+import { type Variants } from "framer-motion";
+
 import {
   ResponsiveContainer,
   AreaChart,
@@ -77,9 +79,16 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-};
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut" as const,
+    },
+  },
+} satisfies Variants;
 
 export default function Hero({ onNavigateTab }: HeroProps) {
   return (
@@ -94,10 +103,7 @@ export default function Hero({ onNavigateTab }: HeroProps) {
         animate="visible"
       >
         <motion.div className="lg:col-span-5 space-y-8" variants={itemVariants}>
-          <div className="inline-flex items-center gap-2 lp-surface border lp-border-glass rounded-full px-4 py-1.5">
-            <Shield className="h-3.5 w-3.5 lp-secondary" />
-            <span className="text-[10px] font-semibold lp-secondary">Bring your own gateway. Zero asset custody.</span>
-          </div>
+        
 
           <h1 className="text-4xl sm:text-5xl lg:text-[56px] lg:leading-[1.08] font-black tracking-tight lp-text">
             Billing infrastructure that
@@ -113,7 +119,7 @@ export default function Hero({ onNavigateTab }: HeroProps) {
 
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <button
-              onClick={() => onNavigateTab("dashboard")}
+              onClick={() => onNavigateTab("waitlist")}
               className="px-7 py-3.5 rounded-xl transition-all cursor-pointer flex items-center gap-2 group"
               style={{ backgroundColor: "var(--lp-btn-bg)", color: "var(--lp-btn-text)" }}
             >

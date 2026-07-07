@@ -22,6 +22,7 @@ import analyticsRouter     from "./routes/analytics.ts";
 import webhooksRouter      from "./routes/webhooks.ts";
 import chatRouter          from "./routes/chat.ts";
 import gatewaysRouter      from "./routes/gateways.ts";
+import waitlistRouter      from "./routes/waitlist.ts";
 
 const apiRouter = Router();
 
@@ -44,5 +45,6 @@ apiRouter.use(analyticsRouter);       // /revenue-metrics, /analytics/*
 apiRouter.use(webhooksRouter);        // /webhooks
 apiRouter.use(chatRouter);            // /chat, /chat-history
 apiRouter.use(gatewaysRouter);        // /gateways/*
+apiRouter.use(waitlistRouter);        // POST /waitlist
 
 export default apiRouter;

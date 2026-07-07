@@ -38,7 +38,8 @@ export type SidebarTab =
   | "integrations"
   | "developers"
   | "settings"
-  | "docs";
+  | "docs"
+  | "waitlist";
 
 interface SidebarProps {
   activeTab: SidebarTab;
@@ -92,9 +93,7 @@ export default function Sidebar({
         {/* Branding Title */}
         <div className="flex items-center justify-between px-2 mb-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#111111] shadow-sm">
-              <Sparkles className="h-4.5 w-4.5 text-white" />
-            </div>
+            <img src="/aorahq-logo.png" alt="AoraHQ" className="h-8 w-auto" />
             <div className="text-left">
               <h1 className="text-sm font-semibold tracking-tight text-[#111111] leading-none">
                 Aora Billing

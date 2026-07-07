@@ -21,6 +21,7 @@ import SettingsView from "./components/SettingsView";
 import AccountDetailsView from "./components/AccountDetailsView";
 import SecurityAccessView from "./components/SecurityAccessView";
 import DocumentationView from "./components/DocumentationView";
+import WaitlistView from "./components/WaitlistView";
 import AIAssistantWidget from "./components/AIAssistantWidget";
 import {
   Plan,
@@ -38,9 +39,10 @@ export default function App() {
     routeToTab(window.location.pathname),
   );
 
-  // Sync URL whenever tab changes
+  // Sync URL whenever tab changes + scroll to top
   useEffect(() => {
     syncUrl(activeTab);
+    window.scrollTo(0, 0);
   }, [activeTab]);
 
   // Handle browser back / forward
@@ -254,6 +256,12 @@ export default function App() {
             workspaceName={workspace}
           />
         );
+      case "waitlist":
+        return (
+          <WaitlistView
+            onNavigateTab={(tab) => setActiveTab(tab as SidebarTab)}
+          />
+        );
       default:
         return (
           <DashboardView
@@ -284,7 +292,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white text-[#111111] font-sans antialiased selection:bg-neutral-100 selection:text-black">
       {/* Left Sidebar navigation panel */}
-      {activeTab !== "landing" && activeTab !== "docs" && (
+      {activeTab !== "landing" && activeTab !== "docs" && activeTab !== "waitlist" && (
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -296,7 +304,7 @@ export default function App() {
       )}
 
       {/* Mobile Menu Backdrop Overlay */}
-      {activeTab !== "landing" && activeTab !== "docs" && isMobileMenuOpen && (
+      {activeTab !== "landing" && activeTab !== "docs" && activeTab !== "waitlist" && isMobileMenuOpen && (
         <div
           onClick={() => setIsMobileMenuOpen(false)}
           className="fixed inset-0 bg-black/15 backdrop-blur-xs z-40 md:hidden"
@@ -305,10 +313,10 @@ export default function App() {
 
       {/* Main Content Pane */}
       <div
-        className={`${activeTab === "landing" || activeTab === "docs" ? "" : "pl-0 md:pl-64"} min-h-screen flex flex-col bg-white transition-all duration-300`}
+        className={`${activeTab === "landing" || activeTab === "docs" || activeTab === "waitlist" ? "" : "pl-0 md:pl-64"} min-h-screen flex flex-col bg-white transition-all duration-300`}
       >
         {/* Top bar Switchers */}
-        {activeTab !== "landing" && activeTab !== "docs" && (
+        {activeTab !== "landing" && activeTab !== "docs" && activeTab !== "waitlist" && (
           <TopNav
             currentWorkspace={workspace}
             setWorkspace={setWorkspace}
@@ -333,14 +341,14 @@ export default function App() {
 
         {/* Breathing page boundaries content stage */}
         <main
-          className={`flex-1 w-full pb-24 ${activeTab === "landing" || activeTab === "docs" ? "max-w-none" : "px-4 py-6 md:px-8 md:py-8 max-w-7xl mx-auto"}`}
+          className={`flex-1 w-full ${activeTab === "landing" || activeTab === "docs" || activeTab === "waitlist" ? "max-w-none" : "px-4 py-6 md:px-8 md:py-8 max-w-7xl mx-auto pb-24"}`}
         >
           {activeTab === "settings" ? renderProfileSection() : renderActiveView()}
         </main>
       </div>
 
       {/* Floating AI Billing Assistant Widget */}
-      {activeTab !== "landing" && activeTab !== "docs" && (
+      {activeTab !== "landing" && activeTab !== "docs" && activeTab !== "waitlist" && (
         <AIAssistantWidget onActionExecuted={handleAIActionExecuted} />
       )}
     </div>

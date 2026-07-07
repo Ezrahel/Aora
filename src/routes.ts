@@ -20,6 +20,7 @@ const TAB_TO_PATH: Record<SidebarTab, string> = {
   developers: "/developers",
   settings: "/settings",
   docs: "/docs",
+  waitlist: "/waitlist",
 };
 
 const PATH_TO_TAB = Object.entries(TAB_TO_PATH).reduce<Record<string, SidebarTab>>(

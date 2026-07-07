@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Sparkles, Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
 import { useLandingTheme } from "./LandingTheme";
 
 interface NavbarProps {
@@ -34,11 +34,8 @@ export default function Navbar({ onNavigateTab, scrollToId }: NavbarProps) {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <button onClick={() => scrollToId("hero")} className="flex items-center gap-2 group cursor-pointer">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--lp-surface)] group-hover:bg-[var(--lp-border)] transition-colors border border-[var(--lp-border)]">
-            <Sparkles className="h-4 w-4 text-[var(--lp-muted)]" />
-          </div>
-          <span className="font-bold text-sm text-[var(--lp-text)] tracking-tight">AoraHQ</span>
+        <button onClick={() => scrollToId("hero")} className="flex items-center cursor-pointer">
+          <img src="/aorahq-logo.png" alt="AoraHQ" className="h-8 w-auto" />
         </button>
 
         <nav className="hidden md:flex items-center gap-8">
@@ -67,17 +64,17 @@ export default function Navbar({ onNavigateTab, scrollToId }: NavbarProps) {
           >
             {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
           </button>
-          <button
+          {/* <button
             onClick={() => onNavigateTab("dashboard")}
             className="px-4 py-2 text-xs font-semibold text-[var(--lp-muted)] hover:text-[var(--lp-text)] transition-colors cursor-pointer"
           >
             Sign In
-          </button>
+          </button> */}
           <button
-            onClick={() => onNavigateTab("dashboard")}
+            onClick={() => onNavigateTab("waitlist")}
             className="px-5 py-2.5 bg-[var(--lp-btn-bg)] hover:opacity-90 text-[var(--lp-btn-text)] font-bold text-xs rounded-xl transition-all cursor-pointer"
           >
-            Start Free
+            Join the Waitlist
           </button>
         </div>
 
@@ -109,10 +106,10 @@ export default function Navbar({ onNavigateTab, scrollToId }: NavbarProps) {
             </button>
           ))}
           <button
-            onClick={() => { onNavigateTab("dashboard"); setMobileOpen(false); }}
+            onClick={() => { onNavigateTab("waitlist"); setMobileOpen(false); }}
             className="block w-full text-center px-5 py-2.5 bg-[var(--lp-btn-bg)] text-[var(--lp-btn-text)] font-bold text-xs rounded-xl cursor-pointer"
           >
-            Start Free
+            Join the Waitlist
           </button>
         </div>
       )}

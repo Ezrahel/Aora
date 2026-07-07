@@ -1,5 +1,3 @@
-import { Sparkles } from "lucide-react";
-
 interface FooterProps { onNavigateTab: (tab: string) => void; scrollToId: (id: string) => void; }
 
 export default function Footer({ onNavigateTab, scrollToId }: FooterProps) {
@@ -7,11 +5,8 @@ export default function Footer({ onNavigateTab, scrollToId }: FooterProps) {
     <footer className="border-t lp-divider py-16 lp-bg">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-6 gap-8">
         <div className="col-span-2 space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md lp-surface border lp-border-glass">
-              <Sparkles className="h-3 w-3 lp-accent" />
-            </div>
-            <span className="font-bold text-sm lp-text">AoraHQ</span>
+          <div className="flex items-center">
+            <img src="/aorahq-logo.png" alt="AoraHQ" className="h-6 w-auto" />
           </div>
           <p className="text-[11px] lp-muted font-medium leading-relaxed max-w-xs">Declarative billing orchestration for modern SaaS, AI, and API platforms.</p>
         </div>
@@ -48,7 +43,10 @@ export default function Footer({ onNavigateTab, scrollToId }: FooterProps) {
       <div className="max-w-7xl mx-auto px-6 mt-12 pt-8 border-t lp-divider flex flex-col sm:flex-row sm:items-center sm:justify-between text-[10px] gap-4">
         <p className="lp-muted">© 2026 Aora Technologies Ltd.</p>
         <p className="lp-muted text-center sm:text-right">Built with TypeScript, CockroachDB, and stubbornness.</p>
-        <div className="flex gap-4"><span className="lp-muted hover:lp-text transition-colors cursor-pointer">Twitter</span><span className="lp-muted hover:lp-text transition-colors cursor-pointer">GitHub</span></div>
+        <div className="flex gap-4">
+          <a href="https://x.com/aorahq" target="_blank" rel="noopener noreferrer" className="lp-muted hover:lp-text transition-colors cursor-pointer">Twitter</a>
+          <span className="lp-muted hover:lp-text transition-colors cursor-pointer">Instagram</span>
+        </div>
       </div>
     </footer>
   );
