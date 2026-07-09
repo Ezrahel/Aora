@@ -56,6 +56,20 @@ function requireDb() {
 // ── Mount API Routes (via master router) ───────────────────
 app.use("/api", apiRouter);
 
+// ── Global JSON Error Handler ──────────────────────────────
+// Express's default error handler returns HTML; this ensures
+// all errors produce a JSON response with a consistent shape.
+app.use("/api", (err: any, req: any, res: any, next: any) => {
+  const status = err.statusCode ?? err.status ?? 400;
+  const message = err.type === "entity.parse.failed"
+    ? "Invalid JSON in request body."
+    : err.message ?? "Bad request.";
+  console.error(`[api-error] ${req.method} ${req.path}:`, err);
+  if (!res.headersSent) {
+    res.status(status).json({ error: message, code: err.code ?? "PARSE_ERROR" });
+  }
+});
+
 // ── Legacy Compatibility: /api/revenue-metrics ──────────────
 app.get("/api/revenue-metrics", asyncHandler(async (req, res) => {
   const wsId = req.query.workspace as string || "ws_aora";

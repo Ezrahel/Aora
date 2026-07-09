@@ -29,7 +29,11 @@ async function startServer() {
     console.log("Setting up live Vite development preview mode...");
     const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        proxy: {},           // disable proxy — not needed in middleware mode
+        hmr: false,          // disable HMR in middleware mode to prevent path conflicts
+      },
       appType: "spa",
     });
     app.use(vite.middlewares);

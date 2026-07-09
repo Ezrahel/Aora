@@ -57,7 +57,12 @@ function WaitlistForm() {
       });
       const contentType = res.headers.get("content-type") || "";
       if (!contentType.includes("application/json")) {
-        throw new Error("Backend server is not reachable. Please try again later.");
+        const text = await res.text().catch(() => "");
+        const snippet = text.slice(0, 200).trim();
+        throw new Error(
+          `Backend server returned ${res.status} ${res.statusText} (${contentType})` +
+          (snippet ? `: ${snippet}` : ""),
+        );
       }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong.");
