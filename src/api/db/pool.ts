@@ -10,7 +10,7 @@ function getPool(): pg.Pool {
     }
     pool = new pg.Pool({
       connectionString: dbUrl,
-      max: parseInt(process.env.DATABASE_POOL_MAX || "50", 10),
+      max: parseInt(process.env.DATABASE_POOL_MAX || "5", 10),
       idleTimeoutMillis: parseInt(process.env.DATABASE_IDLE_TIMEOUT || "30000", 10),
       connectionTimeoutMillis: parseInt(process.env.DATABASE_CONNECTION_TIMEOUT || "5000", 10),
       statement_timeout: parseInt(process.env.DATABASE_STATEMENT_TIMEOUT || "10000", 10),

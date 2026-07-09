@@ -3,7 +3,11 @@ import { readFile, appendFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { SendByte } from "@sendbyte/node";
 
-const DATA_DIR = join(process.cwd(), "data");
+// Vercel's production filesystem is read-only except /tmp.
+// Detect Vercel environment and use /tmp for persistence.
+const DATA_DIR = process.env.VERCEL
+  ? join("/tmp", "data")
+  : join(process.cwd(), "data");
 const WAITLIST_FILE = join(DATA_DIR, "waitlist.jsonl");
 
 // Lazy SendByte client — only initialises when we actually send
