@@ -55,6 +55,10 @@ function WaitlistForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, name: name || undefined, company: company || undefined, gateway: gateway || undefined, mrr: mrr || undefined }),
       });
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        throw new Error("Backend server is not reachable. Please try again later.");
+      }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong.");
       setPosition(data.position);

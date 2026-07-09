@@ -145,7 +145,7 @@ export default function DashboardView({ stats, onNavigateTab }: DashboardViewPro
         </div>
 
         <div className="h-72 w-full text-xs">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0}>
             <AreaChart
               data={stats.historicalChartData}
               margin={{ top: 10, right: 10, left: 15, bottom: 0 }}

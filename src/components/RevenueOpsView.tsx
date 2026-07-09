@@ -202,7 +202,7 @@ export default function RevenueOpsView({
         </div>
 
         <div className="h-64 w-full text-xs">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0}>
             <BarChart
               data={revenueDistributionData}
               margin={{ top: 20, right: 10, left: 10, bottom: 0 }}

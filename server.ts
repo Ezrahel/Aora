@@ -1,7 +1,6 @@
 import express from "express";
 import path from "path";
 import dotenv from "dotenv";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { runMigrations, pool, query, customerRepo, planRepo, featureRepo, entitlementRepo, priceRepo, discountRepo, couponRepo, rateCardRepo, contractRepo, subscriptionRepo, invoiceRepo, meterRepo, usageRepo, quotaRepo, creditRepo, organizationRepo, workspaceRepo, memberRepo, productRepo, auditRepo, webhookRepo, addChatMessage, getChatMessages, genId, toNum, resolveWorkspace } from "./src/api/db.ts";
 import { asyncHandler, badRequest, notFound } from "./src/api/middleware.ts";
@@ -13,7 +12,7 @@ dotenv.config();
 const app = express();
 app.use(express.json({ limit: "10mb" }));
 
-const PORT = 3000;
+const PORT = parseInt(process.env.PORT || "3000", 10);
 
 // ==========================================
 // LAZY-LOADED GEMINI CLIENT SETUP
@@ -570,6 +569,7 @@ async function startServer() {
 
   if (process.env.NODE_ENV !== "production") {
     console.log("Setting up live Vite development preview mode...");
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
