@@ -1,0 +1,17 @@
+node_modules
+.git
+.gitignore
+.env
+.env.example
+tests
+assets
+data
+*.md
+.vscode
+.vercel
+.vercelignore
+vercel.json
+AoraHQ.svg
+billing_db.json
+cockroachdb-migration-prompt.md
+metadata.json
