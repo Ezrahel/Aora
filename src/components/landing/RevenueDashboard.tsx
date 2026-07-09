@@ -39,17 +39,17 @@ export default function RevenueDashboard() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="lp-card rounded-2xl p-4">
                   <div className="text-[9px] lp-secondary font-bold uppercase tracking-widest">MRR</div>
-                  <div className="text-xl font-bold font-mono lp-text mt-1">₦3,600,000</div>
+                  <div className="text-sm sm:text-lg font-bold font-mono lp-text mt-1">₦3,600,000</div>
                   <div className="text-[10px] text-emerald-400 font-semibold mt-1">+18.5% this month</div>
                 </div>
                 <div className="lp-card rounded-2xl p-4">
                   <div className="text-[9px] lp-secondary font-bold uppercase tracking-widest">ARR</div>
-                  <div className="text-xl font-bold font-mono lp-text mt-1">₦43,200,000</div>
+                  <div className="text-sm sm:text-lg font-bold font-mono lp-text mt-1">₦43,200,000</div>
                   <div className="text-[10px] lp-secondary mt-1">Annualized projection</div>
                 </div>
                 <div className="lp-card rounded-2xl p-4">
                   <div className="text-[9px] font-bold lp-secondary uppercase tracking-widest">Events (30d)</div>
-                  <div className="text-xl font-bold font-mono lp-text mt-1">2,410,250</div>
+                  <div className="text-sm sm:text-lg font-bold font-mono lp-text mt-1">2,410,250</div>
                   <div className="text-[10px] lp-secondary mt-1 flex items-center gap-1"><Activity className="h-3 w-3 lp-muted" />API, leads, seats</div>
                 </div>
               </div>
