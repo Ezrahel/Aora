@@ -394,38 +394,38 @@ export default function UsageMeteringView({
         </div>
 
         {/* Tab Selection */}
-        <div className="flex bg-[#F5F5F7] p-0.5 rounded-full border border-[#E5E5E7] text-xs">
+        <div className="flex bg-[#F5F5F7] p-0.5 rounded-full border border-[#E5E5E7] text-xs overflow-x-auto shrink-0">
           <button 
             onClick={() => setActiveSubTab("ingest")} 
-            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 ${activeSubTab === "ingest" ? "bg-white text-black shadow-sm" : "text-[#6E6E73] hover:text-black"}`}
+            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 shrink-0 ${activeSubTab === "ingest" ? "bg-white text-black shadow-sm" : "text-[#6E6E73] hover:text-black"}`}
           >
             <Radio className={`h-3.5 w-3.5 ${activeSubTab === "ingest" ? "text-emerald-500 animate-pulse" : ""}`} />
             Track Activity
           </button>
           <button 
             onClick={() => setActiveSubTab("explorer")} 
-            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 ${activeSubTab === "explorer" ? "bg-white text-black shadow-sm" : "text-[#6E6E73] hover:text-black"}`}
+            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 shrink-0 ${activeSubTab === "explorer" ? "bg-white text-black shadow-sm" : "text-[#6E6E73] hover:text-black"}`}
           >
             <Search className="h-3.5 w-3.5" />
             Activity Explorer
           </button>
           <button 
             onClick={() => setActiveSubTab("ledger")} 
-            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 ${activeSubTab === "ledger" ? "bg-white text-black shadow-sm" : "text-[#6E6E73] hover:text-black"}`}
+            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 shrink-0 ${activeSubTab === "ledger" ? "bg-white text-black shadow-sm" : "text-[#6E6E73] hover:text-black"}`}
           >
             <Coins className="h-3.5 w-3.5" />
             Limit & Balance
           </button>
           <button 
             onClick={() => setActiveSubTab("portal")} 
-            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 ${activeSubTab === "portal" ? "bg-white text-black shadow-sm" : "text-[#6E6E73] hover:text-black"}`}
+            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 shrink-0 ${activeSubTab === "portal" ? "bg-white text-black shadow-sm" : "text-[#6E6E73] hover:text-black"}`}
           >
             <User className="h-3.5 w-3.5" />
             Client Portal
           </button>
           <button 
             onClick={() => setActiveSubTab("blueprints")} 
-            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 ${activeSubTab === "blueprints" ? "bg-white text-[#111111] shadow-sm" : "text-[#6E6E73] hover:text-black"}`}
+            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 shrink-0 ${activeSubTab === "blueprints" ? "bg-white text-[#111111] shadow-sm" : "text-[#6E6E73] hover:text-black"}`}
           >
             <BookOpen className="h-3.5 w-3.5 text-stone-700" />
             Integration Guides

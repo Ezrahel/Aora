@@ -36,7 +36,7 @@ export default function RevenueDashboard() {
                 </div>
                 <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-0.5 rounded-full font-bold uppercase">System Online</span>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="lp-card rounded-2xl p-4">
                   <div className="text-[9px] lp-secondary font-bold uppercase tracking-widest">MRR</div>
                   <div className="text-xl font-bold font-mono lp-text mt-1">₦3,600,000</div>
@@ -53,7 +53,7 @@ export default function RevenueDashboard() {
                   <div className="text-[10px] lp-secondary mt-1 flex items-center gap-1"><Activity className="h-3 w-3 lp-muted" />API, leads, seats</div>
                 </div>
               </div>
-              <div className="h-40">
+              <div className="h-28 sm:h-32 md:h-40">
                 <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                   <AreaChart data={chartData}>
                     <defs><linearGradient id="revMrr" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--lp-accent)" stopOpacity={0.25} /><stop offset="100%" stopColor="var(--lp-accent)" stopOpacity={0} /></linearGradient></defs>
@@ -67,7 +67,7 @@ export default function RevenueDashboard() {
               </div>
               <div className="space-y-2">
                 <div className="text-[9px] font-bold lp-secondary uppercase tracking-widest">Top Accounts</div>
-                <div className="lp-card rounded-xl overflow-hidden">
+                <div className="lp-card rounded-xl overflow-x-auto">
                   <table className="w-full text-left text-[11px] font-mono">
                     <thead>
                       <tr className="border-b lp-divider lp-secondary text-[9px]">

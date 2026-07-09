@@ -65,7 +65,7 @@ export default function TopNav({
             <Menu className="h-5 w-5" />
           </button>
         )}
-        <div className="hidden xs:flex h-7 w-7 items-center justify-center rounded-lg bg-[#111111] text-xs font-semibold text-white tracking-tight shrink-0">
+        <div className="hidden sm:flex h-7 w-7 items-center justify-center rounded-lg bg-[#111111] text-xs font-semibold text-white tracking-tight shrink-0">
           B
         </div>
         <div className="relative flex items-center gap-1.5 cursor-pointer group shrink-0">

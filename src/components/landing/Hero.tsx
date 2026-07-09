@@ -93,8 +93,8 @@ const itemVariants = {
 export default function Hero({ onNavigateTab }: HeroProps) {
   return (
     <section id="hero" className="relative min-h-screen pt-32 pb-20 overflow-hidden lp-bg">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full blur-[120px] pointer-events-none" style={{ backgroundColor: "var(--lp-glow)" }} />
-      <div className="absolute bottom-0 right-0 w-[600px] h-[400px] rounded-full blur-[100px] pointer-events-none" style={{ backgroundColor: "var(--lp-glow)" }} />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[600px] lg:w-[800px] h-[300px] sm:h-[450px] lg:h-[600px] rounded-full blur-[80px] sm:blur-[100px] lg:blur-[120px] pointer-events-none" style={{ backgroundColor: "var(--lp-glow)" }} />
+      <div className="absolute bottom-0 right-0 w-[300px] sm:w-[450px] lg:w-[600px] h-[200px] sm:h-[300px] lg:h-[400px] rounded-full blur-[60px] sm:blur-[80px] lg:blur-[100px] pointer-events-none" style={{ backgroundColor: "var(--lp-glow)" }} />
 
       <motion.div
         className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center"
@@ -165,13 +165,13 @@ export default function Hero({ onNavigateTab }: HeroProps) {
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <StatCard label="Monthly Recurring Revenue" value={3600000} suffix="" />
                 <StatCard label="Active Subscriptions" value={1248} suffix="" />
                 <StatCard label="Events Ingested (30d)" value={2410250} suffix="" />
               </div>
 
-              <div className="h-36 w-full">
+              <div className="h-24 sm:h-28 md:h-36 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chartData}>
                     <defs>

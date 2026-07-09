@@ -3,7 +3,7 @@ interface FooterProps { onNavigateTab: (tab: string) => void; scrollToId: (id: s
 export default function Footer({ onNavigateTab, scrollToId }: FooterProps) {
   return (
     <footer className="border-t lp-divider py-16 lp-bg">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-6 gap-8">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-8">
         <div className="col-span-2 space-y-3">
           <div className="flex items-center">
             <img src="/aorahq-logo.png" alt="AoraHQ" className="h-6 w-auto" />

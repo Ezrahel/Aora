@@ -28,7 +28,7 @@ export default function Entitlements() {
           <p className="text-sm lp-secondary font-medium">Map features to plans. Check access in real-time. Gate features behind plan tiers without redeploying.</p>
         </div>
         <motion.div className="max-w-4xl mx-auto" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-          <div className="lp-glass border lp-border-glass rounded-2xl overflow-hidden">
+          <div className="lp-glass border lp-border-glass rounded-2xl overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b lp-divider lp-surface">

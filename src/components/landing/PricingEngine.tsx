@@ -39,7 +39,7 @@ export default function PricingEngine() {
           <p className="text-sm lp-secondary font-medium">Switch pricing strategies instantly using our declarative engine. No code changes.</p>
         </div>
         <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-10">
             {models.map((m) => {
               const Icon = m.icon;
               const isSel = selected === m.id;

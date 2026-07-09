@@ -126,7 +126,7 @@ export default function EntitlementsView({
             </span>
           </div>
 
-          <div className="bg-white border border-[#E5E5E7] rounded-2xl overflow-hidden shadow-sm">
+          <div className="bg-white border border-[#E5E5E7] rounded-2xl overflow-x-auto shadow-sm">
             <table
               className="w-full text-left border-collapse"
               id="entitlements-table"

@@ -51,7 +51,7 @@ export default function UsageMetering() {
                 </div>
                 <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold uppercase">Real-time</span>
               </div>
-              <div className="h-32">
+              <div className="h-24 sm:h-28 md:h-32">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={streamData}>
                     <defs><linearGradient id="usageGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--lp-accent)" stopOpacity={0.2} /><stop offset="100%" stopColor="var(--lp-accent)" stopOpacity={0} /></linearGradient></defs>

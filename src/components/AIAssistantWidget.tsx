@@ -92,7 +92,7 @@ export default function AIAssistantWidget({ onActionExecuted }: AIAssistantWidge
       {/* Launcher Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex h-12 items-center gap-2.5 rounded-full bg-[#111111] hover:bg-[#1D1D1F] px-4.5 text-xs font-medium text-white shadow-xl hover:shadow-2xl transition-all cursor-pointer border border-neutral-800"
+        className="fixed bottom-6 right-6 z-30 flex h-12 items-center gap-2.5 rounded-full bg-[#111111] hover:bg-[#1D1D1F] px-4.5 text-xs font-medium text-white shadow-xl hover:shadow-2xl transition-all cursor-pointer border border-neutral-800"
         id="ai-widget-launcher-btn"
       >
         <Sparkles className="h-4.5 w-4.5 text-white animate-pulse" />

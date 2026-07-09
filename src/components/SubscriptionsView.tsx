@@ -118,7 +118,7 @@ export default function SubscriptionsView({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* Subscriptions master table with customer indicators (8 columns) */}
-        <div className="lg:col-span-8 bg-white border border-[#E5E5E7] rounded-3xl overflow-hidden shadow-sm">
+        <div className="lg:col-span-8 bg-white border border-[#E5E5E7] rounded-3xl overflow-x-auto shadow-sm">
           <table className="w-full text-left border-collapse" id="subscriptions-master-table">
             <thead>
               <tr className="bg-[#FAFAFA] border-b border-[#E5E5E7] text-[10px] text-[#6E6E73] font-bold uppercase tracking-wider">
