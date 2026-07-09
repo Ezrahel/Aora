@@ -1,9 +1,11 @@
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import { createHash } from "crypto";
 import pool, { withTransaction } from "./pool.ts";
 
-const MIGRATIONS_DIR = path.join(import.meta.dirname, "migrations");
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const MIGRATIONS_DIR = path.join(__dirname, "migrations");
 
 async function ensureMigrationsTable() {
   await pool.query(`
