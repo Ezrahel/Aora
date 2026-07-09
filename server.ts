@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import fs from "node:fs";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 import { runMigrations, pool, query, customerRepo, planRepo, featureRepo, entitlementRepo, priceRepo, discountRepo, couponRepo, rateCardRepo, contractRepo, subscriptionRepo, invoiceRepo, meterRepo, usageRepo, quotaRepo, creditRepo, organizationRepo, workspaceRepo, memberRepo, productRepo, auditRepo, webhookRepo, addChatMessage, getChatMessages, genId, toNum, resolveWorkspace } from "./src/api/db.ts";
@@ -567,7 +568,16 @@ Current Platform State:
 async function startServer() {
   await initializeDatabase();
 
-  if (process.env.NODE_ENV !== "production") {
+  const distPath = path.join(process.cwd(), "dist");
+  const isProduction = fs.existsSync(path.join(distPath, "index.html"));
+
+  if (isProduction) {
+    console.log("Configuring high-fidelity production static assets server...");
+    app.use(express.static(distPath));
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(distPath, "index.html"));
+    });
+  } else {
     console.log("Setting up live Vite development preview mode...");
     const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
@@ -575,13 +585,6 @@ async function startServer() {
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
-    console.log("Configuring high-fidelity production static assets server...");
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
   }
 
   app.listen(PORT, "0.0.0.0", () => {
