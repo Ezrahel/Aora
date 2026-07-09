@@ -1,0 +1,10 @@
+# Vercel builds api/ and dist/ — everything else is deploy noise
+server.ts
+tests/
+data/
+*.md
+.env
+.env.example
+.eslintrc*
+.prettierrc*
+.gitattributes
