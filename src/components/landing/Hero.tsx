@@ -112,7 +112,7 @@ export default function Hero({ onNavigateTab }: HeroProps) {
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg lp-secondary font-medium leading-relaxed max-w-lg">
+          <p className="text-lg sm:text-xl lp-secondary font-medium leading-relaxed max-w-lg">
             A developer-first billing orchestration engine. Bring your Stripe, Paystack, or Flutterwave keys. 
             We handle pricing, metering, entitlements, and revenue analytics in one unified platform.
           </p>
@@ -140,7 +140,7 @@ export default function Hero({ onNavigateTab }: HeroProps) {
               { icon: CheckCircle2, text: "Multi-gateway support" },
               { icon: Sparkles, text: "AI-powered billing" },
             ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-2 text-xs lp-secondary">
+              <div key={text} className="flex items-center gap-2 text-sm lp-secondary">
                 <Icon className="h-3.5 w-3.5 lp-muted" />
                 {text}
               </div>

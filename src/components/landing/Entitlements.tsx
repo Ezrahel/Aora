@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { motion } from "motion/react";
 import { ShieldCheck, Check, X } from "lucide-react";
 
@@ -16,16 +15,13 @@ const defaultFeatures: Feature[] = [
 ];
 
 export default function Entitlements() {
-  const [features, setFeatures] = useState<Feature[]>(defaultFeatures);
-  const toggle = (idx: number, tier: "starter" | "growth" | "enterprise") => setFeatures((prev) => prev.map((f, i) => i === idx ? { ...f, [tier]: !f[tier] } : f));
-
   return (
     <section className="py-16 relative lp-bg">
       <div className="max-w-7xl mx-auto px-6">
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-6">
           <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">Entitlements Engine</span>
           <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">Feature access, declaratively controlled</h2>
-          <p className="text-sm lp-secondary font-medium">Map features to plans. Check access in real-time. Gate features behind plan tiers without redeploying.</p>
+          <p className="text-base lp-secondary font-medium">Map features to plans. Check access in real-time. Gate features behind plan tiers without redeploying.</p>
         </div>
         <motion.div className="max-w-4xl mx-auto" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
           <div className="lp-glass border lp-border-glass rounded-2xl overflow-x-auto">
@@ -39,14 +35,14 @@ export default function Entitlements() {
                 </tr>
               </thead>
               <tbody className="divide-y lp-divider">
-                {features.map((f, idx) => (
+                {defaultFeatures.map((f) => (
                   <tr key={f.name} className="hover:lp-surface transition-colors">
                     <td className="py-3.5 px-6 text-xs lp-text font-medium">{f.name}</td>
                     {(["starter", "growth", "enterprise"] as const).map((tier) => (
                       <td key={tier} className="py-3.5 px-4 text-center">
-                        <button onClick={() => toggle(idx, tier)} className={`inline-flex items-center justify-center h-7 w-7 rounded-lg border transition-all cursor-pointer ${f[tier] ? "lp-card border-[var(--lp-text)]/30 lp-text" : "lp-surface border lp-border-glass lp-muted hover:lp-text"}`}>
+                        <div className={`inline-flex items-center justify-center h-7 w-7 rounded-lg border ${f[tier] ? "border-[var(--lp-text)]/30 lp-text" : "border lp-border-glass lp-muted"}`}>
                           {f[tier] ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
-                        </button>
+                        </div>
                       </td>
                     ))}
                   </tr>
@@ -57,7 +53,7 @@ export default function Entitlements() {
           <div className="mt-6 text-center">
             <div className="inline-flex items-center gap-2 text-[10px] lp-secondary">
               <ShieldCheck className="h-3.5 w-3.5 lp-muted" />
-              Click any cell to toggle feature access — changes are instant and require no deployment
+              Feature access is configured per plan — no code changes needed
             </div>
           </div>
         </motion.div>

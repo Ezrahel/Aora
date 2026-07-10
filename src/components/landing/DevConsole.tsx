@@ -23,8 +23,8 @@ export default function DevConsole() {
           <motion.div className="lg:col-span-5 space-y-6" initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
             <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">Built Dev-First</span>
             <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">Billing infrastructure developers actually enjoy using</h2>
-            <p className="text-sm lp-secondary font-medium leading-relaxed">Integrate in minutes. Dispatch lightweight telemetry events when actions occur — we handle the pricing, pro-rata calculations, and ledger updates.</p>
-            <div className="flex items-center gap-2 text-xs lp-secondary"><Terminal className="h-4 w-4 lp-muted" />No complex billing logic. Just track, can, and calculate.</div>
+            <p className="text-base lp-secondary font-medium leading-relaxed">Integrate in minutes. Dispatch lightweight telemetry events when actions occur — we handle the pricing, pro-rata calculations, and ledger updates.</p>
+            <div className="flex items-center gap-2 text-sm lp-secondary"><Terminal className="h-4 w-4 lp-muted" />No complex billing logic. Just track, can, and calculate.</div>
           </motion.div>
           <motion.div className="lg:col-span-7" initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.15 }}>
             <div className="lp-glass border lp-border-glass rounded-2xl overflow-hidden shadow-2xl">
@@ -41,10 +41,10 @@ export default function DevConsole() {
                 ))}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-12 divide-y md:divide-y-0 md:divide-x lp-divider">
-                <div className="md:col-span-7 p-5"><pre className="font-mono text-xs leading-relaxed text-[#9CDCF0]"><code>{code}</code></pre></div>
+                <div className="md:col-span-7 p-5"><pre className="font-mono text-sm leading-relaxed text-[#9CDCF0]"><code>{code}</code></pre></div>
                 <div className="md:col-span-5 p-5 lp-surface">
                   <div className="text-[9px] font-bold lp-secondary uppercase tracking-widest mb-3">Response</div>
-                  <pre className={`font-mono text-[10px] leading-relaxed ${responseColor}`}><code>{response}</code></pre>
+                  <pre className={`font-mono text-xs leading-relaxed ${responseColor}`}><code>{response}</code></pre>
                   <div className="mt-4 pt-3 border-t lp-divider flex items-center justify-between text-[9px]"><span className="lp-secondary uppercase tracking-wider">Latency</span><span className="text-emerald-400 font-bold">12ms — SLA guaranteed</span></div>
                 </div>
               </div>

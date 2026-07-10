@@ -36,7 +36,7 @@ export default function PricingEngine() {
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-6">
           <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">Monetization Versatility</span>
           <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">One platform. Every pricing model.</h2>
-          <p className="text-sm lp-secondary font-medium">Switch pricing strategies instantly using our declarative engine. No code changes.</p>
+          <p className="text-base lp-secondary font-medium">Switch pricing strategies instantly using our declarative engine. No code changes.</p>
         </div>
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-10">

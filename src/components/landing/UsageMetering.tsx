@@ -31,7 +31,7 @@ export default function UsageMetering() {
           <motion.div className="lg:col-span-5 space-y-6" initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
             <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">Usage Metering</span>
             <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">Track everything. Bill accurately.</h2>
-            <p className="text-sm lp-secondary font-medium leading-relaxed">Ingestion endpoint for usage events. Bulk import via CSV. Quota tracking. Credit ledger with grant/deduct. Aggregate usage per customer per billing period.</p>
+            <p className="text-base lp-secondary font-medium leading-relaxed">Ingestion endpoint for usage events. Bulk import via CSV. Quota tracking. Credit ledger with grant/deduct. Aggregate usage per customer per billing period.</p>
             <div className="flex gap-3 pt-2">
               <button onClick={triggerEvent} className="px-4 py-2.5 lp-card rounded-xl transition-all cursor-pointer flex items-center gap-2 text-[11px] font-bold lp-text">
                 <Zap className="h-3.5 w-3.5" />Simulate Event

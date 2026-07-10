@@ -27,7 +27,7 @@ export default function BYOKSection() {
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-6">
           <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">Bring Your Own Keys</span>
           <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">Your gateway. Your keys. Our infrastructure.</h2>
-          <p className="text-sm font-medium lp-secondary">Pick your payment gateway, paste your keys, and go. We never store them in plaintext.</p>
+          <p className="text-base font-medium lp-secondary">Pick your payment gateway, paste your keys, and go. We never store them in plaintext.</p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center max-w-5xl mx-auto">
           <motion.div className="lg:col-span-5 space-y-4" initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
@@ -36,7 +36,7 @@ export default function BYOKSection() {
                 <div className="h-10 w-10 rounded-lg lp-surface flex items-center justify-center"><Shield className="h-5 w-5 lp-muted" /></div>
                 <div>
                   <div className="text-sm font-bold lp-text">{g.name}</div>
-                  <div className="text-[10px] lp-secondary font-mono mt-0.5">API v{g.name === "Stripe" ? "2023-10" : "2"}</div>
+                  <div className="text-xs lp-secondary font-mono mt-0.5">API v{g.name === "Stripe" ? "2023-10" : "2"}</div>
                 </div>
               </div>
             ))}
@@ -67,8 +67,8 @@ export default function BYOKSection() {
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-4">
                   <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
                   <div>
-                    <div className="text-xs font-bold text-emerald-400">Connection verified</div>
-                    <div className="text-[10px] lp-secondary font-mono mt-0.5">Gateway: Stripe — Account: acct_1A2B3C4D — Payouts: enabled</div>
+                    <div className="text-sm font-bold text-emerald-400">Connection verified</div>
+                    <div className="text-xs lp-secondary font-mono mt-0.5">Gateway: Stripe — Account: acct_1A2B3C4D — Payouts: enabled</div>
                   </div>
                 </motion.div>
               )}

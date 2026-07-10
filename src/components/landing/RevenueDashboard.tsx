@@ -19,7 +19,7 @@ export default function RevenueDashboard() {
           <motion.div className="lg:col-span-4 space-y-6" initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
             <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">Revenue Analytics</span>
             <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">Real-time financial intelligence</h2>
-            <p className="text-sm lp-secondary font-medium leading-relaxed">MRR, ARR, churn, trial conversion, plan performance — computed from your actual payment data, automatically reconciled between your gateway and our metering engine.</p>
+            <p className="text-base lp-secondary font-medium leading-relaxed">MRR, ARR, churn, trial conversion, plan performance — computed from your actual payment data, automatically reconciled between your gateway and our metering engine.</p>
             <div className="pt-2">
               <button className="text-[11px] font-bold lp-text border lp-border-glass hover:lp-surface lp-card px-4 py-2.5 rounded-xl transition-all cursor-pointer inline-flex items-center gap-1.5">
                 Explore Revenue Analytics <ChevronRight className="h-3.5 w-3.5" />

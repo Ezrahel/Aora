@@ -86,7 +86,7 @@ function WaitlistForm() {
             <Mail className="h-6 w-6 lp-accent" />
           </div>
           <h3 className="text-xl font-bold lp-text">Get Early Access</h3>
-          <p className="text-sm lp-secondary mt-1.5">Join 340+ founders building on AoraHQ.</p>
+          <p className="text-base lp-secondary mt-1.5">Join 340+ founders building on AoraHQ.</p>
         </div>
       )}
 
@@ -98,13 +98,13 @@ function WaitlistForm() {
             <button onClick={handleSubmitEmail} className="w-full py-3.5 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 text-sm font-bold" style={{ backgroundColor: "var(--lp-btn-bg)", color: "var(--lp-btn-text)" }}>
               Get Early Access <ArrowRight className="h-4 w-4" />
             </button>
-            <p className="text-[10px] lp-muted text-center">No spam. No sales calls. We'll ping you when your spot opens.</p>
+            <p className="text-[11px] lp-muted text-center">No spam. No sales calls. We'll ping you when your spot opens.</p>
           </motion.div>
         )}
 
         {step === "details" && (
           <motion.div key="details" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4">
-            <p className="text-xs lp-secondary">Great! Tell us a bit more so we can prioritize your spot.</p>
+            <p className="text-sm lp-secondary">Great! Tell us a bit more so we can prioritize your spot.</p>
             <div>
               <label className={labelClass}>Name</label>
               <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className={inputClass} />
@@ -142,7 +142,7 @@ function WaitlistForm() {
             </div>
             <div>
               <h3 className="text-xl font-bold lp-text">Welcome to the inner circle!</h3>
-              <p className="text-sm lp-secondary mt-2">
+              <p className="text-base lp-secondary mt-2">
                 You've successfully secured your spot. You are on the waitlist, and we'll send a ping to <strong className="lp-text">{email}</strong> as soon as we launch.
               </p>
             </div>
@@ -171,7 +171,7 @@ function FAQ() {
           <AnimatePresence>
             {open === i && (
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                <p className="px-6 pb-4 text-sm lp-secondary leading-relaxed">{faq.a}</p>
+                <p className="px-6 pb-4 text-base lp-secondary leading-relaxed">{faq.a}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -241,7 +241,7 @@ export default function WaitlistView({ onNavigateTab }: WaitlistViewProps) {
                     <Icon className="h-6 w-6 lp-accent" />
                   </div>
                   <h3 className="text-sm font-bold lp-text mb-2">{title}</h3>
-                  <p className="text-xs lp-secondary leading-relaxed">{desc}</p>
+                  <p className="text-sm lp-secondary leading-relaxed">{desc}</p>
                 </div>
               ))}
             </div>
@@ -268,7 +268,7 @@ export default function WaitlistView({ onNavigateTab }: WaitlistViewProps) {
             </div>
             <div>
               <h3 className="text-lg font-bold lp-text">Ditech</h3>
-              <p className="text-sm lp-secondary mt-2 max-w-lg mx-auto leading-relaxed">
+              <p className="text-base lp-secondary mt-2 max-w-lg mx-auto leading-relaxed">
                 Building the billing orchestration layer that African SaaS deserves. Previously built payment infrastructure at scale. 
                 Stripe, Paystack, Flutterwave — if you've dealt with all three, you know why AoraHQ exists.
               </p>

@@ -58,7 +58,7 @@ export default function Problem() {
           <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">
             Billing is the last infrastructure tax on SaaS
           </h2>
-          <p className="text-sm lp-secondary font-medium max-w-xl mx-auto">
+          <p className="text-base lp-secondary font-medium max-w-xl mx-auto">
             Every team hits the same walls. Here's how we tear them down.
           </p>
         </div>
@@ -79,12 +79,12 @@ export default function Problem() {
                     <span className="text-[10px] font-mono font-bold lp-secondary/50">0{i + 1}</span>
                   </div>
                   <div className="md:col-span-3">
-                    <h3 className="text-lg font-bold lp-text">{item.pain}</h3>
+                    <h3 className="text-xl font-bold lp-text">{item.pain}</h3>
                     <div className="mt-2 flex items-center gap-2">
                       <span className="h-px flex-1 lp-divider" />
                       <span className="text-[9px] font-bold text-red-400/70 uppercase tracking-wider">Pain</span>
                     </div>
-                    <p className="text-sm text-red-400/60 font-medium mt-3 leading-relaxed">{item.oldWay}</p>
+                    <p className="text-base text-red-400/60 font-medium mt-3 leading-relaxed">{item.oldWay}</p>
                   </div>
                   <div className="md:col-span-1 flex justify-center">
                     <div className="h-px w-full md:h-full md:w-px lp-divider" />
@@ -96,7 +96,7 @@ export default function Problem() {
                       </span>
                       <span className="text-[9px] font-bold lp-accent uppercase tracking-wider">AoraHQ</span>
                     </div>
-                    <p className="text-sm lp-secondary font-medium leading-relaxed">{item.solution}</p>
+                    <p className="text-base lp-secondary font-medium leading-relaxed">{item.solution}</p>
                   </div>
                 </div>
               </div>

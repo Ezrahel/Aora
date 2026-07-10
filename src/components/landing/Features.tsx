@@ -31,7 +31,7 @@ export default function Features() {
 <div className="max-w-3xl mx-auto text-center space-y-4 mb-8">
         <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">Core Capabilities</span>
         <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">One unified platform. Complete control.</h2>
-        <p className="text-sm font-medium lp-secondary">A comprehensive billing operating system designed as the single source of truth for your monetization.</p>
+        <p className="text-base font-medium lp-secondary">A comprehensive billing operating system designed as the single source of truth for your monetization.</p>
       </div>
         <motion.div ref={ref} variants={containerVariants} initial="hidden" animate={inView ? "visible" : "hidden"} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {features.map((f) => {
@@ -44,7 +44,7 @@ export default function Features() {
                     <Icon className="h-5 w-5 lp-accent" />
                   </div>
                   <h3 className="text-sm font-bold lp-text mb-2">{f.title}</h3>
-                  <p className="text-xs lp-secondary font-medium leading-relaxed">{f.desc}</p>
+                  <p className="text-sm lp-secondary font-medium leading-relaxed">{f.desc}</p>
                 </div>
               </motion.div>
             );

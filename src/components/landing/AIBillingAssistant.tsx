@@ -24,13 +24,13 @@ export default function AIBillingAssistant() {
           <motion.div className="lg:col-span-5 space-y-6" initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
             <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">AI Billing Assistant</span>
             <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">Your billing team, amplified by AI</h2>
-            <p className="text-sm lp-secondary font-medium leading-relaxed">Powered by Gemini. Ask natural language questions about your revenue, create plans, inspect customers, or run pricing simulations. Real results, not chatbot nonsense.</p>
+            <p className="text-base lp-secondary font-medium leading-relaxed">Powered by Gemini. Ask natural language questions about your revenue, create plans, inspect customers, or run pricing simulations. Real results, not chatbot nonsense.</p>
             <div className="space-y-3 pt-2">
               <span className="text-[10px] font-bold lp-muted/50 uppercase tracking-widest block">Try asking</span>
               {prompts.map((p) => (
                 <div key={p} className="flex items-center gap-3 p-3 rounded-xl lp-surface border lp-border-glass hover:border-[var(--lp-text)]/20 transition-all cursor-pointer group">
                   <Zap className="h-3.5 w-3.5 lp-muted shrink-0" />
-                  <span className="text-xs lp-secondary group-hover:lp-text transition-colors">&ldquo;{p}&rdquo;</span>
+                  <span className="text-sm lp-secondary group-hover:lp-text transition-colors">&ldquo;{p}&rdquo;</span>
                 </div>
               ))}
             </div>
@@ -52,7 +52,7 @@ export default function AIBillingAssistant() {
                 {messages.map((msg, i) => (
                   <div key={i} className={`flex gap-3 ${msg.role === "user" ? "justify-end" : ""}`}>
                     {msg.role === "assistant" && <div className="h-8 w-8 rounded-lg lp-surface border lp-border-glass flex items-center justify-center shrink-0 mt-0.5"><Brain className="h-4 w-4 lp-accent" /></div>}
-                    <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-xs leading-relaxed ${msg.role === "user" ? "lp-card" : "lp-glass border lp-border-glass"}`}>
+                    <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${msg.role === "user" ? "lp-card" : "lp-glass border lp-border-glass"}`}>
                       {msg.text.split("\n").map((line, j) => <p key={j} className={j > 0 ? "mt-1" : ""}>{line}</p>)}
                     </div>
                     {msg.role === "user" && <div className="h-8 w-8 rounded-lg lp-surface border lp-border-glass flex items-center justify-center shrink-0 mt-0.5"><MessageSquare className="h-4 w-4 lp-accent" /></div>}
