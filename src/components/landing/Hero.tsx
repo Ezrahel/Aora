@@ -18,12 +18,12 @@ interface HeroProps {
 }
 
 const chartData = [
-  { month: "Jan", mrr: 1540000, usage: 102000 },
-  { month: "Feb", mrr: 1820000, usage: 154000 },
-  { month: "Mar", mrr: 2100000, usage: 198000 },
-  { month: "Apr", mrr: 2450000, usage: 220000 },
-  { month: "May", mrr: 2900000, usage: 310000 },
-  { month: "Jun", mrr: 3600000, usage: 420000 },
+  { month: "Jan", mrr: 15400, usage: 102000 },
+  { month: "Feb", mrr: 18200, usage: 154000 },
+  { month: "Mar", mrr: 21000, usage: 198000 },
+  { month: "Apr", mrr: 24500, usage: 220000 },
+  { month: "May", mrr: 29000, usage: 310000 },
+  { month: "Jun", mrr: 36000, usage: 420000 },
 ];
 
 function useCountUp(end: number, duration: number, started: boolean) {
@@ -166,7 +166,7 @@ export default function Hero({ onNavigateTab }: HeroProps) {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <StatCard label="Monthly Recurring Revenue" value={3600000} suffix="" />
+                <StatCard label="Monthly Recurring Revenue" value={36000} suffix="" />
                 <StatCard label="Active Subscriptions" value={1248} suffix="" />
                 <StatCard label="Events Ingested (30d)" value={2410250} suffix="" />
               </div>
@@ -182,7 +182,7 @@ export default function Hero({ onNavigateTab }: HeroProps) {
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--lp-chart-grid)" />
                     <XAxis dataKey="month" stroke="var(--lp-chart-axis)" fontSize={9} tickLine={false} />
-                    <YAxis stroke="var(--lp-chart-axis)" fontSize={9} tickLine={false} />
+                    <YAxis stroke="var(--lp-chart-axis)" fontSize={9} tickLine={false} tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`} />
                     <Tooltip
                       contentStyle={{
                         background: "var(--lp-tooltip-bg)",
@@ -190,8 +190,9 @@ export default function Hero({ onNavigateTab }: HeroProps) {
                         borderRadius: "8px",
                         fontSize: "10px",
                       }}
+                      formatter={(val: number) => [`$${val.toLocaleString()}`, "MRR"]}
                     />
-                    <Area type="monotone" dataKey="mrr" stroke="var(--lp-accent)" strokeWidth={2} fillOpacity={1} fill="url(#heroMrr)" name="MRR (NGN)" />
+                    <Area type="monotone" dataKey="mrr" stroke="var(--lp-accent)" strokeWidth={2} fillOpacity={1} fill="url(#heroMrr)" name="MRR (USD)" />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>

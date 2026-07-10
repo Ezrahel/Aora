@@ -2,10 +2,38 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { Eye, EyeOff, CheckCircle2, Shield, KeyRound } from "lucide-react";
 
+function StripeLogo() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.25 15.25c-2.21 0-4-1.54-4-3.75h1.75c0 1.1.98 2 2.25 2s2.25-.9 2.25-2c0-1.1-.98-2-2.25-2-2.21 0-4-1.54-4-3.75s1.79-3.75 4-3.75c2.2 0 4 1.54 4 3.75h-1.75c0-1.1-.98-2-2.25-2s-2.25.9-2.25 2c0 1.1.98 2 2.25 2 2.21 0 4 1.54 4 3.75s-1.79 3.75-4 3.75z" fill="currentColor" className="text-[#635BFF] dark:text-[#877BFF]"/>
+    </svg>
+  );
+}
+
+function PaystackLogo() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+      <rect x="2" y="2" width="20" height="20" rx="4" fill="currentColor" className="text-[#0BA4DB] dark:text-[#1BB5EC]"/>
+      <path d="M7.5 8h9l-4.5 8h-9l4.5-8z" fill="white"/>
+      <path d="M12 8h4.5l-4.5 8H7.5L12 8z" fill="white" opacity="0.6"/>
+    </svg>
+  );
+}
+
+function FlutterwaveLogo() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+      <path d="M3 5h6l-2 14H1l2-14z" fill="currentColor" className="text-[#FAA21B] dark:text-[#FCB93D]"/>
+      <path d="M10 5h6l-2 14H8l2-14z" fill="currentColor" className="text-[#EA6E2A] dark:text-[#F0803A]"/>
+      <path d="M17 5h6L21 19h-6l2-14z" fill="currentColor" className="text-[#D4212A] dark:text-[#E4313A]"/>
+    </svg>
+  );
+}
+
 const gateways = [
-  { name: "Stripe", color: "lp-surface border lp-border-glass" },
-  { name: "Paystack", color: "lp-surface border lp-border-glass" },
-  { name: "Flutterwave", color: "lp-surface border lp-border-glass" },
+  { name: "Stripe", logo: StripeLogo, color: "lp-surface border lp-border-glass" },
+  { name: "Paystack", logo: PaystackLogo, color: "lp-surface border lp-border-glass" },
+  { name: "Flutterwave", logo: FlutterwaveLogo, color: "lp-surface border lp-border-glass" },
 ];
 
 export default function BYOKSection() {
@@ -31,15 +59,20 @@ export default function BYOKSection() {
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center max-w-5xl mx-auto">
           <motion.div className="lg:col-span-5 space-y-4" initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-            {gateways.map((g) => (
-              <div key={g.name} className={`flex items-center gap-4 p-5 rounded-xl ${g.color}`}>
-                <div className="h-10 w-10 rounded-lg lp-surface flex items-center justify-center"><Shield className="h-5 w-5 lp-muted" /></div>
-                <div>
-                  <div className="text-sm font-bold lp-text">{g.name}</div>
-                  <div className="text-xs lp-secondary font-mono mt-0.5">API v{g.name === "Stripe" ? "2023-10" : "2"}</div>
+            {gateways.map((g) => {
+              const Logo = g.logo;
+              return (
+                <div key={g.name} className={`flex items-center gap-4 p-5 rounded-xl ${g.color}`}>
+                  <div className="h-10 w-10 rounded-lg lp-surface flex items-center justify-center">
+                    <Logo />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold lp-text">{g.name}</div>
+                    <div className="text-xs lp-secondary font-mono mt-0.5">API v{g.name === "Stripe" ? "2023-10" : "2"}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             <p className="text-[10px] lp-muted/50 text-center pt-2">+ Monnify, SeerBit, and more coming soon</p>
           </motion.div>
           <motion.div className="lg:col-span-7" initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.15 }}>

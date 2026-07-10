@@ -7,7 +7,7 @@ type CodeTab = "track" | "can" | "calculate";
 const codeSnippets: Record<CodeTab, { code: string; response: string; responseColor: string }> = {
   track: { code: `// Ingest usage events in real-time\nawait billing.track(\n  "cust_89b2",\n  "lead_generated",\n  1\n);`, response: `{\n  "status": "success",\n  "event_id": "ev_80b1e2",\n  "credits_remaining": 8200\n}`, responseColor: "lp-secondary" },
   can: { code: `// Check entitlements before gating a feature\nconst authorized = await billing.can(\n  "cust_89b2",\n  "pro_features"\n);`, response: `{\n  "allowed": true,\n  "reason": "Plan Growth valid",\n  "limits": {\n    "leads_limit": 50000,\n    "leads_current": 18500\n  }\n}`, responseColor: "text-emerald-400" },
-  calculate: { code: `// Preview an invoice before charging\nconst invoice = await billing.calculate(\n  "cust_89b2"\n);`, response: `{\n  "customer_id": "cust_89b2",\n  "base_fee": 15000,\n  "usage_overage": 4200,\n  "total": 17700,\n  "currency": "NGN"\n}`, responseColor: "lp-accent" },
+  calculate: { code: `// Preview an invoice before charging\nconst invoice = await billing.calculate(\n  "cust_89b2"\n);`, response: `{\n  "customer_id": "cust_89b2",\n  "base_fee": 14900,\n  "usage_overage": 4200,\n  "total": 19100,\n  "currency": "USD"\n}`, responseColor: "lp-accent" },
 };
 
 export default function DevConsole() {

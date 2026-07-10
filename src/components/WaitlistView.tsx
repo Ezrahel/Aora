@@ -16,7 +16,7 @@ const faqs = [
   { q: "When will I get access?", a: "We onboard in batches. Most teams get access within 48 hours of joining." },
   { q: "What gateways do you support?", a: "Stripe, Paystack, and Flutterwave are live. Monnify and SeerBit are in development." },
   { q: "Do I need to migrate my existing subscriptions?", a: "No. You keep your current billing running while you configure AoraHQ. When you're ready, flip the switch." },
-  { q: "What does it cost after the founder's plan?", a: "Pricing starts at ₦0 for the first ₦1M in MRR processed. Transparent, usage-based pricing after that." },
+  { q: "What does it cost after the founder's plan?", a: "Pricing starts at $0 for the first $100k in MRR processed. Transparent, usage-based pricing after that." },
   { q: "Is my data safe?", a: "AES-256-GCM encryption at rest. Your API keys never touch disk in plaintext. SOC 2 audit in progress." },
 ];
 

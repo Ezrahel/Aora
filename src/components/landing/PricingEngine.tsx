@@ -5,10 +5,10 @@ import { Layers, Activity, Zap, Users, Database, ShieldCheck } from "lucide-reac
 type PricingModel = "subscription" | "usage" | "hybrid" | "seat" | "credits" | "enterprise";
 
 const models: { id: PricingModel; label: string; rate: string; icon: typeof Layers }[] = [
-  { id: "subscription", label: "Subscription", rate: "₦15,000 / mo", icon: Layers },
-  { id: "usage", label: "Usage", rate: "₦2 / unit", icon: Activity },
-  { id: "hybrid", label: "Hybrid", rate: "₦15k + ₦2/unit", icon: Zap },
-  { id: "seat", label: "Seat Based", rate: "₦3,000 / user", icon: Users },
+  { id: "subscription", label: "Subscription", rate: "$149 / mo", icon: Layers },
+  { id: "usage", label: "Usage", rate: "$0.02 / unit", icon: Activity },
+  { id: "hybrid", label: "Hybrid", rate: "$149 + $0.02/unit", icon: Zap },
+  { id: "seat", label: "Seat Based", rate: "$29 / user", icon: Users },
   { id: "credits", label: "Credits", rate: "10k incl.", icon: Database },
   { id: "enterprise", label: "Enterprise", rate: "Custom SLA", icon: ShieldCheck },
 ];
@@ -20,12 +20,12 @@ export default function PricingEngine() {
 
   const calc = () => {
     switch (selected) {
-      case "subscription": return { formula: "Flat monthly commitment", base: 15000, overages: 0, total: 15000 };
-      case "usage": return { formula: `${usage.toLocaleString()} units @ ₦2/unit`, base: 0, overages: usage * 2, total: usage * 2 };
-      case "hybrid": { const over = Math.max(0, usage - 10000); return { formula: `₦15,000 + (${usage.toLocaleString()} - 10k) × ₦2`, base: 15000, overages: over * 2, total: 15000 + over * 2 }; }
-      case "seat": return { formula: `${seats} seats @ ₦3,000/seat`, base: 0, overages: seats * 3000, total: seats * 3000 };
-      case "credits": { const over = Math.max(0, usage - 10000); return { formula: "10k credits incl. + overage", base: 15000, overages: over * 1.5, total: 15000 + over * 1.5 }; }
-      case "enterprise": return { formula: "Bespoke SLA contract", base: 120000, overages: Math.max(0, usage - 100000) * 1.0, total: 120000 + Math.max(0, usage - 100000) * 1.0 };
+      case "subscription": return { formula: "Flat monthly commitment", base: 149, overages: 0, total: 149 };
+      case "usage": return { formula: `${usage.toLocaleString()} units @ $0.02/unit`, base: 0, overages: usage * 0.02, total: usage * 0.02 };
+      case "hybrid": { const over = Math.max(0, usage - 10000); return { formula: `$149 + (${usage.toLocaleString()} - 10k) × $0.02`, base: 149, overages: over * 0.02, total: 149 + over * 0.02 }; }
+      case "seat": return { formula: `${seats} seats @ $29/seat`, base: 0, overages: seats * 29, total: seats * 29 };
+      case "credits": { const over = Math.max(0, usage - 10000); return { formula: "10k credits incl. + overage", base: 149, overages: over * 0.015, total: 149 + over * 0.015 }; }
+      case "enterprise": return { formula: "Bespoke SLA contract", base: 1200, overages: Math.max(0, usage - 100000) * 0.01, total: 1200 + Math.max(0, usage - 100000) * 0.01 };
     }
   };
   const result = calc();
@@ -71,7 +71,7 @@ export default function PricingEngine() {
                 <div className="text-[11px] font-mono lp-accent/70 mt-1">{result.formula}</div>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold font-mono lp-text">₦{result.total.toLocaleString()}</div>
+                <div className="text-2xl font-bold font-mono lp-text">${result.total.toFixed(2)}</div>
                 <div className="text-[10px] lp-secondary">/ month</div>
               </div>
             </div>

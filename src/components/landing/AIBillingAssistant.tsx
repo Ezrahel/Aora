@@ -10,9 +10,9 @@ const prompts = [
 
 const messages = [
   { role: "user", text: "Create a new usage-based plan for my enterprise tier" },
-  { role: "assistant", text: "I've created a hybrid **Enterprise Plus** plan: ₦75,000/mo base, 500k included API calls, ₦0.05 per additional call. Active in your catalog." },
+  { role: "assistant", text: "I've created a hybrid **Enterprise Plus** plan: $749/mo base, 500k included API calls, $0.05 per additional call. Active in your catalog." },
   { role: "user", text: "Show me customers with past due invoices" },
-  { role: "assistant", text: "3 customers with past due invoices:\n• **Acme Corp** — INV-2026-012 — ₦45,000 — 12 days overdue\n• **Linear Tech** — INV-2026-008 — ₦120,500 — 8 days overdue\n• **Stellar Inc** — INV-2026-015 — ₦15,000 — 3 days overdue" },
+  { role: "assistant", text: "3 customers with past due invoices:\n• **Acme Corp** — INV-2026-012 — $449 — 12 days overdue\n• **Linear Tech** — INV-2026-008 — $1,199 — 8 days overdue\n• **Stellar Inc** — INV-2026-015 — $149 — 3 days overdue" },
 ];
 
 export default function AIBillingAssistant() {
