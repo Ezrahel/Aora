@@ -9,9 +9,9 @@ const competitors = [
 
 export default function ComparisonTable() {
   return (
-    <section className="py-32 relative lp-bg">
+    <section className="py-16 relative lp-bg">
       <div className="max-w-5xl mx-auto px-6">
-        <div className="text-center space-y-4 mb-16">
+        <div className="text-center space-y-4 mb-6">
           <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">Competitive Landscape</span>
           <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">What they say vs. what you get</h2>
         </div>

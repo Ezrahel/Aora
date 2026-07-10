@@ -31,9 +31,9 @@ export default function PricingEngine() {
   const result = calc();
 
   return (
-    <section id="showcase" className="py-32 relative lp-bg">
+    <section id="showcase" className="py-16 relative lp-bg">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="max-w-3xl mx-auto text-center space-y-4 mb-16">
+        <div className="max-w-3xl mx-auto text-center space-y-4 mb-6">
           <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">Monetization Versatility</span>
           <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">One platform. Every pricing model.</h2>
           <p className="text-sm lp-secondary font-medium">Switch pricing strategies instantly using our declarative engine. No code changes.</p>

@@ -49,11 +49,9 @@ export default function Problem() {
   }, []);
 
   return (
-    <section id="problem" className="py-32 relative lp-bg">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent pointer-events-none" style={{ backgroundImage: "linear-gradient(to bottom, transparent, var(--lp-grad-stop), transparent)" }} />
-
+    <section id="problem" className="py-16 relative lp-bg" style={{ backgroundImage: "linear-gradient(to bottom, transparent, var(--lp-grad-stop), transparent)" }}>
       <div className="max-w-7xl mx-auto px-6">
-        <div className="max-w-3xl mx-auto text-center space-y-4 mb-20">
+        <div className="max-w-3xl mx-auto text-center space-y-4 mb-8">
           <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">
             The Problem With Billing Today
           </span>
@@ -70,7 +68,7 @@ export default function Problem() {
           variants={containerVariants}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
-          className="space-y-8 max-w-5xl mx-auto"
+          className="space-y-6 max-w-5xl mx-auto"
         >
           {painPoints.map((item, i) => (
             <motion.div key={item.pain} variants={cardVariants} className="group relative">

@@ -26,14 +26,13 @@ export default function Features() {
   }, []);
 
   return (
-    <section id="features" className="py-32 relative lp-bg">
-      <div className="absolute inset-0 bg-gradient-to-b pointer-events-none" style={{ backgroundImage: "linear-gradient(to bottom, var(--lp-bg), var(--lp-grad-stop), var(--lp-bg))" }} />
+    <section id="features" ref={ref} className="py-16 relative lp-bg" style={{ backgroundImage: "linear-gradient(to bottom, var(--lp-bg), var(--lp-grad-stop), var(--lp-bg))" }}>
       <div className="max-w-7xl mx-auto px-6">
-        <div className="max-w-3xl mx-auto text-center space-y-4 mb-20">
-          <span className="text-[10px] font-bold uppercase tracking-widest block" style={{ color: '#191818' }}>Core Capabilities</span>
-          <h2 className="text-3xl sm:text-4xl font-black tracking-tight" style={{ color: '#111111' }}>One unified platform. Complete control.</h2>
-          <p className="text-sm font-medium" style={{ color: '#242424' }}>A comprehensive billing operating system designed as the single source of truth for your monetization.</p>
-        </div>
+<div className="max-w-3xl mx-auto text-center space-y-4 mb-8">
+        <span className="text-[10px] font-bold uppercase tracking-widest block" style={{ color: '#191818' }}>Core Capabilities</span>
+        <h2 className="text-3xl sm:text-4xl font-black tracking-tight" style={{ color: '#111110' }}>One unified platform. Complete control.</h2>
+        <p className="text-sm font-medium lp-secondary">A comprehensive billing operating system designed as the single source of truth for your monetization.</p>
+      </div>
         <motion.div ref={ref} variants={containerVariants} initial="hidden" animate={inView ? "visible" : "hidden"} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {features.map((f) => {
             const Icon = f.icon;

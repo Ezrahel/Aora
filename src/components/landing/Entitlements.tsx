@@ -20,9 +20,9 @@ export default function Entitlements() {
   const toggle = (idx: number, tier: "starter" | "growth" | "enterprise") => setFeatures((prev) => prev.map((f, i) => i === idx ? { ...f, [tier]: !f[tier] } : f));
 
   return (
-    <section className="py-32 relative lp-bg">
+    <section className="py-16 relative lp-bg">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="max-w-3xl mx-auto text-center space-y-4 mb-16">
+        <div className="max-w-3xl mx-auto text-center space-y-4 mb-6">
           <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">Entitlements Engine</span>
           <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">Feature access, declaratively controlled</h2>
           <p className="text-sm lp-secondary font-medium">Map features to plans. Check access in real-time. Gate features behind plan tiers without redeploying.</p>

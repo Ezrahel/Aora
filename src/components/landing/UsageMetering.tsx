@@ -25,10 +25,9 @@ export default function UsageMetering() {
   };
 
   return (
-    <section className="py-32 relative overflow-hidden lp-bg">
-      <div className="absolute inset-0 bg-gradient-to-b pointer-events-none" style={{ backgroundImage: "linear-gradient(to bottom, var(--lp-bg), var(--lp-grad-stop), var(--lp-bg))" }} />
+    <section className="py-16 relative overflow-hidden lp-bg" style={{ backgroundImage: "linear-gradient(to bottom, var(--lp-bg), var(--lp-grad-stop), var(--lp-bg))" }}>
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <motion.div className="lg:col-span-5 space-y-6" initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
             <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">Usage Metering</span>
             <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">Track everything. Bill accurately.</h2>

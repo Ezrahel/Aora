@@ -2,7 +2,7 @@ interface FooterProps { onNavigateTab: (tab: string) => void; scrollToId: (id: s
 
 export default function Footer({ onNavigateTab, scrollToId }: FooterProps) {
   return (
-    <footer className="border-t lp-divider py-16 lp-bg">
+    <footer className="border-t lp-divider py-10 lp-bg">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-8">
         <div className="col-span-2 space-y-3">
           <div className="flex items-center">
@@ -40,7 +40,7 @@ export default function Footer({ onNavigateTab, scrollToId }: FooterProps) {
           </ul>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-6 mt-12 pt-8 border-t lp-divider flex flex-col sm:flex-row sm:items-center sm:justify-between text-[10px] gap-4">
+      <div className="max-w-7xl mx-auto px-6 mt-6 pt-4 border-t lp-divider flex flex-col sm:flex-row sm:items-center sm:justify-between text-[10px] gap-4">
         <p className="lp-muted">© 2026 Aora Technologies Ltd.</p>
         <p className="lp-muted text-center sm:text-right">Built with TypeScript, CockroachDB, and stubbornness.</p>
         <div className="flex gap-4">

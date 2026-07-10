@@ -22,15 +22,14 @@ export default function BYOKSection() {
   };
 
   return (
-    <section className="py-32 relative overflow-hidden lp-bg">
-      <div className="absolute inset-0 bg-gradient-to-b pointer-events-none" style={{ backgroundImage: "linear-gradient(to bottom, var(--lp-bg), var(--lp-grad-stop), var(--lp-bg))" }} />
+    <section className="py-16 relative overflow-hidden lp-bg" style={{ backgroundImage: "linear-gradient(to bottom, var(--lp-bg), var(--lp-grad-stop), var(--lp-bg))" }}>
       <div className="max-w-7xl mx-auto px-6">
-        <div className="max-w-3xl mx-auto text-center space-y-4 mb-16">
-          <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">Bring Your Own Keys</span>
-          <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">Your gateway. Your keys. Our infrastructure.</h2>
-          <p className="text-sm lp-secondary font-medium">Pick your payment gateway, paste your keys, and go. We never store them in plaintext.</p>
+        <div className="max-w-3xl mx-auto text-center space-y-4 mb-6">
+          <span className="text-[10px] font-bold uppercase tracking-widest block" style={{ color: '#191818' }}>Bring Your Own Keys</span>
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight" style={{ color: '#111110' }}>Your gateway. Your keys. Our infrastructure.</h2>
+          <p className="text-sm font-medium lp-secondary">Pick your payment gateway, paste your keys, and go. We never store them in plaintext.</p>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center max-w-5xl mx-auto">
           <motion.div className="lg:col-span-5 space-y-4" initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
             {gateways.map((g) => (
               <div key={g.name} className={`flex items-center gap-4 p-5 rounded-xl ${g.color}`}>
