@@ -77,18 +77,18 @@ export default function SubscriptionsView({
     <div className="space-y-8 animate-in fade-in duration-300">
       
       {/* Page Header */}
-      <div className="border-b border-[#E5E5E7] pb-6 text-left">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#111111]">Active Subscriptions</h2>
-        <p className="text-xs text-[#6E6E73] mt-1.5 font-medium">
+      <div className="border-b dp-border pb-6 text-left">
+        <h2 className="text-2xl font-semibold tracking-tight dp-text">Active Subscriptions</h2>
+        <p className="text-xs dp-secondary mt-1.5 font-medium">
           Track customer cycles, current plan statuses, renewal configurations, and live consumption levels across global contract pools.
         </p>
       </div>
 
       {/* KPI stats overview panel */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
-        <div className="bg-white border p-5 rounded-2xl">
-          <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-wider block">Active Contracts</p>
-          <p className="text-xl font-bold text-[#111111] mt-1 h-fit">
+        <div className="dp-card border p-5 rounded-2xl">
+          <p className="text-[10px] font-bold dp-muted uppercase tracking-wider block">Active Contracts</p>
+          <p className="text-xl font-bold dp-text mt-1 h-fit">
             {customers.filter(c => c.status === "active").length} Accounts
           </p>
           <div className="h-1 w-full bg-neutral-100 rounded-full mt-3">
@@ -96,9 +96,9 @@ export default function SubscriptionsView({
           </div>
         </div>
 
-        <div className="bg-white border p-5 rounded-2xl">
-          <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-wider block">Trial Onboardings</p>
-          <p className="text-xl font-bold text-[#111111] mt-1">
+        <div className="dp-card border p-5 rounded-2xl">
+          <p className="text-[10px] font-bold dp-muted uppercase tracking-wider block">Trial Onboardings</p>
+          <p className="text-xl font-bold dp-text mt-1">
             {customers.filter(c => c.status === "trial").length} Developers
           </p>
           <div className="h-1 w-full bg-neutral-100 rounded-full mt-3">
@@ -106,9 +106,9 @@ export default function SubscriptionsView({
           </div>
         </div>
 
-        <div className="bg-white border p-5 rounded-2xl">
-          <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-wider block">Average Overage Trigger</p>
-          <p className="text-xl font-bold text-[#111111] mt-1">₦2,450 / node</p>
+        <div className="dp-card border p-5 rounded-2xl">
+          <p className="text-[10px] font-bold dp-muted uppercase tracking-wider block">Average Overage Trigger</p>
+          <p className="text-xl font-bold dp-text mt-1">₦2,450 / node</p>
           <div className="h-1 w-full bg-neutral-100 rounded-full mt-3">
             <div className="h-full w-1/3 bg-emerald-500" />
           </div>
@@ -118,10 +118,10 @@ export default function SubscriptionsView({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* Subscriptions master table with customer indicators (8 columns) */}
-        <div className="lg:col-span-8 bg-white border border-[#E5E5E7] rounded-3xl overflow-x-auto shadow-sm">
+        <div className="lg:col-span-8 dp-card border dp-border rounded-3xl overflow-x-auto shadow-sm">
           <table className="w-full text-left border-collapse" id="subscriptions-master-table">
             <thead>
-              <tr className="bg-[#FAFAFA] border-b border-[#E5E5E7] text-[10px] text-[#6E6E73] font-bold uppercase tracking-wider">
+              <tr className="dp-surface border-b dp-border text-[10px] dp-secondary font-bold uppercase tracking-wider">
                 <th className="px-5 py-4">Subscriber Account</th>
                 <th className="px-5 py-4">Active Plan Tier</th>
                 <th className="px-5 py-4 text-center">Cycle Usage tracker</th>
@@ -136,19 +136,19 @@ export default function SubscriptionsView({
                 const planObj = plans.find(p => p.id === c.planId);
                 const isLimitExceeded = c.usageUnits > (planObj?.includedUsage || 10000);
                 return (
-                  <tr key={c.id} className="hover:bg-[#FAFAFA] transition-all">
+                  <tr key={c.id} className="hover:dp-surface transition-all">
                     
                     {/* Subscriber Profile */}
                     <td className="px-5 py-4">
                       <div className="text-left">
-                        <p className="font-semibold text-[#111111]">{c.name}</p>
-                        <p className="text-[10px] text-[#86868B] mt-0.5">{c.domain}</p>
+                        <p className="font-semibold dp-text">{c.name}</p>
+                        <p className="text-[10px] dp-muted mt-0.5">{c.domain}</p>
                       </div>
                     </td>
 
                     {/* Active Plan Tier */}
                     <td className="px-5 py-4 text-left">
-                      <span className="font-medium text-[#111111]">
+                      <span className="font-medium dp-text">
                         {planObj?.name || "Free Starter"}
                       </span>
                     </td>
@@ -169,7 +169,7 @@ export default function SubscriptionsView({
                     </td>
 
                     {/* Cost */}
-                    <td className="px-5 py-4 text-right font-bold text-[#111111]">
+                    <td className="px-5 py-4 text-right font-bold dp-text">
                       {planObj ? formatCurrency(planObj.price, planObj.currency) : "₦0"}
                     </td>
 
@@ -186,7 +186,7 @@ export default function SubscriptionsView({
                         c.status === "active"
                           ? "bg-neutral-900 text-white"
                           : c.status === "trial"
-                          ? "bg-[#FAFAFA] text-[#111111] border border-[#E5E5E7]"
+                          ? "dp-surface dp-text border dp-border"
                           : "bg-red-50 text-red-700 border border-red-100"
                       }`}>
                         {c.status}
@@ -201,7 +201,7 @@ export default function SubscriptionsView({
                           setSelectedPlanId(c.planId);
                           setSelectedStatus(c.status);
                         }}
-                        className="text-[10px] bg-white border border-[#E5E5E7] hover:bg-[#FAFAFA] font-bold px-2 py-1 rounded cursor-pointer transition-all"
+                        className="text-[10px] dp-card border dp-border hover:dp-surface font-bold px-2 py-1 rounded cursor-pointer transition-all"
                       >
                         Adjust
                       </button>
@@ -216,15 +216,15 @@ export default function SubscriptionsView({
 
         {/* Change Sub tier Widget Forms (4 columns) */}
         <div className="lg:col-span-4 space-y-4 text-left">
-          <h3 className="text-xs font-bold text-[#6E6E73] uppercase tracking-wider px-1">Subscription Adjuster</h3>
+          <h3 className="text-xs font-bold dp-secondary uppercase tracking-wider px-1">Subscription Adjuster</h3>
 
           {selectedCustomerId ? (
-            <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl shadow-sm space-y-4 text-left">
+            <div className="dp-card border dp-border p-5 rounded-2xl shadow-sm space-y-4 text-left">
               <div className="border-b pb-2.5">
-                <h4 className="text-xs font-bold text-[#111111]">
+                <h4 className="text-xs font-bold dp-text">
                   Adjusting {activeCustomer?.name}
                 </h4>
-                <p className="text-[10px] text-[#6E6E73]">Update plans in compliance grids.</p>
+                <p className="text-[10px] dp-secondary">Update plans in compliance grids.</p>
               </div>
 
               <div className="space-y-3.5 text-xs">
@@ -234,7 +234,7 @@ export default function SubscriptionsView({
                   <select
                     value={selectedPlanId}
                     onChange={(e) => setSelectedPlanId(e.target.value)}
-                    className="w-full text-xs border border-[#E5E5E7] rounded-lg p-2 bg-[#FAFAFA]"
+                    className="w-full text-xs border dp-border rounded-lg p-2 dp-surface"
                   >
                     {plans.map(p => (
                       <option key={p.id} value={p.id}>{p.name}</option>
@@ -248,7 +248,7 @@ export default function SubscriptionsView({
                   <select
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="w-full text-xs border border-[#E5E5E7] rounded-lg p-2 bg-[#FAFAFA]"
+                    className="w-full text-xs border dp-border rounded-lg p-2 dp-surface"
                   >
                     <option value="active">Active Subscriber</option>
                     <option value="trial">Trial Onboarding</option>
@@ -276,10 +276,10 @@ export default function SubscriptionsView({
               </div>
             </div>
           ) : (
-            <div className="bg-neutral-50/50 border border-dashed border-[#E5E5E7] p-6 rounded-2xl text-center text-xs text-[#6E6E73]">
+            <div className="bg-neutral-50/50 border border-dashed dp-border p-6 rounded-2xl text-center text-xs dp-secondary">
               <Sliders className="h-6 w-6 mx-auto text-stone-700 mb-2" />
               <p className="font-semibold">No subscriber active</p>
-              <p className="text-[10px] text-[#86868B] mt-0.5">Click 'Adjust' on any subscriber to update plan contracts and statuses instantly.</p>
+              <p className="text-[10px] dp-muted mt-0.5">Click 'Adjust' on any subscriber to update plan contracts and statuses instantly.</p>
             </div>
           )}
         </div>

@@ -87,18 +87,20 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`w-64 border-r border-[#E5E5E7] bg-[#FAFAFA] flex flex-col justify-between h-screen fixed left-0 top-0 z-50 transition-transform duration-300 md:translate-x-0 ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+      className={`w-64 border-r dp-border dp-surface flex flex-col justify-between h-screen fixed left-0 top-0 z-50 transition-transform duration-300 md:translate-x-0 ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
       <div className="flex flex-col flex-1 py-5 px-4 overflow-y-auto">
         {/* Branding Title */}
         <div className="flex items-center justify-between px-2 mb-6">
           <div className="flex items-center gap-3">
-            <img src="/aorahq-logo.png" alt="AoraHQ" className="h-8 w-auto" />
+            <div className="rounded-lg dp-surface-alt p-1.5">
+              <img src="/aorahq-logo.png" alt="AoraHQ" className="h-8 w-auto" />
+            </div>
             <div className="text-left">
-              <h1 className="text-sm font-semibold tracking-tight text-[#111111] leading-none">
+              <h1 className="text-sm font-semibold tracking-tight dp-text leading-none">
                 Aora Billing
               </h1>
-              <p className="text-[10px] text-[#86868B] mt-1 font-medium select-none">
+              <p className="text-[10px] dp-muted mt-1 font-medium select-none">
                 Operating System
               </p>
             </div>
@@ -106,7 +108,7 @@ export default function Sidebar({
           {onCloseMobile && (
             <button
               onClick={onCloseMobile}
-              className="md:hidden text-xs font-bold text-[#6E6E73] hover:text-[#111111] p-1 cursor-pointer"
+              className="md:hidden text-xs font-bold dp-secondary hover:dp-text p-1 cursor-pointer"
               id="close-mobile-sidebar-btn"
             >
               Back
@@ -116,7 +118,7 @@ export default function Sidebar({
 
         {/* Primary Navigation tab */}
         <div className="space-y-1">
-          <p className="px-2 text-[9px] font-bold text-[#86868B] uppercase tracking-wider mb-2">
+          <p className="px-2 text-[9px] font-bold dp-muted uppercase tracking-wider mb-2">
             Main Navigation
           </p>
           {mainItems.map((item) => {
@@ -129,12 +131,12 @@ export default function Sidebar({
                 onClick={() => handleTabClick(item.id as SidebarTab)}
                 className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-xs font-medium transition-all duration-150 cursor-pointer ${
                   isActive
-                    ? "bg-white text-[#111111] shadow-sm border border-[#E5E5E7]"
-                    : "text-[#6E6E73] border border-transparent hover:bg-[#F2F2F2] hover:text-[#111111]"
+                    ? "dp-card dp-text shadow-sm border dp-border"
+                    : "dp-secondary border border-transparent hover:dp-hover hover:dp-text"
                 }`}
               >
                 <Icon
-                  className={`h-4.5 w-4.5 transition-colors ${isActive ? "text-[#111111]" : "text-[#86868B]"}`}
+                  className={`h-4.5 w-4.5 transition-colors ${isActive ? "dp-text" : "dp-muted"}`}
                 />
                 {item.label}
               </button>
@@ -143,28 +145,28 @@ export default function Sidebar({
         </div>
 
         {/* Platform documentation fallback link */}
-        <div className="mt-6 pt-4 border-t border-[#F5F5F7] space-y-1">
+        <div className="mt-6 pt-4 border-t dp-divider space-y-1">
           <button
             onClick={() => handleTabClick("docs")}
             className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-medium transition-all duration-150 cursor-pointer ${
               activeTab === "docs"
-                ? "bg-white text-[#111111] shadow-sm border border-[#E5E5E7]"
-                : "text-[#6E6E73] hover:text-[#111111]"
+                ? "dp-card dp-text shadow-sm border dp-border"
+                : "dp-secondary hover:dp-text"
             }`}
           >
-            <FileText className="h-4.5 w-4.5 text-[#86868B]" />
+            <FileText className="h-4.5 w-4.5 dp-muted" />
             Platform Documentation
           </button>
         </div>
       </div>
 
       {/* Sync Ledger State control indicator */}
-      <div className="p-4 border-t border-[#E5E5E7] bg-[#FAFAFA] flex items-center justify-between text-left">
+      <div className="p-4 border-t dp-border dp-surface flex items-center justify-between text-left">
         <div className="flex flex-col">
-          <p className="text-[9px] text-[#6E6E73] font-bold uppercase tracking-wide">
+          <p className="text-[9px] dp-secondary font-bold uppercase tracking-wide">
             Sync State
           </p>
-          <p className="text-[11px] font-bold text-[#111111] mt-0.5">
+          <p className="text-[11px] font-bold dp-text mt-0.5">
             Billing Node Active
           </p>
         </div>
@@ -172,7 +174,7 @@ export default function Sidebar({
           <button
             onClick={onRefreshData}
             disabled={isSyncing}
-            className={`p-1.5 rounded-md text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2] transition-colors border cursor-pointer ${
+            className={`p-1.5 rounded-md dp-secondary hover:dp-text hover:dp-hover transition-colors border cursor-pointer ${
               isSyncing ? "animate-spin text-[#0071E3]" : ""
             }`}
             title="Sychronize Billing ledger"

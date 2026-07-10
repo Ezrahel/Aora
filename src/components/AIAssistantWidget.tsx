@@ -101,22 +101,22 @@ export default function AIAssistantWidget({ onActionExecuted }: AIAssistantWidge
 
       {/* Slide Drawer */}
       {isOpen && (
-        <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-96 max-w-full bg-white border-l border-[#E5E5E7] shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-200">
+        <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-96 max-w-full dp-card border-l dp-border shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-200">
           
           {/* Header */}
-          <div className="flex h-14 items-center justify-between border-b border-[#E5E5E7] bg-[#FAFAFA] px-4.5">
+          <div className="flex h-14 items-center justify-between border-b dp-border dp-surface px-4.5">
             <div className="flex items-center gap-2">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#111111] text-white">
                 <Sparkles className="h-4 w-4 text-white" />
               </div>
               <div>
-                <h3 className="text-xs font-semibold text-[#111111] tracking-tight">AI Billing Concierge</h3>
-                <p className="text-[9px] text-[#6E6E73] font-medium leading-none">Embedded Workspace Agent</p>
+                <h3 className="text-xs font-semibold dp-text tracking-tight">AI Billing Concierge</h3>
+                <p className="text-[9px] dp-secondary font-medium leading-none">Embedded Workspace Agent</p>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1 rounded-md text-[#6E6E73] hover:bg-[#F2F2F2] hover:text-[#111111] transition-colors"
+              className="p-1 rounded-md dp-secondary hover:dp-hover hover:dp-text transition-colors"
               id="ai-widget-close-btn"
             >
               <X className="h-4 w-4" />
@@ -126,7 +126,7 @@ export default function AIAssistantWidget({ onActionExecuted }: AIAssistantWidge
           {/* Chat Messages */}
           <div
             ref={scrollRef}
-            className="flex-1 overflow-y-auto p-4.5 space-y-4 bg-white"
+            className="flex-1 overflow-y-auto p-4.5 space-y-4 dp-bg"
           >
             {messages.map((m) => {
               const isUser = m.role === "user";
@@ -136,12 +136,12 @@ export default function AIAssistantWidget({ onActionExecuted }: AIAssistantWidge
                   className={`flex gap-3 max-w-[85%] ${isUser ? "ml-auto flex-row-reverse" : "mr-auto"}`}
                 >
                   <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[10px] ${
-                    isUser ? "bg-[#111111] text-white border-transparent" : "bg-[#F5F5F7] text-[#111111] border-[#E5E5E7]"
+                    isUser ? "bg-[#111111] text-white border-transparent" : "dp-surface-alt dp-text dp-border"
                   }`}>
                     {isUser ? <User className="h-3.5 w-3.5" /> : <Bot className="h-3.5 w-3.5" />}
                   </div>
                   <div className={`rounded-lg px-3 py-2 text-xs ${
-                    isUser ? "bg-[#1D1D1F] text-white" : "bg-[#F5F5F7] text-[#111111] leading-relaxed whitespace-pre-wrap"
+                    isUser ? "bg-[#1D1D1F] text-white" : "dp-surface-alt dp-text leading-relaxed whitespace-pre-wrap"
                   }`}>
                     {m.text}
                   </div>
@@ -151,10 +151,10 @@ export default function AIAssistantWidget({ onActionExecuted }: AIAssistantWidge
             
             {isLoading && (
               <div className="flex gap-3 max-w-[85%] mr-auto">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#F5F5F7] text-[#111111] border border-[#E5E5E7]">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full dp-surface-alt dp-text dp-border">
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 </div>
-                <div className="bg-[#F5F5F7] text-[#6E6E73] rounded-lg px-3 py-2 text-xs">
+                <div className="dp-surface-alt dp-secondary rounded-lg px-3 py-2 text-xs">
                   Analyzing cohort transactions & database hooks...
                 </div>
               </div>
@@ -162,17 +162,17 @@ export default function AIAssistantWidget({ onActionExecuted }: AIAssistantWidge
           </div>
 
           {/* Suggestions and Input form */}
-          <div className="border-t border-[#E5E5E7] bg-[#FAFAFA] p-3 space-y-3">
+          <div className="border-t dp-border dp-surface p-3 space-y-3">
             
             {/* Suggestions list */}
             <div className="space-y-1.5">
-              <p className="text-[10px] font-semibold text-[#86868B] uppercase tracking-wider px-1">Trigger Operations</p>
+              <p className="text-[10px] font-semibold dp-muted uppercase tracking-wider px-1">Trigger Operations</p>
               <div className="grid grid-cols-2 gap-1.5">
                 {samplePrompts.map((p, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleSendMessage(p.text)}
-                    className="flex items-center justify-between text-[10px] text-[#6E6E73] border border-[#E5E5E7] hover:border-[#86868B] hover:text-[#111111] rounded-lg px-2 py-1.5 bg-white transition-all text-left cursor-pointer font-medium"
+                    className="flex items-center justify-between text-[10px] dp-secondary border dp-border hover:dp-text rounded-lg px-2 py-1.5 dp-card transition-all text-left cursor-pointer font-medium"
                     id={`ai-prompt-option-${idx}`}
                   >
                     <span className="truncate pr-1">{p.text}</span>
@@ -183,7 +183,7 @@ export default function AIAssistantWidget({ onActionExecuted }: AIAssistantWidge
             </div>
 
             {/* Input field bar */}
-            <div className="flex items-center gap-1.5 rounded-lg border border-[#E5E5E7] bg-white p-1 focus-within:ring-1 focus-within:ring-[#111111] transition-all">
+            <div className="flex items-center gap-1.5 rounded-lg border dp-border dp-card p-1 focus-within:ring-1 focus-within:ring-[#111111] transition-all">
               <input
                 id="ai-assistant-input"
                 type="text"
@@ -193,7 +193,7 @@ export default function AIAssistantWidget({ onActionExecuted }: AIAssistantWidge
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleSendMessage();
                 }}
-                className="w-full bg-transparent px-2.5 py-1 text-xs text-[#111111] outline-none placeholder:text-[#86868B]"
+                className="w-full bg-transparent px-2.5 py-1 text-xs dp-text outline-none placeholder:dp-muted"
               />
               <button
                 disabled={!input.trim() || isLoading}

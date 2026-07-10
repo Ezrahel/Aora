@@ -128,10 +128,10 @@ export default function GatewayManagementView() {
       ) : (
         <div className="space-y-3">
           {connections.map((conn) => (
-            <div key={conn.id} className={`p-5 rounded-xl border ${GATEWAY_COLORS[conn.gateway] || "bg-white border-gray-200"}`}>
+            <div key={conn.id} className={`p-5 rounded-xl border ${GATEWAY_COLORS[conn.gateway] || "dp-card border-gray-200"}`}>
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-white/80 flex items-center justify-center shrink-0 border">
+                  <div className="h-10 w-10 rounded-lg dp-card/80 flex items-center justify-center shrink-0 border">
                     <Plug className="h-5 w-5" />
                   </div>
                   <div>
@@ -164,7 +164,7 @@ export default function GatewayManagementView() {
 
                     {/* Webhook URL */}
                     <div className="mt-3 flex items-center gap-2">
-                      <code className="text-[11px] font-mono bg-white/80 px-2 py-1 rounded border truncate max-w-[400px]">
+                      <code className="text-[11px] font-mono dp-card/80 px-2 py-1 rounded border truncate max-w-[400px]">
                         {window.location.origin}/api/gateways/webhooks/{conn.gateway}
                       </code>
                       <button onClick={() => handleCopyWebhookUrl(conn.gateway)} className="p-1 hover:bg-gray-200/50 rounded cursor-pointer" title="Copy webhook URL">
@@ -182,7 +182,7 @@ export default function GatewayManagementView() {
                   <button
                     onClick={() => handleReverify(conn.id)}
                     disabled={verifying === conn.id}
-                    className="p-2 hover:bg-white/80 rounded-lg text-sm cursor-pointer disabled:opacity-50"
+                    className="p-2 hover:dp-card rounded-lg text-sm cursor-pointer disabled:opacity-50"
                     title="Re-verify connection"
                   >
                     <RefreshCw className={`h-4 w-4 ${verifying === conn.id ? "animate-spin" : ""}`} />
@@ -202,7 +202,7 @@ export default function GatewayManagementView() {
                 <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
                   <p className="text-sm text-red-700">Remove the encrypted API key for {GATEWAY_NAMES[conn.gateway]}? Existing billing data is preserved.</p>
                   <div className="flex gap-2">
-                    <button onClick={() => setConfirmDelete(null)} className="px-3 py-1 text-sm text-gray-600 hover:bg-white rounded cursor-pointer">Cancel</button>
+                    <button onClick={() => setConfirmDelete(null)} className="px-3 py-1 text-sm text-gray-600 hover:dp-card rounded cursor-pointer">Cancel</button>
                     <button onClick={() => handleDisconnect(conn.id)} className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer">Disconnect</button>
                   </div>
                 </div>

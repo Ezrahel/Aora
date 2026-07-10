@@ -179,17 +179,17 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
     <div className="space-y-8 animate-in fade-in duration-300">
       
       {/* Intro Head banner */}
-      <div className="border-b border-[#E5E5E7] pb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="border-b dp-border pb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight text-[#111111] leading-none">Developer Toolkit</h2>
-          <p className="text-xs text-[#6E6E73] mt-1.5 font-medium">
+          <h2 className="text-2xl font-semibold tracking-tight dp-text leading-none">Developer Toolkit</h2>
+          <p className="text-xs dp-secondary mt-1.5 font-medium">
             Stripe-level developer integrations. Manage live secret credentials, test automated API payloads inside our sandbox terminal, and view code SDK structures.
           </p>
         </div>
         
         {/* Environment live pills */}
         {wsInfo && (
-          <div className="flex items-center gap-1.5 self-start md:self-auto bg-neutral-50 px-3 py-1.5 rounded-full border border-[#E5E5E7] text-[11px] font-semibold text-stone-700">
+          <div className="flex items-center gap-1.5 self-start md:self-auto bg-neutral-50 px-3 py-1.5 rounded-full border dp-border text-[11px] font-semibold text-stone-700">
             <Globe className="h-3.5 w-3.5 text-stone-500" />
             Active Org: <strong className="text-black">{wsInfo.organization?.name || "Aora Ltd"}</strong>
             <span className="text-stone-300">|</span>
@@ -205,17 +205,17 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
         <div className="lg:col-span-5 space-y-6">
           
           {/* Main API credentials card */}
-          <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl space-y-4 shadow-sm text-left">
-            <h3 className="text-xs font-bold text-[#111111] flex items-center gap-2">
+          <div className="dp-card border dp-border p-5 rounded-2xl space-y-4 shadow-sm text-left">
+            <h3 className="text-xs font-bold dp-text flex items-center gap-2">
               <Key className="h-4.5 w-4.5 text-[#0071E3] rotate-45" />
               API Authentication Keys
             </h3>
-            <p className="text-[10px] text-[#6E6E73] font-medium leading-relaxed">
+            <p className="text-[10px] dp-secondary font-medium leading-relaxed">
               Authenticate API transactions programmatically by transmitting this secret header key inside client SDK calls. Keep this confidential.
             </p>
 
-            <div className="flex gap-2 items-center rounded-lg border border-[#E5E5E7] bg-[#FAFAFA] p-1.5">
-              <span className="font-mono text-[11px] text-[#111111] truncate select-all flex-1 px-1.5">{apiKey}</span>
+            <div className="flex gap-2 items-center rounded-lg border dp-border dp-surface p-1.5">
+              <span className="font-mono text-[11px] dp-text truncate select-all flex-1 px-1.5">{apiKey}</span>
               <button
                 onClick={handleCopyKey}
                 className="p-1 px-2.5 rounded text-[10px] font-bold bg-[#111111] text-white hover:bg-[#1D1D1F] transition-colors flex items-center gap-1 cursor-pointer shrink-0"
@@ -226,7 +226,7 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
             </div>
 
             <div className="flex justify-between items-center pt-1">
-              <span className="text-[10px] text-[#6E6E73] font-mono">Tenant Context: {wsInfo?.tenantId || "Production Mode"}</span>
+              <span className="text-[10px] dp-secondary font-mono">Tenant Context: {wsInfo?.tenantId || "Production Mode"}</span>
               <button
                 onClick={handleGenerateKey}
                 className="text-[11px] text-[#0071E3] hover:underline font-bold"
@@ -238,18 +238,18 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
           </div>
 
           {/* Core Developers SDK packages */}
-          <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl space-y-4 shadow-sm text-left">
-            <h3 className="text-xs font-bold text-[#111111] flex items-center gap-2">
+          <div className="dp-card border dp-border p-5 rounded-2xl space-y-4 shadow-sm text-left">
+            <h3 className="text-xs font-bold dp-text flex items-center gap-2">
               <Code2 className="h-4.5 w-4.5 text-[#34C759]" />
               Official Runtime SDKs
             </h3>
             
             <div className="space-y-3">
               {sdkLanguages.map((sdk, idx) => (
-                <div key={idx} className="space-y-1 bg-[#FAFAFA] p-3 rounded-xl border border-[#E5E5E7]">
-                  <div className="flex justify-between text-[10px] font-bold text-[#111111]">
+                <div key={idx} className="space-y-1 dp-surface p-3 rounded-xl border dp-border">
+                  <div className="flex justify-between text-[10px] font-bold dp-text">
                     <span>{sdk.name}</span>
-                    <span className="text-[#6E6E73] font-normal">{sdk.version}</span>
+                    <span className="dp-secondary font-normal">{sdk.version}</span>
                   </div>
                   <pre className="font-mono text-[10px] text-gray-800 pt-1 overflow-x-auto select-all">
                     {sdk.install}
@@ -264,19 +264,19 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
         {/* Right column (7 cols): Sandbox REST API Playground Terminal */}
         <div className="lg:col-span-7 space-y-4">
           <div className="flex items-center justify-between text-left">
-            <h3 className="text-xs font-bold text-[#6E6E73] uppercase tracking-wider">Interactive REST API Playground</h3>
+            <h3 className="text-xs font-bold dp-secondary uppercase tracking-wider">Interactive REST API Playground</h3>
             
             {/* Endpoint switch presets */}
             <div className="flex gap-2">
               <button 
                 onClick={() => handleEndpointPreset("/api/usage-events")}
-                className={`text-[10px] font-bold px-2.5 py-1 rounded-md border transition-all ${playgroundEndpoint === "/api/usage-events" ? "bg-[#111111] text-white border-black" : "bg-white text-[#6E6E73] border-[#E5E5E7] hover:border-black"}`}
+                className={`text-[10px] font-bold px-2.5 py-1 rounded-md border transition-all ${playgroundEndpoint === "/api/usage-events" ? "bg-[#111111] text-white border-black" : "dp-card dp-secondary dp-border hover:border-black"}`}
               >
                 Post Usage
               </button>
               <button 
                 onClick={() => handleEndpointPreset("/api/can-access")}
-                className={`text-[10px] font-bold px-2.5 py-1 rounded-md border transition-all ${playgroundEndpoint === "/api/can-access" ? "bg-[#111111] text-white border-black" : "bg-white text-[#6E6E73] border-[#E5E5E7] hover:border-black"}`}
+                className={`text-[10px] font-bold px-2.5 py-1 rounded-md border transition-all ${playgroundEndpoint === "/api/can-access" ? "bg-[#111111] text-white border-black" : "dp-card dp-secondary dp-border hover:border-black"}`}
               >
                 Access Check
               </button>
@@ -293,7 +293,7 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
             <div className="flex items-center gap-1.5 p-1.5 bg-neutral-900 rounded-lg text-xs border border-neutral-800">
               <span className="text-emerald-400 font-extrabold px-1.5">{playgroundMethod}</span>
               <span className="text-neutral-500">https://api.aora.co</span>
-              <span className="text-[#86868B]">{playgroundEndpoint}</span>
+              <span className="dp-muted">{playgroundEndpoint}</span>
             </div>
 
             {/* Grid for parameters */}
@@ -301,7 +301,7 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
               
               {/* Request Body JSON */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[#86868B] uppercase tracking-wider block font-sans">Request URL & Parameters</label>
+                <label className="text-[10px] font-bold dp-muted uppercase tracking-wider block font-sans">Request URL & Parameters</label>
                 
                 {playgroundEndpoint === "/api/can-access" ? (
                   <div className="p-3.5 bg-neutral-900 border border-neutral-800 rounded-lg h-36 flex flex-col justify-center space-y-2 text-[11px]">
@@ -313,7 +313,7 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
                       <span className="text-neutral-400">featureSlug</span>
                       <strong className="text-white select-all">api_access</strong>
                     </div>
-                    <p className="text-[9px] text-[#86868B] leading-normal font-sans">
+                    <p className="text-[9px] dp-muted leading-normal font-sans">
                       This calls the server-side Authorization verification routine to check feature locks dynamically.
                     </p>
                   </div>
@@ -329,11 +329,11 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
 
               {/* Terminal response box */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[#86868B] uppercase tracking-wider block font-sans">HTTP Response Payload</label>
+                <label className="text-[10px] font-bold dp-muted uppercase tracking-wider block font-sans">HTTP Response Payload</label>
                 
                 <div className="w-full bg-neutral-900 border border-neutral-800 text-neutral-300 font-mono text-[10px] p-2.5 rounded-lg h-36 overflow-auto">
                   {isSending ? (
-                    <div className="flex items-center justify-center h-full text-[#86868B] animate-pulse">
+                    <div className="flex items-center justify-center h-full dp-muted animate-pulse">
                       Exchanging credentials packets...
                     </div>
                   ) : playgroundResponse ? (
@@ -356,7 +356,7 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
               <button
                 onClick={handleRunRequest}
                 disabled={isSending}
-                className="px-4 py-2 bg-white text-black font-semibold rounded-lg hover:bg-neutral-100 transition-all text-xs cursor-pointer flex items-center gap-1 font-sans"
+                className="px-4 py-2 dp-card text-black font-semibold rounded-lg hover:bg-neutral-100 transition-all text-xs cursor-pointer flex items-center gap-1 font-sans"
                 id="playground-execute-btn"
               >
                 <Play className="h-3.5 w-3.5 fill-black font-semibold shrink-0" />
@@ -369,14 +369,14 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
       </div>
 
       {/* Expanded visual compliance log ledger spanning full-width */}
-      <div className="bg-white border border-[#E5E5E7] rounded-2xl p-5 text-left shadow-sm mt-8">
+      <div className="dp-card border dp-border rounded-2xl p-5 text-left shadow-sm mt-8">
         <div className="flex items-center justify-between border-b border-[#F5F5F7] pb-4 mb-4">
           <div className="space-y-0.5">
-            <h3 className="text-sm font-semibold text-[#111111] flex items-center gap-2">
+            <h3 className="text-sm font-semibold dp-text flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-stone-700" />
               SaaS Compliance Audit Logs (Workspace Isolated)
             </h3>
-            <p className="text-[11px] text-[#6E6E73] font-medium">
+            <p className="text-[11px] dp-secondary font-medium">
               Every pricing update, subscription adjustment, note log, and access check is archived securely with historical JSON snapshot rollbacks.
             </p>
           </div>
@@ -389,7 +389,7 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
         </div>
 
         {loadingLogs ? (
-          <div className="p-12 text-center text-xs text-[#6E6E73]">
+          <div className="p-12 text-center text-xs dp-secondary">
             Retrieving workspace database audit logs...
           </div>
         ) : auditLogs.length === 0 ? (
@@ -409,30 +409,30 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
               if (log.action === "ACCESS_VERIFY") actionBadge = "bg-slate-100 text-slate-800 font-mono";
 
               return (
-                <div key={log.id} className="border border-[#E5E5E7] rounded-xl overflow-hidden hover:border-[#111111] transition-all bg-neutral-50/20">
+                <div key={log.id} className="border dp-border rounded-xl overflow-hidden hover:border-[#111111] transition-all bg-neutral-50/20">
                   <div 
                     onClick={() => setExpandedLogId(isExpanded ? null : log.id)}
-                    className="flex md:items-center justify-between p-3.5 cursor-pointer text-xs select-none gap-3 flex-col md:flex-row bg-[#FAFAFA]"
+                    className="flex md:items-center justify-between p-3.5 cursor-pointer text-xs select-none gap-3 flex-col md:flex-row dp-surface"
                   >
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-wider ${actionBadge}`}>
                         {log.action}
                       </span>
-                      <span className="font-bold text-[#111111]">{log.entityType}</span>
-                      <span className="text-[10px] font-mono bg-neutral-100 px-1.5 py-0.5 rounded text-[#6E6E73] truncate max-w-[120px]">
+                      <span className="font-bold dp-text">{log.entityType}</span>
+                      <span className="text-[10px] font-mono bg-neutral-100 px-1.5 py-0.5 rounded dp-secondary truncate max-w-[120px]">
                         ID: {log.entityId}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-4 text-stone-500 text-[11px] self-end md:self-auto">
-                      <span>Actor: <strong className="text-[#111111]">{log.actor}</strong></span>
+                      <span>Actor: <strong className="dp-text">{log.actor}</strong></span>
                       <span>{new Date(log.createdAt).toLocaleTimeString()}</span>
                       {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </div>
                   </div>
 
                   {isExpanded && (
-                    <div className="p-4 border-t border-[#E5E5E7] bg-white text-[11px] grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 border-t dp-border dp-card text-[11px] grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Before State */}
                       <div className="space-y-1">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">Snapshot BEFORE change</span>

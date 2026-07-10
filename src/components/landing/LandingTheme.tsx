@@ -7,12 +7,21 @@ interface ThemeCtx {
   toggle: () => void;
 }
 
+const STORAGE_KEY = "aora-dashboard-theme";
+
 const Ctx = createContext<ThemeCtx>({ theme: "light", toggle: () => {} });
 
 export function LandingThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored === "light" || stored === "dark") return stored;
+    }
+    return "light";
+  });
 
   useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, theme);
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 

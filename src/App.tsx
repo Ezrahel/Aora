@@ -23,6 +23,7 @@ import SecurityAccessView from "./components/SecurityAccessView";
 import DocumentationView from "./components/DocumentationView";
 import WaitlistView from "./components/WaitlistView";
 import AIAssistantWidget from "./components/AIAssistantWidget";
+import { DashboardThemeProvider } from "./components/DashboardTheme";
 import {
   Plan,
   Customer,
@@ -289,67 +290,71 @@ export default function App() {
     }
   };
 
+  const isDashboard = activeTab !== "landing" && activeTab !== "docs" && activeTab !== "waitlist";
+
   return (
-    <div className="min-h-screen bg-white text-[#111111] font-sans antialiased selection:bg-neutral-100 selection:text-black">
-      {/* Left Sidebar navigation panel */}
-      {activeTab !== "landing" && activeTab !== "docs" && activeTab !== "waitlist" && (
-        <Sidebar
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          onRefreshData={fetchDatabaseState}
-          isSyncing={isSyncing}
-          isMobileOpen={isMobileMenuOpen}
-          onCloseMobile={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-
-      {/* Mobile Menu Backdrop Overlay */}
-      {activeTab !== "landing" && activeTab !== "docs" && activeTab !== "waitlist" && isMobileMenuOpen && (
+    <div className="min-h-screen font-sans antialiased selection:bg-neutral-100 selection:text-black">
+      {/* Landing / Waitlist / Docs — each has its own theme provider */}
+      {!isDashboard && (
         <div
-          onClick={() => setIsMobileMenuOpen(false)}
-          className="fixed inset-0 bg-black/15 backdrop-blur-xs z-40 md:hidden"
-        />
+          className={`${activeTab === "landing" || activeTab === "docs" || activeTab === "waitlist" ? "" : ""} min-h-screen flex flex-col transition-all duration-300`}
+        >
+          <main className="flex-1 w-full max-w-none">
+            {renderActiveView()}
+          </main>
+        </div>
       )}
 
-      {/* Main Content Pane */}
-      <div
-        className={`${activeTab === "landing" || activeTab === "docs" || activeTab === "waitlist" ? "" : "pl-0 md:pl-64"} min-h-screen flex flex-col bg-white transition-all duration-300`}
-      >
-        {/* Top bar Switchers */}
-        {activeTab !== "landing" && activeTab !== "docs" && activeTab !== "waitlist" && (
-          <TopNav
-            currentWorkspace={workspace}
-            setWorkspace={setWorkspace}
-            globalSearch={globalSearch}
-            setGlobalSearch={setGlobalSearch}
-            onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            onNavigateDocs={() => setActiveTab("docs")}
-            onOpenProfileSettings={() => {
-              setProfileSection("settings");
-              setActiveTab("settings");
-            }}
-            onOpenAccountDetails={() => {
-              setProfileSection("account");
-              setActiveTab("settings");
-            }}
-            onOpenSecurityAccess={() => {
-              setProfileSection("security");
-              setActiveTab("settings");
-            }}
-          />
-        )}
+      {/* Dashboard pages — scoped dark mode */}
+      {isDashboard && (
+        <DashboardThemeProvider>
+          <div className="min-h-screen dp-bg dp-text flex">
+            <Sidebar
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              onRefreshData={fetchDatabaseState}
+              isSyncing={isSyncing}
+              isMobileOpen={isMobileMenuOpen}
+              onCloseMobile={() => setIsMobileMenuOpen(false)}
+            />
 
-        {/* Breathing page boundaries content stage */}
-        <main
-          className={`flex-1 w-full ${activeTab === "landing" || activeTab === "docs" || activeTab === "waitlist" ? "max-w-none" : "px-4 py-6 md:px-8 md:py-8 max-w-7xl mx-auto pb-24"}`}
-        >
-          {activeTab === "settings" ? renderProfileSection() : renderActiveView()}
-        </main>
-      </div>
+            {isMobileMenuOpen && (
+              <div
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="fixed inset-0 bg-black/15 backdrop-blur-xs z-40 md:hidden"
+              />
+            )}
 
-      {/* Floating AI Billing Assistant Widget */}
-      {activeTab !== "landing" && activeTab !== "docs" && activeTab !== "waitlist" && (
-        <AIAssistantWidget onActionExecuted={handleAIActionExecuted} />
+            <div className="pl-0 md:pl-64 min-h-screen flex flex-col flex-1 dp-bg transition-all duration-300">
+              <TopNav
+                currentWorkspace={workspace}
+                setWorkspace={setWorkspace}
+                globalSearch={globalSearch}
+                setGlobalSearch={setGlobalSearch}
+                onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                onNavigateDocs={() => setActiveTab("docs")}
+                onOpenProfileSettings={() => {
+                  setProfileSection("settings");
+                  setActiveTab("settings");
+                }}
+                onOpenAccountDetails={() => {
+                  setProfileSection("account");
+                  setActiveTab("settings");
+                }}
+                onOpenSecurityAccess={() => {
+                  setProfileSection("security");
+                  setActiveTab("settings");
+                }}
+              />
+
+              <main className="flex-1 w-full px-4 py-6 md:px-8 md:py-8 max-w-7xl mx-auto pb-24">
+                {activeTab === "settings" ? renderProfileSection() : renderActiveView()}
+              </main>
+            </div>
+
+            <AIAssistantWidget onActionExecuted={handleAIActionExecuted} />
+          </div>
+        </DashboardThemeProvider>
       )}
     </div>
   );

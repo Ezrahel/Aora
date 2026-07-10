@@ -95,9 +95,9 @@ export default function CustomerWorkspaceView({
     <div className="space-y-8 animate-in fade-in duration-300">
       
       {/* Visual Header Banner */}
-      <div className="border-b border-[#E5E5E7] pb-6">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#111111]">Customers Workspace</h2>
-        <p className="text-xs text-[#6E6E73] mt-1.5 font-medium">
+      <div className="border-b dp-border pb-6">
+        <h2 className="text-2xl font-semibold tracking-tight dp-text">Customers Workspace</h2>
+        <p className="text-xs dp-secondary mt-1.5 font-medium">
           Manage deep profile relationships, inspect current invoices, track exact consumption, and append admin logs interactively inside timelines.
         </p>
       </div>
@@ -106,7 +106,7 @@ export default function CustomerWorkspaceView({
         
         {/* Left pane: Scrollable Master customer List (4 cols) */}
         <div className="lg:col-span-4 space-y-3.5">
-          <h3 className="text-xs font-bold text-[#6E6E73] uppercase tracking-wider px-1">Customer Inventory</h3>
+          <h3 className="text-xs font-bold dp-secondary uppercase tracking-wider px-1">Customer Inventory</h3>
           
           <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
             {customers.map((c) => {
@@ -123,8 +123,8 @@ export default function CustomerWorkspaceView({
                   }}
                   className={`w-full text-left rounded-xl p-3.5 transition-all outline-none border flex items-center justify-between ${
                     isActive
-                      ? "bg-white border-[#111111] shadow-md"
-                      : "bg-[#FAFAFA] border-[#E5E5E7] hover:bg-white"
+                      ? "dp-card border-[#111111] shadow-md"
+                      : "dp-surface dp-border hover:dp-card"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -132,8 +132,8 @@ export default function CustomerWorkspaceView({
                       {c.name.substring(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-[#111111] tracking-tight">{c.name}</h4>
-                      <p className="text-[10px] text-[#6E6E73] mt-0.5">{c.domain}</p>
+                      <h4 className="text-xs font-bold dp-text tracking-tight">{c.name}</h4>
+                      <p className="text-[10px] dp-secondary mt-0.5">{c.domain}</p>
                     </div>
                   </div>
                   
@@ -162,21 +162,21 @@ export default function CustomerWorkspaceView({
           <div className="lg:col-span-8 space-y-6">
             
             {/* Upper: profile detail card summary */}
-            <div className="bg-white border border-[#E5E5E7] p-6 rounded-2xl shadow-sm">
+            <div className="dp-card border dp-border p-6 rounded-2xl shadow-sm">
               <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-[#F5F5F7] pb-4.5 gap-4">
                 <div className="flex items-center gap-3.5">
                   <div className={`h-11 w-11 rounded-full flex items-center justify-center font-extrabold text-sm border ${activeCustomer.logoColor || "bg-neutral-100"}`}>
                     {activeCustomer.name.substring(0,2).toUpperCase()}
                   </div>
                   <div className="text-left">
-                    <h3 className="text-base font-bold text-[#111111] tracking-tight">{activeCustomer.name}</h3>
-                    <p className="text-xs text-[#6E6E73] mt-0.5">Admin billing mail: {activeCustomer.email}</p>
+                    <h3 className="text-base font-bold dp-text tracking-tight">{activeCustomer.name}</h3>
+                    <p className="text-xs dp-secondary mt-0.5">Admin billing mail: {activeCustomer.email}</p>
                   </div>
                 </div>
 
-                <div className="flex bg-[#F5F5F7] rounded-full p-0.5 text-[9px] font-bold text-[#6E6E73] border border-[#E5E5E7] self-start md:self-auto">
+                <div className="flex dp-surface-alt rounded-full p-0.5 text-[9px] font-bold dp-secondary border dp-border self-start md:self-auto">
                   <span className="px-2.5 py-1">ID: {activeCustomer.id}</span>
-                  <span className="border-l border-[#E5E5E7] px-2.5 py-1 text-emerald-700 font-semibold bg-white rounded-full shadow-sm">Created: {activeCustomer.createdDate}</span>
+                  <span className="border-l dp-border px-2.5 py-1 text-emerald-700 font-semibold dp-card rounded-full shadow-sm">Created: {activeCustomer.createdDate}</span>
                 </div>
               </div>
 
@@ -185,22 +185,22 @@ export default function CustomerWorkspaceView({
                 
                 {/* Contract Status / Plan */}
                 <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-[#86868B] uppercase tracking-wider block">Contract plan</span>
-                  <p className="text-xs font-semibold text-[#111111]">
+                  <span className="text-[10px] font-bold dp-muted uppercase tracking-wider block">Contract plan</span>
+                  <p className="text-xs font-semibold dp-text">
                     {plans.find(p=>p.id===activeCustomer.planId)?.name || "Starter Mock Plan"}
                   </p>
-                  <p className="text-[10px] text-[#6E6E73] font-mono">
+                  <p className="text-[10px] dp-secondary font-mono">
                     Limit: {plans.find(p=>p.id===activeCustomer.planId)?.includedUsage.toLocaleString()} Units
                   </p>
                 </div>
 
                 {/* Metered Overage */}
                 <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-[#86868B] uppercase tracking-wider block">Usage cycle units</span>
-                  <p className="text-xs font-semibold text-[#111111] flex items-center gap-1">
+                  <span className="text-[10px] font-bold dp-muted uppercase tracking-wider block">Usage cycle units</span>
+                  <p className="text-xs font-semibold dp-text flex items-center gap-1">
                     {activeCustomer.usageUnits.toLocaleString()} Consumption
                   </p>
-                  <div className="h-1.5 w-full bg-[#F5F5F7] rounded-full overflow-hidden mt-1 max-w-[120px]">
+                  <div className="h-1.5 w-full dp-surface-alt rounded-full overflow-hidden mt-1 max-w-[120px]">
                     <div
                       style={{ width: `${Math.min(100, (activeCustomer.usageUnits / (plans.find(p=>p.id===activeCustomer.planId)?.includedUsage || 1000)) * 100)}%` }}
                       className={`h-full ${activeCustomer.usageUnits > (plans.find(p=>p.id===activeCustomer.planId)?.includedUsage || 1000) ? "bg-rose-500" : "bg-[#0071E3]"}`}
@@ -210,10 +210,10 @@ export default function CustomerWorkspaceView({
 
                 {/* Credit card credentials */}
                 <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-[#86868B] uppercase tracking-wider block font-medium">Card gateway source</span>
+                  <span className="text-[10px] font-bold dp-muted uppercase tracking-wider block font-medium">Card gateway source</span>
                   {activeCustomer.paymentMethod ? (
-                    <div className="flex items-center gap-1.5 text-xs text-[#111111] font-semibold mt-1">
-                      <CreditCard className="h-4 w-4 text-[#6E6E73] shrink-0" />
+                    <div className="flex items-center gap-1.5 text-xs dp-text font-semibold mt-1">
+                      <CreditCard className="h-4 w-4 dp-secondary shrink-0" />
                       <span>{activeCustomer.paymentMethod.brand} •••• {activeCustomer.paymentMethod.last4}</span>
                     </div>
                   ) : (
@@ -222,7 +222,7 @@ export default function CustomerWorkspaceView({
                       No Card configured Ledger fallback
                     </p>
                   )}
-                  <p className="text-[10px] text-[#6E6E73]" onClick={() => alert("Simulate update payment logic triggered")}>Click to configure gateway</p>
+                  <p className="text-[10px] dp-secondary" onClick={() => alert("Simulate update payment logic triggered")}>Click to configure gateway</p>
                 </div>
 
               </div>
@@ -235,9 +235,9 @@ export default function CustomerWorkspaceView({
               <div className="md:col-span-8 space-y-5">
                 
                 {/* Timelines segment */}
-                <div className="bg-white border border-[#E5E5E7] p-5.5 rounded-2xl text-left space-y-4 shadow-sm">
-                  <h4 className="text-xs font-bold text-[#111111] flex items-center gap-1.5 border-b border-[#F5F5F7] pb-2.5">
-                    <FileText className="h-4 w-4 text-[#86868B]" />
+                <div className="dp-card border dp-border p-5.5 rounded-2xl text-left space-y-4 shadow-sm">
+                  <h4 className="text-xs font-bold dp-text flex items-center gap-1.5 border-b border-[#F5F5F7] pb-2.5">
+                    <FileText className="h-4 w-4 dp-muted" />
                     Client Billing Ledger history
                   </h4>
 
@@ -249,8 +249,8 @@ export default function CustomerWorkspaceView({
                       <div key={note.id} className="relative pl-5 border-l-2 border-[#111111]/30 pb-3 last:pb-0">
                         <span className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-[#111111] ring-4 ring-[#FFFFFF]" />
                         <div className="text-xs">
-                          <p className="text-[#111111] font-medium leading-relaxed">{note.text}</p>
-                          <div className="flex items-center gap-2 text-[9px] text-[#6E6E73] mt-1">
+                          <p className="dp-text font-medium leading-relaxed">{note.text}</p>
+                          <div className="flex items-center gap-2 text-[9px] dp-secondary mt-1">
                             <span className="font-bold text-black">Author: {note.author}</span>
                             <span>•</span>
                             <span>{new Date(note.timestamp).toLocaleString()}</span>
@@ -265,12 +265,12 @@ export default function CustomerWorkspaceView({
                         <span className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-blue-600 ring-4 ring-[#FFFFFF]" />
                         <div className="text-xs flex justify-between items-start gap-2">
                           <div>
-                            <p className="text-[#111111] font-semibold">Invoice issued: <span className="font-mono text-[10px] bg-[#F5F5F7] px-1 py-0.5 rounded">{inv.id}</span></p>
-                            <p className="text-[10px] text-[#6E6E73] mt-0.5">Quantity consumed: {inv.usageUnits.toLocaleString()} units</p>
-                            <p className="text-[9px] text-[#86868B]">{inv.date}</p>
+                            <p className="dp-text font-semibold">Invoice issued: <span className="font-mono text-[10px] dp-surface-alt px-1 py-0.5 rounded">{inv.id}</span></p>
+                            <p className="text-[10px] dp-secondary mt-0.5">Quantity consumed: {inv.usageUnits.toLocaleString()} units</p>
+                            <p className="text-[9px] dp-muted">{inv.date}</p>
                           </div>
                           <div className="text-right">
-                            <span className="font-extrabold text-[#111111] block">
+                            <span className="font-extrabold dp-text block">
                               {formatCurrency(inv.amount, inv.currency)}
                             </span>
                             <span className={`inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded mt-1 ${
@@ -284,21 +284,21 @@ export default function CustomerWorkspaceView({
                     ))}
                     
                     {activeCustomer.notes.length === 0 && activeCustomer.invoices.length === 0 && (
-                      <p className="text-[#6E6E73] text-xs text-center py-4">No billing events on timeline.</p>
+                      <p className="dp-secondary text-xs text-center py-4">No billing events on timeline.</p>
                     )}
 
                   </div>
                 </div>
 
                 {/* Sub: Contracts */}
-                <div className="bg-[#FFFFFF] border border-[#E5E5E7] p-5.5 rounded-2xl text-left space-y-3.5 shadow-sm">
-                  <h4 className="text-xs font-bold text-[#111111]">Contract & SLA files</h4>
+                <div className="bg-[#FFFFFF] border dp-border p-5.5 rounded-2xl text-left space-y-3.5 shadow-sm">
+                  <h4 className="text-xs font-bold dp-text">Contract & SLA files</h4>
                   <div className="space-y-2">
                     {activeCustomer.contracts.map((ct, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg bg-[#FAFAFA] border border-[#E5E5E7] text-xs">
-                        <span className="font-medium text-[#111111]">{ct.title}</span>
+                      <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg dp-surface border dp-border text-xs">
+                        <span className="font-medium dp-text">{ct.title}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-[#86868B] font-mono">{ct.value}</span>
+                          <span className="dp-muted font-mono">{ct.value}</span>
                           <span className="bg-emerald-100 text-emerald-800 text-[9px] px-1.5 rounded font-bold uppercase pr-1.5">
                             Signed
                           </span>
@@ -306,7 +306,7 @@ export default function CustomerWorkspaceView({
                       </div>
                     ))}
                     {activeCustomer.contracts.length === 0 && (
-                      <p className="text-[11px] text-[#6E6E73] font-medium py-1">No bespoke service contract signed. Standard public checkout pricing applies.</p>
+                      <p className="text-[11px] dp-secondary font-medium py-1">No bespoke service contract signed. Standard public checkout pricing applies.</p>
                     )}
                   </div>
                 </div>
@@ -317,8 +317,8 @@ export default function CustomerWorkspaceView({
               <div className="md:col-span-4 space-y-4">
                 
                 {/* Fast Note creation */}
-                <div className="bg-[#FAFAFA] border border-[#E5E5E7] p-4.5 rounded-xl text-left space-y-3">
-                  <h4 className="text-[11px] font-bold text-[#6E6E73] uppercase tracking-wider flex items-center gap-1">
+                <div className="dp-surface border dp-border p-4.5 rounded-xl text-left space-y-3">
+                  <h4 className="text-[11px] font-bold dp-secondary uppercase tracking-wider flex items-center gap-1">
                     <MessageSquare className="h-3.5 w-3.5" />
                     Write Admin Log note
                   </h4>
@@ -329,7 +329,7 @@ export default function CustomerWorkspaceView({
                       placeholder="Comment on conversation, issues or retry actions..."
                       value={noteText}
                       onChange={(e) => setNoteText(e.target.value)}
-                      className="w-full text-xs border border-[#E5E5E7] outline-none rounded-lg p-2 bg-white text-[#111111] h-16 resize-none"
+                      className="w-full text-xs border dp-border outline-none rounded-lg p-2 dp-card dp-text h-16 resize-none"
                     />
                     <input
                       id="customer-note-author"
@@ -337,7 +337,7 @@ export default function CustomerWorkspaceView({
                       placeholder="Author"
                       value={noteAuthor}
                       onChange={(e) => setNoteAuthor(e.target.value)}
-                      className="w-full text-xs border border-[#E5E5E7] outline-none rounded-lg p-2 bg-white text-[#111111]"
+                      className="w-full text-xs border dp-border outline-none rounded-lg p-2 dp-card dp-text"
                     />
                     <button
                       onClick={handleAddNote}
@@ -351,8 +351,8 @@ export default function CustomerWorkspaceView({
                 </div>
 
                 {/* Fast Plan tweak / Status adjusting */}
-                <div className="bg-[#FAFAFA] border border-[#E5E5E7] p-4.5 rounded-xl text-left space-y-3">
-                  <h4 className="text-[11px] font-bold text-[#6E6E73] uppercase tracking-wider flex items-center gap-1">
+                <div className="dp-surface border dp-border p-4.5 rounded-xl text-left space-y-3">
+                  <h4 className="text-[11px] font-bold dp-secondary uppercase tracking-wider flex items-center gap-1">
                     <Sliders className="h-3.5 w-3.5 text-stone-700" />
                     Adjust subscription
                   </h4>
@@ -366,7 +366,7 @@ export default function CustomerWorkspaceView({
                         id="adjust-customer-plan"
                         value={selectedPlanId}
                         onChange={(e) => setSelectedPlanId(e.target.value)}
-                        className="w-full text-xs border border-[#E5E5E7] rounded p-1 p-y bg-white text-[#111111]"
+                        className="w-full text-xs border dp-border rounded p-1 p-y dp-card dp-text"
                       >
                         <option value="">No change -- Current ({activeCustomer.planId})</option>
                         {plans.map(p => (
@@ -382,7 +382,7 @@ export default function CustomerWorkspaceView({
                         id="adjust-customer-status"
                         value={selectedStatus}
                         onChange={(e) => setSelectedStatus(e.target.value)}
-                        className="w-full text-xs border border-[#E5E5E7] rounded p-1 p-y bg-white text-[#111111]"
+                        className="w-full text-xs border dp-border rounded p-1 p-y dp-card dp-text"
                       >
                         <option value="">No change -- Current ({activeCustomer.status})</option>
                         <option value="active">Active</option>

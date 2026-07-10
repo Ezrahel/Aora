@@ -36,7 +36,7 @@ export default function RevenueOpsView({
   const [recoverySuccess, setRecoverySuccess] = useState(false);
 
   if (!stats)
-    return <div className="animate-pulse h-96 bg-[#FAFAFA] rounded-2xl" />;
+    return <div className="animate-pulse h-96 dp-surface rounded-2xl" />;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-NG", {
@@ -123,11 +123,11 @@ export default function RevenueOpsView({
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Intro Greetings banner */}
-      <div className="border-b border-[#E5E5E7] pb-6">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#111111]">
+      <div className="border-b dp-border pb-6">
+        <h2 className="text-2xl font-semibold tracking-tight dp-text">
           Revenue Operations
         </h2>
-        <p className="text-xs text-[#6E6E73] mt-1.5 font-medium">
+        <p className="text-xs dp-secondary mt-1.5 font-medium">
           CFO-friendly workspace monitoring gross yields, cohort expansions,
           failed card recoveries, and absolute Annual Run Rates.
         </p>
@@ -136,11 +136,11 @@ export default function RevenueOpsView({
       {/* KPI Widgets grids */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* NRR widget */}
-        <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.015)]">
-          <span className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider block">
+        <div className="dp-card border dp-border p-5 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.015)]">
+          <span className="text-[10px] font-bold dp-secondary uppercase tracking-wider block">
             Net Revenue Retention
           </span>
-          <p className="text-xl font-extrabold text-[#111111] mt-2 tracking-tight">
+          <p className="text-xl font-extrabold dp-text mt-2 tracking-tight">
             102.4% NRR
           </p>
           <div className="flex items-center gap-1 text-[11px] font-medium text-[#34C759] mt-2">
@@ -149,11 +149,11 @@ export default function RevenueOpsView({
         </div>
 
         {/* ARR widget */}
-        <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.015)]">
-          <span className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider block">
+        <div className="dp-card border dp-border p-5 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.015)]">
+          <span className="text-[10px] font-bold dp-secondary uppercase tracking-wider block">
             Annual Run Rate
           </span>
-          <p className="text-xl font-extrabold text-[#111111] mt-2 tracking-tight">
+          <p className="text-xl font-extrabold dp-text mt-2 tracking-tight">
             {formatCurrency(stats.arr)}
           </p>
           <div className="flex items-center gap-1 text-[11px] font-medium text-[#c4251c] mt-2">
@@ -164,11 +164,11 @@ export default function RevenueOpsView({
         </div>
 
         {/* Expansion widget */}
-        <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.015)]">
-          <span className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider block">
+        <div className="dp-card border dp-border p-5 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.015)]">
+          <span className="text-[10px] font-bold dp-secondary uppercase tracking-wider block">
             Expansion Revenue
           </span>
-          <p className="text-xl font-extrabold text-[#111111] mt-2 tracking-tight">
+          <p className="text-xl font-extrabold dp-text mt-2 tracking-tight">
             {formatCurrency(Math.round(stats.overageMRR + 12000))}
           </p>
           <div className="flex items-center gap-1 text-[11px] font-medium text-[#34C759] mt-2">
@@ -177,11 +177,11 @@ export default function RevenueOpsView({
         </div>
 
         {/* Recovery Revenue widget */}
-        <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.015)]">
-          <span className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider block">
+        <div className="dp-card border dp-border p-5 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.015)]">
+          <span className="text-[10px] font-bold dp-secondary uppercase tracking-wider block">
             Recovery Revenue
           </span>
-          <p className="text-xl font-extrabold text-[#111111] mt-2 tracking-tight">
+          <p className="text-xl font-extrabold dp-text mt-2 tracking-tight">
             {formatCurrency(23000)}
           </p>
           <div className="flex items-center gap-1 text-[11px] font-medium text-amber-600 mt-2">
@@ -191,12 +191,12 @@ export default function RevenueOpsView({
       </div>
 
       {/* Main BarChart Breakdown */}
-      <div className="bg-white border border-[#E5E5E7] p-6 rounded-3xl shadow-sm">
+      <div className="dp-card border dp-border p-6 rounded-3xl shadow-sm">
         <div className="pb-6 text-left">
-          <span className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider block mb-1">
+          <span className="text-[10px] font-bold dp-secondary uppercase tracking-wider block mb-1">
             CFO distribution view
           </span>
-          <h3 className="text-sm font-semibold text-[#111111]">
+          <h3 className="text-sm font-semibold dp-text">
             Monthly Contract MRR Component Breakdown
           </h3>
         </div>
@@ -210,16 +210,16 @@ export default function RevenueOpsView({
               <CartesianGrid
                 strokeDasharray="3 3"
                 vertical={false}
-                stroke="#E5E5E7"
+                stroke="var(--dp-chart-grid)"
               />
               <XAxis
                 dataKey="name"
-                stroke="#86868B"
+                stroke="var(--dp-chart-axis)"
                 tickLine={false}
                 axisLine={false}
               />
               <YAxis
-                stroke="#86868B"
+                stroke="var(--dp-chart-axis)"
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(val) => `₦${val / 1000}k`}
@@ -250,15 +250,15 @@ export default function RevenueOpsView({
       </div>
 
       {/* Grid: Duning console / recovery engine */}
-      <div className="bg-white border border-[#E5E5E7] p-6 rounded-3xl shadow-sm md:max-w-3xl">
+      <div className="dp-card border dp-border p-6 rounded-3xl shadow-sm md:max-w-3xl">
         <div className="pb-4 text-left">
           <span className="text-[10px] font-bold text-[#FF453A] uppercase tracking-wider block mb-1">
             Financial Operations Audit
           </span>
-          <h3 className="text-base font-bold text-[#111111]">
+          <h3 className="text-base font-bold dp-text">
             Smart Duning & Recoveries Engine Console
           </h3>
-          <p className="text-xs text-[#6E6E73] mt-1 font-medium">
+          <p className="text-xs dp-secondary mt-1 font-medium">
             When cards fail (e.g. limit reached, expired), our dunning engine
             retry sequences prevent immediate deletion. You can manually fire
             recoveries below.
@@ -275,10 +275,10 @@ export default function RevenueOpsView({
               <div className="flex gap-3">
                 <AlertCircle className="h-5 w-5 text-[#FF453A] shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-bold text-[#111111]">
+                  <h4 className="font-bold dp-text">
                     {inv.customerName} past due invoice
                   </h4>
-                  <p className="text-[10px] text-[#6E6E73] mt-0.5">
+                  <p className="text-[10px] dp-secondary mt-0.5">
                     Invoice: {inv.id} • Exceeded limits at{" "}
                     {inv.usageUnits.toLocaleString()} units
                   </p>
@@ -290,7 +290,7 @@ export default function RevenueOpsView({
               </div>
 
               <div className="text-right flex flex-col md:items-end gap-2 shrink-0">
-                <span className="font-extrabold text-[#111111]">
+                <span className="font-extrabold dp-text">
                   {formatCurrency(inv.amount)}
                 </span>
                 <button
@@ -319,9 +319,9 @@ export default function RevenueOpsView({
           )}
 
           {pastDueInvoices.length === 0 && (
-            <div className="p-6 bg-neutral-50 border border-neutral-200 rounded-2xl flex flex-col items-center justify-center text-center text-xs text-[#6E6E73]">
+            <div className="p-6 bg-neutral-50 border border-neutral-200 rounded-2xl flex flex-col items-center justify-center text-center text-xs dp-secondary">
               <CheckCircle className="h-8 w-8 text-stone-700 mb-2" />
-              <p className="font-bold text-[#111111]">
+              <p className="font-bold dp-text">
                 All invoices settled successfully
               </p>
               <p className="mt-0.5 text-[11px] font-medium">

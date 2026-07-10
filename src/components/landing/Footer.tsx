@@ -6,7 +6,9 @@ export default function Footer({ onNavigateTab, scrollToId }: FooterProps) {
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-8">
         <div className="col-span-2 space-y-3">
           <div className="flex items-center">
-            <img src="/aorahq-logo.png" alt="AoraHQ" className="h-6 w-auto" />
+            <div className="rounded-lg p-1.5" style={{ backgroundColor: "#F5F5F7" }}>
+              <img src="/aorahq-logo.png" alt="AoraHQ" className="h-6 w-auto" />
+            </div>
           </div>
           <p className="text-[11px] lp-muted font-medium leading-relaxed max-w-xs">Declarative billing orchestration for modern SaaS, AI, and API platforms.</p>
         </div>

@@ -22,22 +22,22 @@ export default function IntegrationsView() {
     <div className="space-y-8 animate-in fade-in duration-300">
       
       {/* Intro Head banner */}
-      <div className="border-b border-[#E5E5E7] pb-6">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#111111]">Integrations Hub</h2>
-        <p className="text-xs text-[#6E6E73] mt-1.5 font-medium">
+      <div className="border-b dp-border pb-6">
+        <h2 className="text-2xl font-semibold tracking-tight dp-text">Integrations Hub</h2>
+        <p className="text-xs dp-secondary mt-1.5 font-medium">
           Drape external connectors effortlessly across operations. Stream webhook signals, sync leads, and bridge processor networks instantly.
         </p>
       </div>
 
       {/* Grid containing services tiles */}
       <div className="space-y-3">
-        <h3 className="text-xs font-bold text-[#6E6E73] uppercase tracking-wider text-left">Available Integrations</h3>
+        <h3 className="text-xs font-bold dp-secondary uppercase tracking-wider text-left">Available Integrations</h3>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {integrationsList.map((item) => (
             <div
               key={item.id}
-              className="bg-white border border-[#E5E5E7] p-5.5 rounded-2xl text-left space-y-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+              className="dp-card border dp-border p-5.5 rounded-2xl text-left space-y-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
             >
               <div className="space-y-3">
                 
@@ -48,8 +48,8 @@ export default function IntegrationsView() {
                       {item.logo}
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-[#111111]">{item.name}</h4>
-                      <span className="text-[9px] bg-[#F5F5F7] text-[#6E6E73] font-semibold px-2 py-0.5 rounded-full uppercase">
+                      <h4 className="text-xs font-bold dp-text">{item.name}</h4>
+                      <span className="text-[9px] dp-surface-alt dp-secondary font-semibold px-2 py-0.5 rounded-full uppercase">
                         {item.category}
                       </span>
                     </div>
@@ -58,7 +58,7 @@ export default function IntegrationsView() {
                   <span className={`h-2 w-2 rounded-full ${item.connected ? "bg-[#34C759] animate-pulse" : "bg-neutral-300"}`} />
                 </div>
 
-                <p className="text-[11px] text-[#6E6E73] leading-relaxed font-medium">
+                <p className="text-[11px] dp-secondary leading-relaxed font-medium">
                   {item.desc}
                 </p>
 
@@ -75,7 +75,7 @@ export default function IntegrationsView() {
                   onClick={() => handleToggleConnect(item.id)}
                   className={`px-3 py-1.5 rounded-lg text-[10px] font-bold cursor-pointer border transition-all ${
                     item.connected
-                      ? "bg-white text-rose-600 border-rose-100 hover:bg-rose-50"
+                      ? "dp-card text-rose-600 border-rose-100 hover:bg-rose-50"
                       : "bg-[#111111] text-white border-transparent hover:bg-neutral-800"
                   }`}
                 >
@@ -92,8 +92,8 @@ export default function IntegrationsView() {
       <div className="p-4 bg-neutral-50 border border-neutral-200 rounded-xl text-left text-xs flex gap-2.5 items-start md:max-w-2xl font-medium">
         <CheckCircle2 className="h-5 w-5 text-stone-700 shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <p className="font-bold text-[#111111]">Lago Event Stream Syncer Active</p>
-          <p className="text-[#6E6E73] text-[11px] leading-relaxed">
+          <p className="font-bold dp-text">Lago Event Stream Syncer Active</p>
+          <p className="dp-secondary text-[11px] leading-relaxed">
             Lago webhook trigger maps incoming vectors directly down to `compute_meter` definitions. Raw client JSON messages translate directly into ledger overage costs with zero delay.
           </p>
         </div>

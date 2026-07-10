@@ -94,7 +94,7 @@ export default function ReconciliationView() {
             <button
               key={p.label}
               onClick={() => { const r = p.get(); setFrom(r.from); setTo(r.to); }}
-              className="px-3 py-1.5 text-xs font-medium rounded-md hover:bg-white transition-all cursor-pointer"
+              className="px-3 py-1.5 text-xs font-medium rounded-md hover:dp-card transition-all cursor-pointer"
             >
               {p.label}
             </button>
@@ -130,15 +130,15 @@ export default function ReconciliationView() {
         <>
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="p-4 rounded-xl border border-gray-200 bg-white">
+            <div className="p-4 rounded-xl border border-gray-200 dp-card">
               <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Internal Revenue</p>
               <p className="text-2xl font-bold mt-1">₦{report.totals.internalRevenue.toLocaleString()}</p>
             </div>
-            <div className="p-4 rounded-xl border border-gray-200 bg-white">
+            <div className="p-4 rounded-xl border border-gray-200 dp-card">
               <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Gateway Revenue</p>
               <p className="text-2xl font-bold mt-1">₦{report.totals.gatewayRevenue.toLocaleString()}</p>
             </div>
-            <div className="p-4 rounded-xl border border-gray-200 bg-white">
+            <div className="p-4 rounded-xl border border-gray-200 dp-card">
               <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Variance</p>
               <div className="flex items-center gap-2 mt-1">
                 <p className="text-2xl font-bold">₦{report.totals.variance.toLocaleString()}</p>

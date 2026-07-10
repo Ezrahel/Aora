@@ -103,7 +103,7 @@ export default function GatewayConnectView({ onBack, onConnected }: Props) {
             <button
               key={gw.id}
               onClick={() => { setSelectedGateway(gw.id); setStep("configure"); }}
-              className="flex items-start gap-4 p-5 rounded-xl border border-gray-200 hover:border-gray-400 hover:shadow-sm transition-all text-left cursor-pointer bg-white"
+              className="flex items-start gap-4 p-5 rounded-xl border border-gray-200 hover:border-gray-400 hover:shadow-sm transition-all text-left cursor-pointer dp-card"
             >
               <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
                 <Plug className="h-5 w-5 text-gray-700" />
@@ -137,7 +137,7 @@ export default function GatewayConnectView({ onBack, onConnected }: Props) {
             <button
               key={m}
               onClick={() => setMode(m)}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all cursor-pointer ${mode === m ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-700"}`}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all cursor-pointer ${mode === m ? "dp-card shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-700"}`}
             >
               {m === "test" ? "🔬 Test Mode" : "🚀 Live Mode"}
             </button>
@@ -198,7 +198,7 @@ export default function GatewayConnectView({ onBack, onConnected }: Props) {
             <span className="text-[10px] text-gray-400">Set this in your gateway dashboard</span>
           </div>
           <div className="flex items-center gap-2">
-            <code className="flex-1 text-xs font-mono bg-white px-2 py-1.5 rounded border border-gray-200 truncate">
+            <code className="flex-1 text-xs font-mono dp-card px-2 py-1.5 rounded border border-gray-200 truncate">
               {window.location.origin}/api/gateways/webhooks/{selectedGateway}
             </code>
             <button onClick={handleCopyUrl} className="p-1.5 hover:bg-gray-200 rounded cursor-pointer" title="Copy URL">

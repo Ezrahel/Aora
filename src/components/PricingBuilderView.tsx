@@ -539,15 +539,15 @@ export default function PricingBuilderView({
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* HEADER BAR */}
-      <div className="border-b border-[#E5E5E7] pb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="border-b dp-border pb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight text-[#111111] flex items-center gap-2">
+          <h2 className="text-2xl font-semibold tracking-tight dp-text flex items-center gap-2">
             Pricing & Monetization Engine
             <span className="text-[10px] bg-[#0071E3]/10 text-[#0071E3] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
               Phase 3 Live
             </span>
           </h2>
-          <p className="text-xs text-[#6E6E73] mt-1.5 font-medium">
+          <p className="text-xs dp-secondary mt-1.5 font-medium">
             Manage multi-tier plans, versioned price structures, custom
             enterprise SLAs, coupons, and simulate cash-flows visually.
           </p>
@@ -556,15 +556,15 @@ export default function PricingBuilderView({
 
       {/* COMPACT BENTO TABS NAVIGATION BAR */}
       <div
-        className="flex flex-wrap border-b border-[#E5E5E7] gap-1"
+        className="flex flex-wrap border-b dp-border gap-1"
         id="pricing-submenu-tabs"
       >
         <button
           onClick={() => setActiveSubTab("catalog")}
           className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
             activeSubTab === "catalog"
-              ? "border-[#111111] text-[#111111]"
-              : "border-transparent text-[#6E6E73] hover:text-[#111111]"
+              ? "border-[#111111] dp-text"
+              : "border-transparent dp-secondary hover:dp-text"
           }`}
         >
           <History className="h-3.5 w-3.5" />
@@ -579,8 +579,8 @@ export default function PricingBuilderView({
           }}
           className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
             activeSubTab === "builder"
-              ? "border-[#111111] text-[#111111]"
-              : "border-transparent text-[#6E6E73] hover:text-[#111111]"
+              ? "border-[#111111] dp-text"
+              : "border-transparent dp-secondary hover:dp-text"
           }`}
         >
           <Sliders className="h-3.5 w-3.5" />
@@ -590,8 +590,8 @@ export default function PricingBuilderView({
           onClick={() => setActiveSubTab("rate-cards")}
           className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
             activeSubTab === "rate-cards"
-              ? "border-[#111111] text-[#111111]"
-              : "border-transparent text-[#6E6E73] hover:text-[#111111]"
+              ? "border-[#111111] dp-text"
+              : "border-transparent dp-secondary hover:dp-text"
           }`}
         >
           <Layers className="h-3.5 w-3.5" />
@@ -605,8 +605,8 @@ export default function PricingBuilderView({
           }}
           className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
             activeSubTab === "discounts-coupons"
-              ? "border-[#111111] text-[#111111]"
-              : "border-transparent text-[#6E6E73] hover:text-[#111111]"
+              ? "border-[#111111] dp-text"
+              : "border-transparent dp-secondary hover:dp-text"
           }`}
         >
           <Percent className="h-3.5 w-3.5" />
@@ -616,8 +616,8 @@ export default function PricingBuilderView({
           onClick={() => setActiveSubTab("contracts")}
           className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
             activeSubTab === "contracts"
-              ? "border-[#111111] text-[#111111]"
-              : "border-transparent text-[#6E6E73] hover:text-[#111111]"
+              ? "border-[#111111] dp-text"
+              : "border-transparent dp-secondary hover:dp-text"
           }`}
         >
           <FileText className="h-3.5 w-3.5" />
@@ -627,8 +627,8 @@ export default function PricingBuilderView({
           onClick={() => setActiveSubTab("sandbox")}
           className={`px-4 py-2.5 text-xs font-semibold border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
             activeSubTab === "sandbox"
-              ? "border-[#111111] text-[#111111]"
-              : "border-transparent text-[#6E6E73] hover:text-[#111111]"
+              ? "border-[#111111] dp-text"
+              : "border-transparent dp-secondary hover:dp-text"
           }`}
         >
           <Calculator className="h-3.5 w-3.5" />
@@ -677,7 +677,7 @@ export default function PricingBuilderView({
               return (
                 <div
                   key={price.id}
-                  className={`bg-white border rounded-2xl p-5 flex flex-col justify-between transition-all shadow-sm ${
+                  className={`dp-card border rounded-2xl p-5 flex flex-col justify-between transition-all shadow-sm ${
                     price.isActive
                       ? "border-neutral-900 ring-1 ring-neutral-900"
                       : "border-neutral-200 opacity-70"
@@ -1296,13 +1296,13 @@ export default function PricingBuilderView({
                   {/* Sub-view switcher renderer */}
                   {builderCreationMode === "form" ? (
                     /* SUB VIEW: GUIDED FORM BUILDER */
-                    <div className="bg-white border border-[#E5E5E7] p-6 rounded-3xl shadow-sm text-left space-y-6 animate-in fade-in duration-200">
-                      <div className="border-b pb-4 flex justify-between items-center bg-[#FAFAFA] -mx-6 -mt-6 p-6 rounded-t-3xl">
+                    <div className="dp-card border dp-border p-6 rounded-3xl shadow-sm text-left space-y-6 animate-in fade-in duration-200">
+                      <div className="border-b pb-4 flex justify-between items-center dp-surface -mx-6 -mt-6 p-6 rounded-t-3xl">
                         <div>
-                          <h4 className="text-sm font-bold text-[#111111]">
+                          <h4 className="text-sm font-bold dp-text">
                             Guided Form Path
                           </h4>
-                          <p className="text-[11px] text-[#6E6E73] mt-0.5">
+                          <p className="text-[11px] dp-secondary mt-0.5">
                             Continuous fields form structured for finance &
                             operations
                           </p>
@@ -1323,7 +1323,7 @@ export default function PricingBuilderView({
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-[#6E6E73] uppercase block">
+                            <label className="text-[10px] font-bold dp-secondary uppercase block">
                               Associate with Contract Plan
                             </label>
                             <select
@@ -1337,7 +1337,7 @@ export default function PricingBuilderView({
                                   `${match?.name || e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1)} Scale Pricing`,
                                 );
                               }}
-                              className="w-full text-xs border border-[#E5E5E7] focus:border-black rounded-lg p-2 bg-transparent text-neutral-900"
+                              className="w-full text-xs border dp-border focus:border-black rounded-lg p-2 bg-transparent text-neutral-900"
                             >
                               {existingPlans.map((p) => (
                                 <option key={p.id} value={p.id}>
@@ -1348,21 +1348,21 @@ export default function PricingBuilderView({
                           </div>
 
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-[#6E6E73] uppercase block">
+                            <label className="text-[10px] font-bold dp-secondary uppercase block">
                               Price Formula Label
                             </label>
                             <input
                               type="text"
                               value={builderName}
                               onChange={(e) => setBuilderName(e.target.value)}
-                              className="w-full text-xs border border-[#E5E5E7] focus:border-black rounded-lg p-2 bg-transparent text-neutral-900 font-medium"
+                              className="w-full text-xs border dp-border focus:border-black rounded-lg p-2 bg-transparent text-neutral-900 font-medium"
                             />
                           </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-[#6E6E73] uppercase block">
+                            <label className="text-[10px] font-bold dp-secondary uppercase block">
                               Billing Interval
                             </label>
                             <select
@@ -1370,7 +1370,7 @@ export default function PricingBuilderView({
                               onChange={(e) =>
                                 setBuilderBillingPeriod(e.target.value as any)
                               }
-                              className="w-full text-xs border border-[#E5E5E7] focus:border-black rounded-lg p-2 bg-transparent text-neutral-900"
+                              className="w-full text-xs border dp-border focus:border-black rounded-lg p-2 bg-transparent text-neutral-900"
                             >
                               <option value="monthly">Monthly</option>
                               <option value="quarterly">Quarterly</option>
@@ -1380,7 +1380,7 @@ export default function PricingBuilderView({
                           </div>
 
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-[#6E6E73] uppercase block">
+                            <label className="text-[10px] font-bold dp-secondary uppercase block">
                               Settle Currency
                             </label>
                             <select
@@ -1388,7 +1388,7 @@ export default function PricingBuilderView({
                               onChange={(e) =>
                                 setBuilderCurrency(e.target.value)
                               }
-                              className="w-full text-xs border border-[#E5E5E7] focus:border-black rounded-lg p-2 bg-transparent text-neutral-900"
+                              className="w-full text-xs border dp-border focus:border-black rounded-lg p-2 bg-transparent text-neutral-900"
                             >
                               <option value="NGN">NGN (₦)</option>
                               <option value="USD">USD ($)</option>
@@ -1397,7 +1397,7 @@ export default function PricingBuilderView({
                           </div>
 
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-[#6E6E73] uppercase block">
+                            <label className="text-[10px] font-bold dp-secondary uppercase block">
                               Methodology Class
                             </label>
                             <select
@@ -1415,7 +1415,7 @@ export default function PricingBuilderView({
                                   usage_metering: nextType === "flat",
                                 }));
                               }}
-                              className="w-full text-xs border border-[#E5E5E7] focus:border-black rounded-lg p-2 bg-transparent text-neutral-900 font-bold"
+                              className="w-full text-xs border dp-border focus:border-black rounded-lg p-2 bg-transparent text-neutral-900 font-bold"
                             >
                               <option value="flat">
                                 Flat Model (Single Fee)
@@ -1443,14 +1443,14 @@ export default function PricingBuilderView({
                         </div>
 
                         <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-[#6E6E73] uppercase block">
+                          <label className="text-[10px] font-bold dp-secondary uppercase block">
                             Internal Memo & Description
                           </label>
                           <textarea
                             rows={2}
                             value={builderDesc}
                             onChange={(e) => setBuilderDesc(e.target.value)}
-                            className="w-full text-xs border border-[#E5E5E7] focus:border-black rounded-lg p-2 bg-transparent text-neutral-900 resize-none"
+                            className="w-full text-xs border dp-border focus:border-black rounded-lg p-2 bg-transparent text-neutral-900 resize-none"
                             placeholder="Internal description of target segment..."
                           />
                         </div>
@@ -1467,7 +1467,7 @@ export default function PricingBuilderView({
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-[#6E6E73] uppercase block">
+                            <label className="text-[10px] font-bold dp-secondary uppercase block">
                               Base recurrent fee
                             </label>
                             <div className="relative flex items-center">
@@ -1486,10 +1486,10 @@ export default function PricingBuilderView({
                                     Math.max(0, Number(e.target.value)),
                                   )
                                 }
-                                className="w-full text-xs border border-[#E5E5E7] rounded-lg p-2 pl-7 text-neutral-900"
+                                className="w-full text-xs border dp-border rounded-lg p-2 pl-7 text-neutral-900"
                               />
                             </div>
-                            <span className="text-[9px] text-[#86868B] block">
+                            <span className="text-[9px] dp-muted block">
                               Standard recurrent baseline fee
                             </span>
                           </div>
@@ -1497,7 +1497,7 @@ export default function PricingBuilderView({
                           {(builderType === "usage" ||
                             builderType === "hybrid") && (
                             <div className="space-y-1">
-                              <label className="text-[10px] font-bold text-[#6E6E73] uppercase block">
+                              <label className="text-[10px] font-bold dp-secondary uppercase block">
                                 Unit Overage Price
                               </label>
                               <div className="relative flex items-center">
@@ -1517,10 +1517,10 @@ export default function PricingBuilderView({
                                       Math.max(0, Number(e.target.value)),
                                     )
                                   }
-                                  className="w-full text-xs border border-[#E5E5E7] rounded-lg p-2 pl-7 text-neutral-900 font-mono"
+                                  className="w-full text-xs border dp-border rounded-lg p-2 pl-7 text-neutral-900 font-mono"
                                 />
                               </div>
-                              <span className="text-[9px] text-[#86868B] block">
+                              <span className="text-[9px] dp-muted block">
                                 Charged for excess units utilized
                               </span>
                             </div>
@@ -1551,7 +1551,7 @@ export default function PricingBuilderView({
                                     Math.max(0, Number(e.target.value)),
                                   )
                                 }
-                                className="w-full text-xs border border-slate-200 rounded-lg p-2 bg-white text-neutral-900"
+                                className="w-full text-xs border border-slate-200 rounded-lg p-2 dp-card text-neutral-900"
                               />
                             </div>
 
@@ -1575,7 +1575,7 @@ export default function PricingBuilderView({
                                       Math.max(0, Number(e.target.value)),
                                     )
                                   }
-                                  className="w-full text-xs border border-slate-200 rounded-lg p-2 pl-7 bg-white text-neutral-900 font-mono"
+                                  className="w-full text-xs border border-slate-200 rounded-lg p-2 pl-7 dp-card text-neutral-900 font-mono"
                                 />
                               </div>
                             </div>
@@ -1606,9 +1606,9 @@ export default function PricingBuilderView({
                                     Math.max(0, Number(e.target.value)),
                                   )
                                 }
-                                className="w-full text-xs border border-orange-200 rounded-lg p-2 bg-white text-neutral-900"
+                                className="w-full text-xs border border-orange-200 rounded-lg p-2 dp-card text-neutral-900"
                               />
-                              <span className="text-[9px] text-[#86868B] block">
+                              <span className="text-[9px] dp-muted block">
                                 Calcula balance before overage kicks in
                               </span>
                             </div>
@@ -1622,7 +1622,7 @@ export default function PricingBuilderView({
                                 onChange={(e) =>
                                   setBuilderMeterId(e.target.value)
                                 }
-                                className="w-full text-xs border border-orange-200 rounded-lg p-2 bg-white text-neutral-900"
+                                className="w-full text-xs border border-orange-200 rounded-lg p-2 dp-card text-neutral-900"
                               >
                                 {meters.map((m) => (
                                   <option key={m.id} value={m.id}>
@@ -1640,7 +1640,7 @@ export default function PricingBuilderView({
                         builderType === "volume") && (
                         <div className="p-4 bg-neutral-50 rounded-2xl border space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                            <span className="text-[11px] font-bold dp-secondary uppercase tracking-wider">
                               Bracket Pricing Brackets
                             </span>
                             <button
@@ -1656,7 +1656,7 @@ export default function PricingBuilderView({
                             {builderTiers.map((tier, idx) => (
                               <div
                                 key={idx}
-                                className="flex items-center gap-2 bg-white p-2.5 rounded-xl border"
+                                className="flex items-center gap-2 dp-card p-2.5 rounded-xl border"
                               >
                                 <span className="text-xs font-bold text-neutral-500">
                                   Bracket {idx + 1}:
@@ -1734,7 +1734,7 @@ export default function PricingBuilderView({
                                   Math.max(1, Number(e.target.value)),
                                 )
                               }
-                              className="w-full text-xs border border-cyan-150 rounded-lg p-2 bg-white text-neutral-900"
+                              className="w-full text-xs border border-cyan-150 rounded-lg p-2 dp-card text-neutral-900"
                               placeholder="e.g. 10000"
                             />
                           </div>
@@ -1759,7 +1759,7 @@ export default function PricingBuilderView({
                                     Math.max(0, Number(e.target.value)),
                                   )
                                 }
-                                className="w-full text-xs border border-cyan-150 rounded-lg p-2 pl-7 bg-white text-neutral-900 font-mono"
+                                className="w-full text-xs border border-cyan-150 rounded-lg p-2 pl-7 dp-card text-neutral-900 font-mono"
                                 placeholder="e.g. 15000"
                               />
                             </div>
@@ -1793,7 +1793,7 @@ export default function PricingBuilderView({
                             {/* Minimum and Max Spend Cappings */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-[#6E6E73] uppercase block">
+                                <label className="text-[10px] font-bold dp-secondary uppercase block">
                                   Minimum Spend Commitment Floor
                                 </label>
                                 <div className="relative flex items-center">
@@ -1811,13 +1811,13 @@ export default function PricingBuilderView({
                                     className="w-full text-xs border border-neutral-200 rounded-lg p-2 pl-7 text-neutral-900"
                                   />
                                 </div>
-                                <span className="text-[9px] text-[#86868B] block">
+                                <span className="text-[9px] dp-muted block">
                                   SLA round-up minimum client invoice
                                 </span>
                               </div>
 
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-[#6E6E73] uppercase block">
+                                <label className="text-[10px] font-bold dp-secondary uppercase block">
                                   Maximum Ceiling cap (Hard Ceiling)
                                 </label>
                                 <div className="relative flex items-center">
@@ -1835,7 +1835,7 @@ export default function PricingBuilderView({
                                     className="w-full text-xs border border-neutral-200 rounded-lg p-2 pl-7 text-neutral-900"
                                   />
                                 </div>
-                                <span className="text-[9px] text-[#86868B] block">
+                                <span className="text-[9px] dp-muted block">
                                   Cap limits to protect client wallets
                                 </span>
                               </div>
@@ -1844,7 +1844,7 @@ export default function PricingBuilderView({
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-neutral-200">
                               {/* Grace periods */}
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-[#6E6E73] uppercase block">
+                                <label className="text-[10px] font-bold dp-secondary uppercase block">
                                   Payment Grace Period days
                                 </label>
                                 <input
@@ -1861,7 +1861,7 @@ export default function PricingBuilderView({
 
                               {/* Annual cycle premium discount */}
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-[#6E6E73] uppercase block">
+                                <label className="text-[10px] font-bold dp-secondary uppercase block">
                                   Annual Cycle Premium discount %
                                 </label>
                                 <div className="relative flex items-center">
@@ -1888,7 +1888,7 @@ export default function PricingBuilderView({
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-neutral-200">
                               {/* Prepaid credit bundled upon registration */}
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-[#6E6E73] uppercase block">
+                                <label className="text-[10px] font-bold dp-secondary uppercase block">
                                   Prepaid credit signup voucher
                                 </label>
                                 <div className="relative flex items-center">
@@ -1910,7 +1910,7 @@ export default function PricingBuilderView({
 
                               {/* Regional custom discounting */}
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-[#6E6E73] uppercase block">
+                                <label className="text-[10px] font-bold dp-secondary uppercase block">
                                   Regional Pricing Adjustment %
                                 </label>
                                 <div className="relative flex items-center">
@@ -1928,7 +1928,7 @@ export default function PricingBuilderView({
                                     %
                                   </span>
                                 </div>
-                                <span className="text-[9px] text-[#86868B] block">
+                                <span className="text-[9px] dp-muted block">
                                   Localized tax/currency offsets
                                 </span>
                               </div>
@@ -2066,19 +2066,19 @@ export default function PricingBuilderView({
                             <div
                               key={blockId}
                               style={{ opacity: isNodeDisabled ? 0.6 : 1 }}
-                              className={`bg-white border rounded-3xl shadow-sm overflow-hidden transition-all duration-200 ${colorBorderClass}`}
+                              className={`dp-card border rounded-3xl shadow-sm overflow-hidden transition-all duration-200 ${colorBorderClass}`}
                             >
                               {/* Block Header bar with controls */}
                               <div
                                 className={`px-4 py-3 flex items-center justify-between border-b ${bannerBg}`}
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className="p-1 bg-white rounded-lg shadow-sm">
+                                  <div className="p-1 dp-card rounded-lg shadow-sm">
                                     {iconNode}
                                   </div>
                                   <div>
                                     <div className="flex items-center gap-1.5">
-                                      <span className="text-[10px] font-bold text-[#86868B] uppercase">
+                                      <span className="text-[10px] font-bold dp-muted uppercase">
                                         Node {index + 1}
                                       </span>
                                       {isNodeDisabled && (
@@ -2162,7 +2162,7 @@ export default function PricingBuilderView({
 
                               {/* Block edit details (Progressive local edits on Canvas) */}
                               {!isNodeCollapsed && (
-                                <div className="p-4 space-y-3 bg-white">
+                                <div className="p-4 space-y-3 dp-card">
                                   <p className="text-[10px] text-stone-400 select-none pb-1">
                                     {description}
                                   </p>
@@ -2759,13 +2759,13 @@ export default function PricingBuilderView({
                   </div>
 
                   {/* PREVIEW CONTAINER B: CONSUMER PRICING CARD PREVIEW */}
-                  <div className="bg-white border border-[#E5E5E7] p-6 rounded-3xl shadow-sm text-left space-y-5">
+                  <div className="dp-card border dp-border p-6 rounded-3xl shadow-sm text-left space-y-5">
                     <div className="flex justify-between items-center border-b pb-3">
                       <h5 className="text-xs font-bold text-neutral-900 uppercase tracking-tight flex items-center gap-2">
                         <Eye className="h-4 w-4 text-[#0071E3]" />
                         Customer Card View
                       </h5>
-                      <span className="text-[10px] text-stone-500 font-bold bg-[#FAFAFA] px-2 py-0.5 rounded border">
+                      <span className="text-[10px] text-stone-500 font-bold dp-surface px-2 py-0.5 rounded border">
                         Preview
                       </span>
                     </div>
@@ -2780,19 +2780,19 @@ export default function PricingBuilderView({
                       )}
 
                       <div className="space-y-1 text-left">
-                        <span className="text-[9px] bg-neutral-100 text-[#111111] px-2 py-0.5 rounded-full font-bold uppercase font-mono tracking-wide">
+                        <span className="text-[9px] bg-neutral-100 dp-text px-2 py-0.5 rounded-full font-bold uppercase font-mono tracking-wide">
                           {builderPlanId.toUpperCase()} SPEC
                         </span>
-                        <h4 className="text-lg font-extrabold text-[#111111] leading-tight pt-1">
+                        <h4 className="text-lg font-extrabold dp-text leading-tight pt-1">
                           {builderName}
                         </h4>
-                        <p className="text-[11px] text-[#6E6E73] leading-snug">
+                        <p className="text-[11px] dp-secondary leading-snug">
                           {builderDesc ||
                             "Professional monetization rule for scale workspaces."}
                         </p>
                       </div>
 
-                      <div className="my-5 flex items-baseline gap-1 bg-[#FAFAFA] -mx-5 p-4 border-y border-neutral-100 text-left">
+                      <div className="my-5 flex items-baseline gap-1 dp-surface -mx-5 p-4 border-y border-neutral-100 text-left">
                         <span className="text-2xl font-black text-neutral-900 font-mono">
                           {builderCurrency === "NGN"
                             ? "₦"
@@ -2801,7 +2801,7 @@ export default function PricingBuilderView({
                               : "€"}
                           {builderBaseFee.toLocaleString()}
                         </span>
-                        <span className="text-[10px] text-[#6E6E73] font-bold uppercase tracking-wider">
+                        <span className="text-[10px] dp-secondary font-bold uppercase tracking-wider">
                           / {builderBillingPeriod}
                         </span>
                       </div>
@@ -2879,7 +2879,7 @@ export default function PricingBuilderView({
                   </div>
 
                   {/* PREVIEW CONTAINER C: VALIDATIONS DIAGNOSTICS ENGINE REPORT */}
-                  <div className="bg-white border border-[#E5E5E7] p-6 rounded-3xl shadow-sm text-left space-y-4">
+                  <div className="dp-card border dp-border p-6 rounded-3xl shadow-sm text-left space-y-4">
                     <h5 className="text-xs font-extrabold text-neutral-900 uppercase tracking-wider flex items-center gap-2 border-b pb-3">
                       <ShieldAlert className="h-4.5 w-4.5 text-[#0071E3]" />
                       Real-time Validations diagnostics
@@ -2937,7 +2937,7 @@ export default function PricingBuilderView({
       {/* TAB-VIEW 3: RATE CARDS */}
       {activeSubTab === "rate-cards" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          <div className="lg:col-span-4 bg-white border border-[#E5E5E7] rounded-3xl p-6 space-y-5 shadow-sm">
+          <div className="lg:col-span-4 dp-card border dp-border rounded-3xl p-6 space-y-5 shadow-sm">
             <h3 className="text-xs font-bold text-neutral-900 uppercase tracking-wider border-b pb-3 flex items-center gap-2">
               <Plus className="h-4 w-4 text-[#0071E3]" />
               New Event Rate Card
@@ -2945,25 +2945,25 @@ export default function PricingBuilderView({
 
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                   Name
                 </label>
                 <input
                   type="text"
                   value={rcName}
                   onChange={(e) => setRcName(e.target.value)}
-                  className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900 focus:border-neutral-900"
+                  className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900 focus:border-neutral-900"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                   Event Meter Link
                 </label>
                 <select
                   value={rcMeterId}
                   onChange={(e) => setRcMeterId(e.target.value)}
-                  className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900 focus:border-neutral-900"
+                  className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900 focus:border-neutral-900"
                 >
                   {meters.map((m) => (
                     <option key={m.id} value={m.id}>
@@ -2977,13 +2977,13 @@ export default function PricingBuilderView({
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                  <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                     Price Type
                   </label>
                   <select
                     value={rcPriceType}
                     onChange={(e) => setRcPriceType(e.target.value as any)}
-                    className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900"
+                    className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900"
                   >
                     <option value="flat">Standard Flat</option>
                     <option value="tiered">Tiered Rate</option>
@@ -2991,13 +2991,13 @@ export default function PricingBuilderView({
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                  <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                     Currency
                   </label>
                   <select
                     value={rcCurrency}
                     onChange={(e) => setRcCurrency(e.target.value)}
-                    className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900"
+                    className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900"
                   >
                     <option value="NGN">NGN (₦)</option>
                     <option value="USD">USD ($)</option>
@@ -3007,14 +3007,14 @@ export default function PricingBuilderView({
 
               {rcPriceType === "flat" ? (
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                  <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                     Unit Value Cost
                   </label>
                   <input
                     type="number"
                     value={rcUnitPrice}
                     onChange={(e) => setRcUnitPrice(Number(e.target.value))}
-                    className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900"
+                    className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900"
                   />
                 </div>
               ) : (
@@ -3026,13 +3026,13 @@ export default function PricingBuilderView({
               )}
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                   Description
                 </label>
                 <textarea
                   value={rcDesc}
                   onChange={(e) => setRcDesc(e.target.value)}
-                  className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900 h-16 resize-none"
+                  className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900 h-16 resize-none"
                 />
               </div>
 
@@ -3045,14 +3045,14 @@ export default function PricingBuilderView({
             </div>
           </div>
 
-          <div className="lg:col-span-8 bg-white border border-[#E5E5E7] rounded-3xl p-6 shadow-sm overflow-x-auto">
+          <div className="lg:col-span-8 dp-card border dp-border rounded-3xl p-6 shadow-sm overflow-x-auto">
             <h3 className="text-xs font-bold text-neutral-900 uppercase tracking-wider mb-4">
               Workspace Rate Cards
             </h3>
 
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-[#E5E5E7] text-neutral-400 font-semibold">
+                <tr className="border-b dp-border text-neutral-400 font-semibold">
                   <th className="pb-3 pr-2">Rate Card Spec</th>
                   <th className="pb-3 pr-2">Linked Event Meter</th>
                   <th className="pb-3 pr-2">Strategy Model</th>
@@ -3093,7 +3093,7 @@ export default function PricingBuilderView({
       {activeSubTab === "discounts-coupons" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* DISCOUNT CONFIGURATION SYSTEM */}
-          <div className="bg-white border border-[#E5E5E7] rounded-3xl p-6 space-y-6 shadow-sm">
+          <div className="dp-card border dp-border rounded-3xl p-6 space-y-6 shadow-sm">
             <div>
               <h3 className="text-xs font-bold text-neutral-900 uppercase tracking-wider border-b pb-3 flex items-center gap-2">
                 <Percent className="h-4.5 w-4.5 text-[#0071E3]" />
@@ -3107,53 +3107,53 @@ export default function PricingBuilderView({
 
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                   Campaign Name
                 </label>
                 <input
                   type="text"
                   value={discName}
                   onChange={(e) => setDiscName(e.target.value)}
-                  className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900"
+                  className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                  <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                     Discount Class
                   </label>
                   <select
                     value={discType}
                     onChange={(e) => setDiscType(e.target.value as any)}
-                    className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900"
+                    className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900"
                   >
                     <option value="percentage">Percentage Off (%)</option>
                     <option value="fixed">Fixed Off Money</option>
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                  <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                     Off Value
                   </label>
                   <input
                     type="number"
                     value={discValue}
                     onChange={(e) => setDiscValue(Number(e.target.value))}
-                    className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900 font-mono font-bold"
+                    className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900 font-mono font-bold"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                  <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                     Applies Specifically To
                   </label>
                   <select
                     value={discAppliesTo}
                     onChange={(e) => setDiscAppliesTo(e.target.value as any)}
-                    className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900"
+                    className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900"
                   >
                     <option value="all">Entire Invoice (Sum of all)</option>
                     <option value="base_fee">Base Plan Recur Fee only</option>
@@ -3162,13 +3162,13 @@ export default function PricingBuilderView({
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                  <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                     Duration Scope
                   </label>
                   <select
                     value={discDuration}
                     onChange={(e) => setDiscDuration(e.target.value as any)}
-                    className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900"
+                    className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900"
                   >
                     <option value="forever">Forever Permanent Code</option>
                     <option value="once">Single First Invoice only</option>
@@ -3186,7 +3186,7 @@ export default function PricingBuilderView({
           </div>
 
           {/* ACTIVE PUBLIC COUPON CODES IN WORKSPACE */}
-          <div className="bg-white border border-[#E5E5E7] rounded-3xl p-6 space-y-6 shadow-sm">
+          <div className="dp-card border dp-border rounded-3xl p-6 space-y-6 shadow-sm">
             <div>
               <h3 className="text-xs font-bold text-neutral-900 uppercase tracking-wider border-b pb-3 flex items-center gap-2">
                 <Sparkles className="h-4.5 w-4.5 text-[#FF9F0A]" />
@@ -3201,39 +3201,39 @@ export default function PricingBuilderView({
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                  <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                     Description
                   </label>
                   <input
                     type="text"
                     value={cpName}
                     onChange={(e) => setCpName(e.target.value)}
-                    className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900"
+                    className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900"
                     placeholder="e.g. Winter Sale Promo"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                  <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                     Redemption Promo Code
                   </label>
                   <input
                     type="text"
                     value={cpCode}
                     onChange={(e) => setCpCode(e.target.value.toUpperCase())}
-                    className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900 font-mono font-bold uppercase"
+                    className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900 font-mono font-bold uppercase"
                     placeholder="e.g. WINTER30"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                   Bind to Discount Rule
                 </label>
                 <select
                   value={cpDiscountId}
                   onChange={(e) => setCpDiscountId(e.target.value)}
-                  className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900"
+                  className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900"
                 >
                   {discounts.map((d) => (
                     <option key={d.id} value={d.id}>
@@ -3256,7 +3256,7 @@ export default function PricingBuilderView({
 
             {/* List current active coupons */}
             <div className="pt-4 border-t">
-              <p className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider mb-2">
+              <p className="text-[10px] font-bold dp-secondary uppercase tracking-wider mb-2">
                 Deployed Coupons
               </p>
               <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -3294,7 +3294,7 @@ export default function PricingBuilderView({
       {/* TAB-VIEW 5: ENTERPRISE CONTRACTS */}
       {activeSubTab === "contracts" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          <div className="lg:col-span-5 bg-white border border-[#E5E5E7] rounded-3xl p-6 space-y-6 shadow-sm">
+          <div className="lg:col-span-5 dp-card border dp-border rounded-3xl p-6 space-y-6 shadow-sm">
             <div>
               <h3 className="text-xs font-bold text-neutral-900 uppercase tracking-wider border-b pb-3 flex items-center gap-2">
                 <Briefcase className="h-4.5 w-4.5 text-[#0071E3]" />
@@ -3308,13 +3308,13 @@ export default function PricingBuilderView({
 
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                   Select Client Customer Account
                 </label>
                 <select
                   value={contractCustId}
                   onChange={(e) => setContractCustId(e.target.value)}
-                  className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900"
+                  className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900"
                 >
                   <option value="">-- Select Active Customer Profile --</option>
                   {customers.map((c) => (
@@ -3326,31 +3326,31 @@ export default function PricingBuilderView({
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                   Agreement Label Title
                 </label>
                 <input
                   type="text"
                   value={contractName}
                   onChange={(e) => setContractName(e.target.value)}
-                  className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900"
+                  className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                  <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                     Custom Base Fee Override
                   </label>
                   <input
                     type="number"
                     value={contractBaseFee}
                     onChange={(e) => setContractBaseFee(Number(e.target.value))}
-                    className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900 font-mono font-bold"
+                    className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900 font-mono font-bold"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                  <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                     Hourly/Seat FeeOverride
                   </label>
                   <input
@@ -3359,14 +3359,14 @@ export default function PricingBuilderView({
                     onChange={(e) =>
                       setContractSeatPrice(Number(e.target.value))
                     }
-                    className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900 font-mono text-neutral-600"
+                    className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900 font-mono text-neutral-600"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                  <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                     Custom Unit Usage Overage
                   </label>
                   <input
@@ -3376,11 +3376,11 @@ export default function PricingBuilderView({
                     onChange={(e) =>
                       setContractOveragePrice(Number(e.target.value))
                     }
-                    className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900 font-mono"
+                    className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900 font-mono"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+                  <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                     Minimum Spend Commitment
                   </label>
                   <input
@@ -3389,7 +3389,7 @@ export default function PricingBuilderView({
                     onChange={(e) =>
                       setContractMinSpend(Number(e.target.value))
                     }
-                    className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900 font-mono font-bold"
+                    className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900 font-mono font-bold"
                   />
                 </div>
               </div>
@@ -3403,14 +3403,14 @@ export default function PricingBuilderView({
             </div>
           </div>
 
-          <div className="lg:col-span-7 bg-white border border-[#E5E5E7] rounded-3xl p-6 shadow-sm overflow-x-auto">
+          <div className="lg:col-span-7 dp-card border dp-border rounded-3xl p-6 shadow-sm overflow-x-auto">
             <h3 className="text-xs font-bold text-neutral-900 uppercase tracking-wider mb-4">
               Signed Enterprise Leases
             </h3>
 
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-[#E5E5E7] text-neutral-400 font-semibold">
+                <tr className="border-b dp-border text-neutral-400 font-semibold">
                   <th className="pb-3 pr-2">Linked Customer</th>
                   <th className="pb-3 pr-2">Agreements Details</th>
                   <th className="pb-3 pr-1">Contract Base Fee</th>
@@ -3441,7 +3441,7 @@ export default function PricingBuilderView({
                           {cnt.customOverageUnitPrice}/unit
                         </p>
                       </td>
-                      <td className="py-3.5 pr-1 font-mono font-bold text-[#111111]">
+                      <td className="py-3.5 pr-1 font-mono font-bold dp-text">
                         ₦{cnt.customBaseFee.toLocaleString()}
                       </td>
                       <td className="py-3.5 pr-1 font-mono text-emerald-600 font-bold">
@@ -3460,7 +3460,7 @@ export default function PricingBuilderView({
       {activeSubTab === "sandbox" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* SANDBOX CONTROLS PARAMETERS PANEL */}
-          <div className="lg:col-span-5 bg-white border border-[#E5E5E7] rounded-3xl p-6 space-y-5 shadow-sm">
+          <div className="lg:col-span-5 dp-card border dp-border rounded-3xl p-6 space-y-5 shadow-sm">
             <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-wider border-b pb-3 flex items-center gap-2">
               <Sliders className="h-4.5 w-4.5 text-[#0071E3]" />
               Simulation Studio Environment
@@ -3469,13 +3469,13 @@ export default function PricingBuilderView({
             <div className="space-y-4">
               {/* Optional: Load existing Customer context */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider block">
+                <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider block">
                   Preload Customer Profile
                 </label>
                 <select
                   value={sbCustomerId}
                   onChange={(e) => handleSandboxCustomerChange(e.target.value)}
-                  className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900"
+                  className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900"
                 >
                   <option value="">-- Simulate custom dummy profile --</option>
                   {customers.map((c) => (
@@ -3489,7 +3489,7 @@ export default function PricingBuilderView({
 
               {/* Assoc plan */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider block">
+                <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider block">
                   Plan Core Parameter
                 </label>
                 <select
@@ -3498,7 +3498,7 @@ export default function PricingBuilderView({
                     setSbPlanId(e.target.value);
                     setSbPriceId(""); // Reset custom version override to use active version default
                   }}
-                  className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900"
+                  className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900"
                 >
                   {existingPlans.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -3510,13 +3510,13 @@ export default function PricingBuilderView({
 
               {/* Version Override */}
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider block">
+                <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider block">
                   Specific Version Override
                 </label>
                 <select
                   value={sbPriceId}
                   onChange={(e) => setSbPriceId(e.target.value)}
-                  className="w-full text-xs border border-[#E5E5E7] outline-none p-2 bg-transparent rounded-lg text-neutral-900 font-mono text-[11px]"
+                  className="w-full text-xs border dp-border outline-none p-2 bg-transparent rounded-lg text-neutral-900 font-mono text-[11px]"
                 >
                   <option value="">Active Default Version</option>
                   {prices
@@ -3534,7 +3534,7 @@ export default function PricingBuilderView({
               <div className="space-y-4 pt-3 border-t">
                 <div>
                   <div className="flex justify-between text-xs font-semibold mb-1">
-                    <span className="text-[#6E6E73] text-[10px] font-bold uppercase tracking-wider">
+                    <span className="dp-secondary text-[10px] font-bold uppercase tracking-wider">
                       Simulated Seats
                     </span>
                     <span className="text-neutral-900">
@@ -3553,7 +3553,7 @@ export default function PricingBuilderView({
 
                 <div>
                   <div className="flex justify-between text-xs font-semibold mb-1">
-                    <span className="text-[#6E6E73] text-[10px] font-bold uppercase tracking-wider">
+                    <span className="dp-secondary text-[10px] font-bold uppercase tracking-wider">
                       Simulated Inbound Metric
                     </span>
                     <span className="text-neutral-900 font-mono">
@@ -3575,14 +3575,14 @@ export default function PricingBuilderView({
               {/* Custom Promo coupon checkout */}
               <div className="grid grid-cols-2 gap-2 pt-3 border-t">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider block">
+                  <label className="text-[10px] font-bold dp-secondary uppercase tracking-wider block">
                     Checkout Coupon
                   </label>
                   <input
                     type="text"
                     value={sbCoupon}
                     onChange={(e) => setSbCoupon(e.target.value.toUpperCase())}
-                    className="w-full text-xs border border-[#E5E5E7] outline-none p-1.5 bg-transparent rounded-lg font-mono font-bold uppercase"
+                    className="w-full text-xs border dp-border outline-none p-1.5 bg-transparent rounded-lg font-mono font-bold uppercase"
                     placeholder="e.g. SUMMER20"
                   />
                 </div>

@@ -102,3 +102,69 @@ body {
 .lp-border { border-color: var(--lp-card-border); }
 .lp-border-glass { border-color: var(--lp-glass-border); }
 .lp-divider { border-color: var(--lp-divider); }
+
+/* ============================================
+   Dashboard theming — scoped to .dashboard-page
+   Light mode is the default.
+   ============================================ */
+.dashboard-page {
+  --dp-bg: #FFFFFF;
+  --dp-text: #111111;
+  --dp-secondary: #6E6E73;
+  --dp-muted: #86868B;
+  --dp-surface: #FAFAFA;
+  --dp-surface-alt: #F5F5F7;
+  --dp-border: #E5E5E7;
+  --dp-card: #FFFFFF;
+  --dp-hover: #F2F2F2;
+  --dp-tooltip-bg: rgba(255,255,255,0.95);
+  --dp-tooltip-border: #E5E5E7;
+  --dp-chart-grid: #E5E5E7;
+  --dp-chart-axis: #86868B;
+  --dp-chart-fill-base: rgba(17,17,17,0.05);
+  --dp-chart-fill-accent: rgba(0,113,227,0.1);
+  --dp-btn-bg: #111111;
+  --dp-btn-text: #FFFFFF;
+}
+
+.dashboard-page[data-theme="dark"] {
+  --dp-bg: #111011;
+  --dp-text: #FFFFFF;
+  --dp-secondary: #C4C4C7;
+  --dp-muted: #86868B;
+  --dp-surface: rgba(255,255,255,0.03);
+  --dp-surface-alt: rgba(255,255,255,0.05);
+  --dp-border: rgba(255,255,255,0.08);
+  --dp-card: rgba(17,16,17,0.8);
+  --dp-hover: rgba(255,255,255,0.06);
+  --dp-tooltip-bg: rgba(17,16,17,0.95);
+  --dp-tooltip-border: rgba(255,255,255,0.1);
+  --dp-chart-grid: rgba(255,255,255,0.06);
+  --dp-chart-axis: rgba(255,255,255,0.15);
+  --dp-chart-fill-base: rgba(245,245,247,0.08);
+  --dp-chart-fill-accent: rgba(0,113,227,0.15);
+  --dp-btn-bg: #F5F5F7;
+  --dp-btn-text: #111011;
+}
+
+/* Reusable dashboard utilities */
+.dp-bg { background-color: var(--dp-bg); }
+.dp-text { color: var(--dp-text); }
+.dp-secondary { color: var(--dp-secondary); }
+.dp-muted { color: var(--dp-muted); }
+.dp-surface { background-color: var(--dp-surface); }
+.dp-surface-alt { background-color: var(--dp-surface-alt); }
+.dp-border { border-color: var(--dp-border); }
+.dp-card { background-color: var(--dp-card); border-color: var(--dp-border); }
+.dp-hover { background-color: var(--dp-hover); }
+.dp-divider { border-color: var(--dp-border); }
+.dp-btn-bg { background-color: var(--dp-btn-bg); }
+.dp-btn-text { color: var(--dp-btn-text); }
+
+/* Hover variants for dp-* utilities */
+.hover\:dp-text:hover { color: var(--dp-text); }
+.hover\:dp-hover:hover { background-color: var(--dp-hover); }
+.hover\:dp-surface-alt:hover { background-color: var(--dp-surface-alt); }
+.hover\:dp-surface:hover { background-color: var(--dp-surface); }
+.hover\:dp-card:hover { background-color: var(--dp-card); border-color: var(--dp-border); }
+.focus-within\:dp-border:focus-within { border-color: var(--dp-border); }

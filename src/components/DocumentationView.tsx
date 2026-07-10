@@ -34,6 +34,8 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
+import { DashboardThemeProvider } from "./DashboardTheme";
+
 interface DocumentationViewProps {
   onBackToDashboard: () => void;
   workspaceName?: string;
@@ -424,10 +426,11 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
   };
 
   return (
-    <div className="min-h-screen bg-white text-[#111111] font-sans antialiased text-left shadow-lg overflow-x-hidden">
+    <DashboardThemeProvider>
+    <div className="min-h-screen dp-bg dp-text font-sans antialiased text-left shadow-lg overflow-x-hidden">
 
       {/* ----------------- WORLD-CLASS DOCS HEADER ----------------- */}
-      <header className="sticky top-0 bg-white border-b border-[#E5E5E7] py-3.5 px-6 z-40 flex items-center justify-between">
+      <header className="sticky top-0 dp-card border-b dp-border py-3.5 px-6 z-40 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2.5 cursor-pointer" onClick={onBackToDashboard}>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#111111] shadow-sm">
@@ -1602,5 +1605,6 @@ Content-Type: application/json
       </AnimatePresence>
 
     </div>
+    </DashboardThemeProvider>
   );
 }

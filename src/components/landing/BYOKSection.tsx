@@ -25,8 +25,8 @@ export default function BYOKSection() {
     <section className="py-16 relative overflow-hidden lp-bg" style={{ backgroundImage: "linear-gradient(to bottom, var(--lp-bg), var(--lp-grad-stop), var(--lp-bg))" }}>
       <div className="max-w-7xl mx-auto px-6">
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-6">
-          <span className="text-[10px] font-bold uppercase tracking-widest block" style={{ color: '#191818' }}>Bring Your Own Keys</span>
-          <h2 className="text-3xl sm:text-4xl font-black tracking-tight" style={{ color: '#111110' }}>Your gateway. Your keys. Our infrastructure.</h2>
+          <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">Bring Your Own Keys</span>
+          <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">Your gateway. Your keys. Our infrastructure.</h2>
           <p className="text-sm font-medium lp-secondary">Pick your payment gateway, paste your keys, and go. We never store them in plaintext.</p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center max-w-5xl mx-auto">

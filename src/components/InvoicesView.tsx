@@ -90,11 +90,11 @@ export default function InvoicesView({
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Intro Greetings banner */}
-      <div className="border-b border-[#E5E5E7] pb-6">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#111111]">
+      <div className="border-b dp-border pb-6">
+        <h2 className="text-2xl font-semibold tracking-tight dp-text">
           Invoices Ledger
         </h2>
-        <p className="text-xs text-[#6E6E73] mt-1.5 font-medium">
+        <p className="text-xs dp-secondary mt-1.5 font-medium">
           Audit operational billing histories. Track invoice settlements, filter
           past collections across workspaces, and issue mock billing contracts.
         </p>
@@ -105,25 +105,25 @@ export default function InvoicesView({
         {/* Left column (8 cols): Invoices master list with filters */}
         <div className="lg:col-span-8 space-y-4">
           {/* Filter Bar input */}
-          <div className="flex bg-[#F5F5F7] p-2 rounded-xl items-center gap-2">
-            <Search className="h-4 w-4 text-[#86868B] ml-2" />
+          <div className="flex dp-surface-alt p-2 rounded-xl items-center gap-2">
+            <Search className="h-4 w-4 dp-muted ml-2" />
             <input
               id="invoice-search-input"
               type="text"
               placeholder="Filter by serial name, billing mail or profile IDs..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="flex-1 bg-transparent text-xs text-[#111111] outline-none placeholder:text-[#86868B] py-1.5"
+              className="flex-1 bg-transparent text-xs dp-text outline-none placeholder:dp-muted py-1.5"
             />
           </div>
 
-          <div className="bg-white border border-[#E5E5E7] rounded-2xl overflow-x-auto shadow-sm">
+          <div className="dp-card border dp-border rounded-2xl overflow-x-auto shadow-sm">
             <table
               className="w-full text-left border-collapse"
               id="invoices-ledger-table"
             >
               <thead>
-                <tr className="bg-[#FAFAFA] border-b border-[#E5E5E7] text-[10px] text-[#6E6E73] font-bold uppercase tracking-wider">
+                <tr className="dp-surface border-b dp-border text-[10px] dp-secondary font-bold uppercase tracking-wider">
                   <th className="px-5 py-3.5">Invoice Serial</th>
                   <th className="px-5 py-3.5">Customer Profile</th>
                   <th className="px-5 py-3.5 text-center">Consumption</th>
@@ -136,20 +136,20 @@ export default function InvoicesView({
                 {filteredInvoices.map((inv) => (
                   <tr
                     key={inv.id}
-                    className="hover:bg-[#FAFAFA] transition-all"
+                    className="hover:dp-surface transition-all"
                   >
                     {/* Invoice ID */}
-                    <td className="px-5 py-4 font-mono font-bold text-[#111111]">
+                    <td className="px-5 py-4 font-mono font-bold dp-text">
                       {inv.id}
                     </td>
 
                     {/* Customer Info */}
                     <td className="px-5 py-4">
                       <div className="text-left">
-                        <p className="font-semibold text-[#111111]">
+                        <p className="font-semibold dp-text">
                           {inv.customerName || "Sandbox User"}
                         </p>
-                        <p className="text-[10px] text-[#86868B]">
+                        <p className="text-[10px] dp-muted">
                           {inv.customerEmail || "noreply@aora.sh"}
                         </p>
                       </div>
@@ -161,7 +161,7 @@ export default function InvoicesView({
                     </td>
 
                     {/* Cost */}
-                    <td className="px-5 py-4 text-right font-extrabold text-[#111111]">
+                    <td className="px-5 py-4 text-right font-extrabold dp-text">
                       {formatCurrency(inv.amount, inv.currency)}
                     </td>
 
@@ -199,7 +199,7 @@ export default function InvoicesView({
                   <tr>
                     <td
                       colSpan={5}
-                      className="py-12 text-center text-xs text-[#6E6E73] font-medium"
+                      className="py-12 text-center text-xs dp-secondary font-medium"
                     >
                       No invoices found matching query targets.
                     </td>
@@ -212,26 +212,26 @@ export default function InvoicesView({
 
         {/* Right column (4 cols): Fast manual Invoice creation generator */}
         <div className="lg:col-span-4 space-y-4">
-          <h3 className="text-xs font-bold text-[#6E6E73] uppercase tracking-wider text-left">
+          <h3 className="text-xs font-bold dp-secondary uppercase tracking-wider text-left">
             Issue Manual Contract Invoice
           </h3>
 
-          <div className="bg-[#FFFFFF] border border-[#E5E5E7] p-5 rounded-2xl space-y-4.5 text-left shadow-sm">
-            <h4 className="text-xs font-bold text-[#111111] flex items-center gap-1.5">
+          <div className="bg-[#FFFFFF] border dp-border p-5 rounded-2xl space-y-4.5 text-left shadow-sm">
+            <h4 className="text-xs font-bold dp-text flex items-center gap-1.5">
               <Receipt className="h-4.5 w-4.5 text-[#0071E3]" />
               Manual Invoice Builder
             </h4>
 
             {/* Customer Switcher */}
             <div className="space-y-1">
-              <label className="text-[9px] font-bold text-[#6E6E73] uppercase tracking-wider block">
+              <label className="text-[9px] font-bold dp-secondary uppercase tracking-wider block">
                 Customer Destination
               </label>
               <select
                 id="invoice-create-customer"
                 value={selectedCustomerId}
                 onChange={(e) => setSelectedCustomerId(e.target.value)}
-                className="w-full text-xs border border-[#E5E5E7] rounded-lg p-2 bg-[#FAFAFA] text-[#111111]"
+                className="w-full text-xs border dp-border rounded-lg p-2 dp-surface dp-text"
               >
                 {customers.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -244,7 +244,7 @@ export default function InvoicesView({
             {/* Invoiced Cost input */}
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
-                <label className="text-[9px] font-bold text-[#6E6E73] uppercase tracking-wider block">
+                <label className="text-[9px] font-bold dp-secondary uppercase tracking-wider block">
                   Gross Fee
                 </label>
                 <input
@@ -252,18 +252,18 @@ export default function InvoicesView({
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(Number(e.target.value))}
-                  className="w-full text-xs border border-[#E5E5E7] rounded-lg p-2 bg-[#FAFAFA] text-[#111111]"
+                  className="w-full text-xs border dp-border rounded-lg p-2 dp-surface dp-text"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[9px] font-bold text-[#6E6E73] uppercase tracking-wider block">
+                <label className="text-[9px] font-bold dp-secondary uppercase tracking-wider block">
                   Currency
                 </label>
                 <select
                   id="invoice-create-currency"
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
-                  className="w-full text-xs border border-[#E5E5E7] rounded-lg p-2 bg-[#FAFAFA] text-[#111111]"
+                  className="w-full text-xs border dp-border rounded-lg p-2 dp-surface dp-text"
                 >
                   <option value="NGN">₦ NGN</option>
                   <option value="USD">$ USD</option>
@@ -275,7 +275,7 @@ export default function InvoicesView({
             {/* Usage quantity count & Status options */}
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
-                <label className="text-[9px] font-bold text-[#6E6E73] uppercase tracking-wider block">
+                <label className="text-[9px] font-bold dp-secondary uppercase tracking-wider block">
                   Usage units
                 </label>
                 <input
@@ -283,18 +283,18 @@ export default function InvoicesView({
                   type="number"
                   value={usageUnits}
                   onChange={(e) => setUsageUnits(Number(e.target.value))}
-                  className="w-full text-xs border border-[#E5E5E7] rounded-lg p-1.5 bg-[#FAFAFA] text-[#111111]"
+                  className="w-full text-xs border dp-border rounded-lg p-1.5 dp-surface dp-text"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[9px] font-bold text-[#6E6E73] uppercase tracking-wider block">
+                <label className="text-[9px] font-bold dp-secondary uppercase tracking-wider block">
                   Bill Status
                 </label>
                 <select
                   id="invoice-create-status"
                   value={status}
                   onChange={(e) => setStatus(e.target.value as any)}
-                  className="w-full text-xs border border-[#E5E5E7] rounded-lg p-1.5 bg-[#FAFAFA] text-[#111111]"
+                  className="w-full text-xs border dp-border rounded-lg p-1.5 dp-surface dp-text"
                 >
                   <option value="draft">Draft Code</option>
                   <option value="open">Open (Unpaid)</option>

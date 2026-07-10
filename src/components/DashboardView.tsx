@@ -11,11 +11,11 @@ export default function DashboardView({ stats, onNavigateTab }: DashboardViewPro
   if (!stats) {
     return (
       <div className="flex flex-col gap-4 animate-pulse">
-        <div className="h-44 bg-[#FAFAFA] rounded-2xl border border-neutral-100" />
+        <div className="h-44 dp-surface rounded-2xl border dp-border" />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {[1,2,3,4].map(i => <div key={i} className="h-24 bg-[#FAFAFA] rounded-xl border border-neutral-100" />)}
+          {[1,2,3,4].map(i => <div key={i} className="h-24 dp-surface rounded-xl border dp-border" />)}
         </div>
-        <div className="h-80 bg-[#FAFAFA] rounded-2xl border border-neutral-100" />
+        <div className="h-80 dp-surface rounded-2xl border dp-border" />
       </div>
     );
   }
@@ -36,24 +36,24 @@ export default function DashboardView({ stats, onNavigateTab }: DashboardViewPro
     <div className="space-y-8 animate-in fade-in duration-300">
       
       {/* Intro Greetings banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-[#E5E5E7] pb-6 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between border-b dp-border pb-6 gap-4">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight text-[#111111]">Your business is healthy.</h2>
-          <p className="text-xs text-[#6E6E73] mt-1.5 font-medium">
+          <h2 className="text-2xl font-semibold tracking-tight dp-text">Your business is healthy.</h2>
+          <p className="text-xs dp-secondary mt-1.5 font-medium">
             Here's a premium view of subscription velocities and operational overhead across active workspaces.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => onNavigateTab("pricing")}
-            className="rounded-lg bg-[#111111] hover:bg-[#1D1D1F] px-4 py-2 text-xs font-semibold text-white cursor-pointer shadow-sm transition-all"
+            className="rounded-lg dp-btn-bg hover:opacity-90 px-4 py-2 text-xs font-semibold dp-btn-text cursor-pointer shadow-sm transition-all"
             id="builder-dashboard-direct-btn"
           >
             Launch Pricing Builder
           </button>
           <button
             onClick={() => onNavigateTab("customers")}
-            className="rounded-lg bg-white border border-[#E5E5E7] hover:bg-[#FAFAFA] px-4 py-2 text-xs font-semibold text-[#111111] cursor-pointer transition-all"
+            className="rounded-lg dp-card border dp-border hover:dp-surface px-4 py-2 text-xs font-semibold dp-text cursor-pointer transition-all"
             id="view-customers-direct-btn"
           >
             Browse Customers
@@ -65,12 +65,12 @@ export default function DashboardView({ stats, onNavigateTab }: DashboardViewPro
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* Value MRR Card */}
-        <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-md transition-all">
-          <div className="flex items-center justify-between text-[#6E6E73]">
+        <div className="dp-card border dp-border p-5 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-md transition-all">
+          <div className="flex items-center justify-between dp-secondary">
             <span className="text-xs font-medium">Monthly Recurring Revenue</span>
             <TrendingUp className="h-4 w-4 text-stone-700" />
           </div>
-          <p className="text-xl font-bold text-[#111111] mt-2.5 tracking-tight">
+          <p className="text-xl font-bold dp-text mt-2.5 tracking-tight">
             {formatValue(currentTotalMRR)}
           </p>
           <div className="flex items-center gap-1 text-[11px] font-medium text-[#34C759] mt-2">
@@ -80,27 +80,27 @@ export default function DashboardView({ stats, onNavigateTab }: DashboardViewPro
         </div>
 
         {/* Active Subscriptions */}
-        <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-md transition-all">
-          <div className="flex items-center justify-between text-[#6E6E73]">
+        <div className="dp-card border dp-border p-5 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-md transition-all">
+          <div className="flex items-center justify-between dp-secondary">
             <span className="text-xs font-medium">Active Subscriptions</span>
             <Users className="h-4 w-4 text-stone-700" />
           </div>
-          <p className="text-xl font-bold text-[#111111] mt-2.5 tracking-tight">
+          <p className="text-xl font-bold dp-text mt-2.5 tracking-tight">
             {stats.activeSubscriptions} Accounts
           </p>
-          <div className="flex items-center gap-1 text-[11px] font-medium text-[#6E6E73] mt-2">
+          <div className="flex items-center gap-1 text-[11px] font-medium dp-secondary mt-2">
             <span>NPS Retention Target:</span>
             <span className="text-[#34C759] font-semibold">98.2%</span>
           </div>
         </div>
 
         {/* Metrics Churn */}
-        <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-md transition-all">
-          <div className="flex items-center justify-between text-[#6E6E73]">
+        <div className="dp-card border dp-border p-5 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-md transition-all">
+          <div className="flex items-center justify-between dp-secondary">
             <span className="text-xs font-medium">Net Revenue Churn Rate</span>
             <Star className="h-4 w-4 text-stone-700" />
           </div>
-          <p className="text-xl font-bold text-[#111111] mt-2.5 tracking-tight">
+          <p className="text-xl font-bold dp-text mt-2.5 tracking-tight">
             {stats.churnRate}%
           </p>
           <div className="flex items-center gap-1 text-[11px] font-medium text-[#c4251c] mt-2">
@@ -110,12 +110,12 @@ export default function DashboardView({ stats, onNavigateTab }: DashboardViewPro
         </div>
 
         {/* Failed bills */}
-        <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-md transition-all">
-          <div className="flex items-center justify-between text-[#6E6E73]">
+        <div className="dp-card border dp-border p-5 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-md transition-all">
+          <div className="flex items-center justify-between dp-secondary">
             <span className="text-xs font-medium">Failed Payment Recovery</span>
             <AlertCircle className="h-4 w-4 text-stone-700" />
           </div>
-          <p className="text-xl font-bold text-[#111111] mt-2.5 tracking-tight">
+          <p className="text-xl font-bold dp-text mt-2.5 tracking-tight">
             {stats.failedPaymentsCount} Invoice Flagged
           </p>
           <div className="flex items-center gap-1 text-[11px] font-medium text-[#FF9F0A] mt-2">
@@ -126,20 +126,20 @@ export default function DashboardView({ stats, onNavigateTab }: DashboardViewPro
       </div>
 
       {/* Main interactive Recharts trends graph */}
-      <div className="bg-white border border-[#E5E5E7] rounded-3xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.015)]">
+      <div className="dp-card border dp-border rounded-3xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.015)]">
         <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 gap-3">
           <div>
-            <span className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider mb-1 block">Revenue telemetry</span>
-            <h3 className="text-base font-bold text-[#111111] tracking-tight">Recurring Ledger vs Meter Overage Actions</h3>
+            <span className="text-[10px] font-bold dp-secondary uppercase tracking-wider mb-1 block">Revenue telemetry</span>
+            <h3 className="text-base font-bold dp-text tracking-tight">Recurring Ledger vs Meter Overage Actions</h3>
           </div>
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-1.5">
               <span className="h-2.5 w-2.5 rounded-full bg-[#111111]" />
-              <span className="text-[#6E6E73] font-medium">Base Contract Fee</span>
+              <span className="dp-secondary font-medium">Base Contract Fee</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="h-2.5 w-2.5 rounded-full bg-[#0071E3]" />
-              <span className="text-[#6E6E73] font-medium">Meter Overage (Lago)</span>
+              <span className="dp-secondary font-medium">Meter Overage (Lago)</span>
             </div>
           </div>
         </div>
@@ -160,13 +160,13 @@ export default function DashboardView({ stats, onNavigateTab }: DashboardViewPro
                   <stop offset="95%" stopColor="#0071E3" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E7" />
-              <XAxis dataKey="date" stroke="#86868B" fontSize={11} tickLine={false} axisLine={false} />
-              <YAxis stroke="#86868B" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `₦${val / 1000}k`} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--dp-chart-grid)" />
+              <XAxis dataKey="date" stroke="var(--dp-chart-axis)" fontSize={11} tickLine={false} axisLine={false} />
+              <YAxis stroke="var(--dp-chart-axis)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `₦${val / 1000}k`} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "rgba(255, 255, 255, 0.95)",
-                  borderColor: "#E5E5E7",
+                  backgroundColor: "var(--dp-tooltip-bg)",
+                  borderColor: "var(--dp-tooltip-border)",
                   borderRadius: "12px",
                   fontSize: "12px",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.05)"
@@ -184,10 +184,10 @@ export default function DashboardView({ stats, onNavigateTab }: DashboardViewPro
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Left: Conversion Funnelling */}
-        <div className="bg-white border border-[#E5E5E7] p-6 rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.01)]">
+        <div className="dp-card border dp-border p-6 rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.01)]">
           <div className="pb-4">
-            <span className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider block mb-1">Signup convert metrics</span>
-            <h3 className="text-sm font-semibold text-[#111111]">Trial Conversion Funnel</h3>
+            <span className="text-[10px] font-bold dp-secondary uppercase tracking-wider block mb-1">Signup convert metrics</span>
+            <h3 className="text-sm font-semibold dp-text">Trial Conversion Funnel</h3>
           </div>
           
           <div className="space-y-4 pt-1">
@@ -197,10 +197,10 @@ export default function DashboardView({ stats, onNavigateTab }: DashboardViewPro
               return (
                 <div key={idx} className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-[#111111]">{f.stage}</span>
-                    <span className="text-[#6E6E73]">{f.count.toLocaleString()} sessions</span>
+                    <span className="font-semibold dp-text">{f.stage}</span>
+                    <span className="dp-secondary">{f.count.toLocaleString()} sessions</span>
                   </div>
-                  <div className="h-2 w-full bg-[#F5F5F7] rounded-full overflow-hidden">
+                  <div className="h-2 w-full dp-surface-alt rounded-full overflow-hidden">
                     <div
                       style={{ width: `${pct}%` }}
                       className="h-full bg-gradient-to-r from-[#111111] to-[#0071E3] rounded-full"
@@ -213,26 +213,26 @@ export default function DashboardView({ stats, onNavigateTab }: DashboardViewPro
         </div>
 
         {/* Right: Plan performance */}
-        <div className="bg-white border border-[#E5E5E7] p-6 rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.01)]">
+        <div className="dp-card border dp-border p-6 rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.01)]">
           <div className="pb-4">
-            <span className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider block mb-1">Catalog telemetry</span>
-            <h3 className="text-sm font-semibold text-[#111111]">Plan Popularity metrics</h3>
+            <span className="text-[10px] font-bold dp-secondary uppercase tracking-wider block mb-1">Catalog telemetry</span>
+            <h3 className="text-sm font-semibold dp-text">Plan Popularity metrics</h3>
           </div>
 
           <div className="space-y-4 pt-1">
             {stats.planPerformance.map((plan, idx) => (
-              <div key={idx} className="flex items-center justify-between border-b border-[#F5F5F7] pb-3 last:border-0 last:pb-0">
+              <div key={idx} className="flex items-center justify-between border-b dp-divider pb-3 last:border-0 last:pb-0">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#FAFAFA] border border-[#E5E5E7] text-xs font-semibold text-[#111111]">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg dp-surface border dp-border text-xs font-semibold dp-text">
                     {idx + 1}
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-[#111111]">{plan.name}</h4>
-                    <p className="text-[10px] text-[#6E6E73]">Base Fee: {formatValue(plan.price)}/mo</p>
+                    <h4 className="text-xs font-bold dp-text">{plan.name}</h4>
+                    <p className="text-[10px] dp-secondary">Base Fee: {formatValue(plan.price)}/mo</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="inline-block rounded-full bg-[#F5F5F7] px-2 py-0.5 text-[10px] font-semibold text-[#111111]">
+                  <span className="inline-block rounded-full dp-surface-alt px-2 py-0.5 text-[10px] font-semibold dp-text">
                     {plan.count} Subscribers
                   </span>
                   <p className="text-[10px] text-[#34C759] mt-0.5 font-medium">Yields {formatValue(plan.revenueShare)}/mo</p>

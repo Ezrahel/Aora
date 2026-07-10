@@ -80,11 +80,11 @@ export default function AnalyticsView() {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Overview Head banner */}
-      <div className="border-b border-[#E5E5E7] pb-6">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#111111]">
+      <div className="border-b dp-border pb-6">
+        <h2 className="text-2xl font-semibold tracking-tight dp-text">
           Analytics & Cohort Metrics
         </h2>
-        <p className="text-xs text-[#6E6E73] mt-1.5 font-medium">
+        <p className="text-xs dp-secondary mt-1.5 font-medium">
           Drape insights across arbitrary subscription lifecycles. Map retention
           tables, inspect conversion ratios, and execute drill downs instantly.
         </p>
@@ -92,17 +92,17 @@ export default function AnalyticsView() {
 
       {/* Segments grid list */}
       <div className="space-y-3">
-        <h3 className="text-xs font-bold text-[#6E6E73] uppercase tracking-wider text-left">
+        <h3 className="text-xs font-bold dp-secondary uppercase tracking-wider text-left">
           Customer Segments
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {segments.map((s, idx) => (
             <div
               key={idx}
-              className="bg-white border border-[#E5E5E7] p-4.5 rounded-xl hover:shadow-md transition-all text-left space-y-2"
+              className="dp-card border dp-border p-4.5 rounded-xl hover:shadow-md transition-all text-left space-y-2"
             >
-              <h4 className="text-xs font-bold text-[#111111]">{s.title}</h4>
-              <p className="text-[10px] text-[#6E6E73] mt-0.5">
+              <h4 className="text-xs font-bold dp-text">{s.title}</h4>
+              <p className="text-[10px] dp-secondary mt-0.5">
                 {s.criteria} • {s.size}
               </p>
               <p className="text-[11px] text-[#34C759] font-semibold">
@@ -118,7 +118,7 @@ export default function AnalyticsView() {
         {/* Left: The Cohorts retention grid table (8 cols) */}
         <div className="lg:col-span-8 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold text-[#6E6E73] uppercase tracking-wider">
+            <h3 className="text-xs font-bold dp-secondary uppercase tracking-wider">
               Cohort Retention Analysis
             </h3>
             <span className="text-[10px] text-gray-500 font-medium">
@@ -126,13 +126,13 @@ export default function AnalyticsView() {
             </span>
           </div>
 
-          <div className="bg-white border border-[#E5E5E7] rounded-xl overflow-x-auto shadow-sm">
+          <div className="dp-card border dp-border rounded-xl overflow-x-auto shadow-sm">
             <table
               className="w-full text-left border-collapse"
               id="cohorts-table"
             >
               <thead>
-                <tr className="bg-[#FAFAFA] border-b border-[#E5E5E7] text-[10px] text-[#6E6E73] font-bold uppercase tracking-wider">
+                <tr className="dp-surface border-b dp-border text-[10px] dp-secondary font-bold uppercase tracking-wider">
                   <th className="px-4.5 py-3">Cohort Batch</th>
                   <th className="px-4.5 py-3 text-center">Size</th>
                   <th className="px-4.5 py-3 text-center bg-blue-50/10 text-blue-800">
@@ -160,16 +160,16 @@ export default function AnalyticsView() {
                       className={`cursor-pointer transition-colors ${
                         isSelected
                           ? "bg-blue-50/40 font-semibold"
-                          : "hover:bg-[#FAFAFA]"
+                          : "hover:dp-surface"
                       }`}
                     >
-                      <td className="px-4.5 py-3 text-[#111111] flex items-center justify-between">
+                      <td className="px-4.5 py-3 dp-text flex items-center justify-between">
                         <span>{co.month}</span>
                         <ChevronRight
-                          className={`h-3.5 w-3.5 text-[#86868B] transition-transform ${isSelected ? "rotate-90 text-[#0071E3]" : ""}`}
+                          className={`h-3.5 w-3.5 dp-muted transition-transform ${isSelected ? "rotate-90 text-[#0071E3]" : ""}`}
                         />
                       </td>
-                      <td className="px-4.5 py-3 text-center text-[#6E6E73]">
+                      <td className="px-4.5 py-3 text-center dp-secondary">
                         {co.activeAccounts} Accounts
                       </td>
                       <td className="px-4.5 py-3 text-center font-medium text-emerald-700 bg-emerald-50/20">
@@ -194,7 +194,7 @@ export default function AnalyticsView() {
 
         {/* Right: The Drill Down detail box (4 cols) */}
         <div className="lg:col-span-4 space-y-4">
-          <h3 className="text-xs font-bold text-[#6E6E73] uppercase tracking-wider">
+          <h3 className="text-xs font-bold dp-secondary uppercase tracking-wider">
             Drill-Down Segment Core Details
           </h3>
 
@@ -206,7 +206,7 @@ export default function AnalyticsView() {
               </h4>
 
               <div className="space-y-3.5 text-xs">
-                <div className="text-[11px] leading-relaxed text-[#6E6E73] font-medium border-b border-[#F5F5F7] pb-3">
+                <div className="text-[11px] leading-relaxed dp-secondary font-medium border-b border-[#F5F5F7] pb-3">
                   This segment mainly comprises{" "}
                   <strong className="text-black">
                     {
@@ -223,35 +223,35 @@ export default function AnalyticsView() {
                 </div>
 
                 <div className="space-y-2">
-                  <h5 className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider mb-1">
+                  <h5 className="text-[10px] font-bold dp-secondary uppercase tracking-wider mb-1">
                     Retention Metrics
                   </h5>
                   <div className="flex justify-between md:items-center text-xs border-b border-[#F5F5F7] pb-2 last:border-0 last:pb-0">
-                    <span className="text-[#6E6E73]">
+                    <span className="dp-secondary">
                       Initial Cohort count:
                     </span>
-                    <span className="font-bold text-[#111111]">
+                    <span className="font-bold dp-text">
                       182 paid accounts
                     </span>
                   </div>
                   <div className="flex justify-between md:items-center text-xs border-b border-[#F5F5F7] pb-2 last:border-0 last:pb-0">
-                    <span className="text-[#6E6E73]">Average LTV yield:</span>
-                    <span className="font-bold text-[#111111]">
+                    <span className="dp-secondary">Average LTV yield:</span>
+                    <span className="font-bold dp-text">
                       ₦98,400 per client
                     </span>
                   </div>
                   <div className="flex justify-between md:items-center text-xs border-b border-[#F5F5F7] pb-2 last:border-0 last:pb-0">
-                    <span className="text-[#6E6E73]">
+                    <span className="dp-secondary">
                       Key Unlocking Feature:
                     </span>
-                    <span className="bg-[#F5F5F7] px-2 py-0.5 rounded font-mono text-[9px] text-[#0071E3] font-semibold">
+                    <span className="dp-surface-alt px-2 py-0.5 rounded font-mono text-[9px] text-[#0071E3] font-semibold">
                       API Integrations
                     </span>
                   </div>
                 </div>
 
-                <div className="space-y-1 bg-[#FAFAFA] p-3 rounded-lg text-[9px] text-[#6E6E73] leading-relaxed border border-[#E5E5E7]">
-                  💡 <strong className="text-[#111111]">Retention Tip:</strong>{" "}
+                <div className="space-y-1 dp-surface p-3 rounded-lg text-[9px] dp-secondary leading-relaxed border dp-border">
+                  💡 <strong className="dp-text">Retention Tip:</strong>{" "}
                   Upgrading startups in this segment to Scale plan templates
                   universally boosts total MRR expansion parameters by{" "}
                   <strong>12.4%</strong> at cycle rollover.
@@ -259,7 +259,7 @@ export default function AnalyticsView() {
               </div>
             </div>
           ) : (
-            <div className="p-12 border border-dashed border-[#E5E5E7] bg-[#FAFAFA] rounded-xl text-center text-xs text-[#6E6E73]">
+            <div className="p-12 border border-dashed dp-border dp-surface rounded-xl text-center text-xs dp-secondary">
               Select a cohort segment row to evaluate statistical drill downs.
             </div>
           )}

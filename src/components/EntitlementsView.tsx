@@ -102,11 +102,11 @@ export default function EntitlementsView({
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Intro Greetings banner */}
-      <div className="border-b border-[#E5E5E7] pb-6">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#111111]">
+      <div className="border-b dp-border pb-6">
+        <h2 className="text-2xl font-semibold tracking-tight dp-text">
           Entitlements Engine
         </h2>
-        <p className="text-xs text-[#6E6E73] mt-1.5 font-medium">
+        <p className="text-xs dp-secondary mt-1.5 font-medium">
           Map logic gates, manage feature accesses, and govern functional flags
           across plans. Protect your premium features without writing custom
           routing rules.
@@ -118,7 +118,7 @@ export default function EntitlementsView({
         {/* Left Column (8 cols): Interactive Table of feature gates */}
         <div className="lg:col-span-8 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold text-[#6E6E73] uppercase tracking-wider">
+            <h3 className="text-xs font-bold dp-secondary uppercase tracking-wider">
               Feature Gates & Toggles
             </h3>
             <span className="text-[10px] text-gray-500 font-semibold">
@@ -126,13 +126,13 @@ export default function EntitlementsView({
             </span>
           </div>
 
-          <div className="bg-white border border-[#E5E5E7] rounded-2xl overflow-x-auto shadow-sm">
+          <div className="dp-card border dp-border rounded-2xl overflow-x-auto shadow-sm">
             <table
               className="w-full text-left border-collapse"
               id="entitlements-table"
             >
               <thead>
-                <tr className="bg-[#FAFAFA] border-b border-[#E5E5E7] text-[10px] text-[#6E6E73] font-bold uppercase tracking-wider">
+                <tr className="dp-surface border-b dp-border text-[10px] dp-secondary font-bold uppercase tracking-wider">
                   <th className="px-5 py-3">Feature Definition</th>
                   <th className="px-5 py-3">Required Tier</th>
                   <th className="px-5 py-3 text-center">Global Toggle</th>
@@ -148,14 +148,14 @@ export default function EntitlementsView({
                     {/* Feature label */}
                     <td className="px-5 py-4">
                       <div className="flex items-start gap-2.5">
-                        <div className="flex h-5.5 w-5.5 items-center justify-center rounded-md bg-[#F5F5F7] border border-[#E5E5E7] text-[#111111]">
+                        <div className="flex h-5.5 w-5.5 items-center justify-center rounded-md dp-surface-alt border dp-border dp-text">
                           <Crown className="h-3 w-3" />
                         </div>
                         <div className="text-left">
-                          <p className="font-semibold text-[#111111]">
+                          <p className="font-semibold dp-text">
                             {item.featureName}
                           </p>
-                          <p className="text-[10px] text-[#6E6E73] mt-0.5 max-w-sm">
+                          <p className="text-[10px] dp-secondary mt-0.5 max-w-sm">
                             {item.description}
                           </p>
                         </div>
@@ -170,7 +170,7 @@ export default function EntitlementsView({
                         onChange={(e) =>
                           handleUpdateLevel(item.featureId, e.target.value)
                         }
-                        className="text-xs bg-[#FAFAFA] border border-[#E5E5E7] text-[#111111] rounded-lg p-1.5 focus:border-neutral-800 outline-none font-medium text-center"
+                        className="text-xs dp-surface border dp-border dp-text rounded-lg p-1.5 focus:border-neutral-800 outline-none font-medium text-center"
                       >
                         {plans.map((p) => (
                           <option key={p.id} value={p.id}>
@@ -232,31 +232,31 @@ export default function EntitlementsView({
 
         {/* Right Column (4 cols): Live Client entitlements validator box (The Real Mock simulator!) */}
         <div className="lg:col-span-4 space-y-4">
-          <h3 className="text-xs font-bold text-[#6E6E73] uppercase tracking-wider">
+          <h3 className="text-xs font-bold dp-secondary uppercase tracking-wider">
             Gate Testing Simulator
           </h3>
 
           <div className="bg-[#FFFFFF] border-2 border-[#111111] p-5 rounded-2xl space-y-5 shadow-lg">
-            <h4 className="text-xs font-bold text-[#111111] flex items-center gap-1.5">
+            <h4 className="text-xs font-bold dp-text flex items-center gap-1.5">
               <ShieldCheck className="h-4.5 w-4.5 text-[#34C759]" />
               Entitlement Verification Sandbox
             </h4>
 
-            <p className="text-[10px] text-[#6E6E73] font-medium leading-relaxed">
+            <p className="text-[10px] dp-secondary font-medium leading-relaxed">
               Select a customer profile from your ledger workspace to evaluate
               feature access gates based on hierarchical levels.
             </p>
 
             {/* Selector */}
             <div className="space-y-1">
-              <label className="text-[9px] font-bold text-[#6E6E73] uppercase tracking-wider block">
+              <label className="text-[9px] font-bold dp-secondary uppercase tracking-wider block">
                 Customer Target
               </label>
               <select
                 id="sandbox-customer-switcher"
                 value={selectedCustomerId}
                 onChange={(e) => setSelectedCustomerId(e.target.value)}
-                className="w-full text-xs border border-[#E5E5E7] rounded-lg p-2.5 bg-[#FAFAFA] text-[#111111] font-semibold"
+                className="w-full text-xs border dp-border rounded-lg p-2.5 dp-surface dp-text font-semibold"
               >
                 {customers.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -267,12 +267,12 @@ export default function EntitlementsView({
             </div>
 
             {/* Current computed level card header */}
-            <div className="bg-[#FAFAFA] border border-[#E5E5E7] p-3 rounded-xl flex items-center justify-between">
+            <div className="dp-surface border dp-border p-3 rounded-xl flex items-center justify-between">
               <div>
-                <p className="text-[9px] text-[#6E6E73] font-mono leading-none">
+                <p className="text-[9px] dp-secondary font-mono leading-none">
                   Customer plan tier
                 </p>
-                <p className="text-xs font-bold text-[#111111] mt-1 leading-none">
+                <p className="text-xs font-bold dp-text mt-1 leading-none">
                   {tempPlan?.name || "No Plan Active"}
                 </p>
               </div>
@@ -284,7 +284,7 @@ export default function EntitlementsView({
 
             {/* List of checked permissions gates */}
             <div className="space-y-3 pt-2">
-              <h5 className="text-[10px] font-bold text-[#6E6E73] uppercase tracking-wider">
+              <h5 className="text-[10px] font-bold dp-secondary uppercase tracking-wider">
                 Evaluated Core Accesses
               </h5>
 
@@ -304,7 +304,7 @@ export default function EntitlementsView({
                       key={ent.featureId}
                       className={`flex items-center justify-between p-2.5 rounded-lg border ${
                         isUnlocked
-                          ? "bg-[#FAFAFA] border-[#E5E5E7] text-[#111111]"
+                          ? "dp-surface dp-border dp-text"
                           : "bg-rose-50/40 border-rose-100 text-stone-600"
                       }`}
                     >
@@ -312,7 +312,7 @@ export default function EntitlementsView({
                         <p className="font-bold text-[11px] truncate">
                           {ent.featureName}
                         </p>
-                        <p className="text-[9px] text-[#6E6E73]">
+                        <p className="text-[9px] dp-secondary">
                           Requires:{" "}
                           {plans.find((p) => p.id === ent.requiredPlanId)
                             ?.name || ent.requiredPlanId}

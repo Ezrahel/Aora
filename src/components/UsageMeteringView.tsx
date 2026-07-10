@@ -385,47 +385,47 @@ export default function UsageMeteringView({
     <div className="space-y-6 animate-in fade-in duration-300">
       
       {/* Overview Head banner */}
-      <div className="border-b border-[#E5E5E7] pb-4.5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="border-b dp-border pb-4.5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-[#111111] leading-none mb-1">Usage Trackers</h2>
-          <p className="text-xs text-[#6E6E73] mt-1 font-medium">
+          <h2 className="text-xl font-semibold tracking-tight dp-text leading-none mb-1">Usage Trackers</h2>
+          <p className="text-xs dp-secondary mt-1 font-medium">
             System source of truth for tracking customer activity, dynamic quota thresholds, prepaid credit ledgers, and limit checkers.
           </p>
         </div>
 
         {/* Tab Selection */}
-        <div className="flex bg-[#F5F5F7] p-0.5 rounded-full border border-[#E5E5E7] text-xs overflow-x-auto shrink-0">
+        <div className="flex dp-surface-alt p-0.5 rounded-full border dp-border text-xs overflow-x-auto shrink-0">
           <button 
             onClick={() => setActiveSubTab("ingest")} 
-            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 shrink-0 ${activeSubTab === "ingest" ? "bg-white text-black shadow-sm" : "text-[#6E6E73] hover:text-black"}`}
+            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 shrink-0 ${activeSubTab === "ingest" ? "dp-card text-black shadow-sm" : "dp-secondary hover:text-black"}`}
           >
             <Radio className={`h-3.5 w-3.5 ${activeSubTab === "ingest" ? "text-emerald-500 animate-pulse" : ""}`} />
             Track Activity
           </button>
           <button 
             onClick={() => setActiveSubTab("explorer")} 
-            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 shrink-0 ${activeSubTab === "explorer" ? "bg-white text-black shadow-sm" : "text-[#6E6E73] hover:text-black"}`}
+            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 shrink-0 ${activeSubTab === "explorer" ? "dp-card text-black shadow-sm" : "dp-secondary hover:text-black"}`}
           >
             <Search className="h-3.5 w-3.5" />
             Activity Explorer
           </button>
           <button 
             onClick={() => setActiveSubTab("ledger")} 
-            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 shrink-0 ${activeSubTab === "ledger" ? "bg-white text-black shadow-sm" : "text-[#6E6E73] hover:text-black"}`}
+            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 shrink-0 ${activeSubTab === "ledger" ? "dp-card text-black shadow-sm" : "dp-secondary hover:text-black"}`}
           >
             <Coins className="h-3.5 w-3.5" />
             Limit & Balance
           </button>
           <button 
             onClick={() => setActiveSubTab("portal")} 
-            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 shrink-0 ${activeSubTab === "portal" ? "bg-white text-black shadow-sm" : "text-[#6E6E73] hover:text-black"}`}
+            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 shrink-0 ${activeSubTab === "portal" ? "dp-card text-black shadow-sm" : "dp-secondary hover:text-black"}`}
           >
             <User className="h-3.5 w-3.5" />
             Client Portal
           </button>
           <button 
             onClick={() => setActiveSubTab("blueprints")} 
-            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 shrink-0 ${activeSubTab === "blueprints" ? "bg-white text-[#111111] shadow-sm" : "text-[#6E6E73] hover:text-black"}`}
+            className={`px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 shrink-0 ${activeSubTab === "blueprints" ? "dp-card dp-text shadow-sm" : "dp-secondary hover:text-black"}`}
           >
             <BookOpen className="h-3.5 w-3.5 text-stone-700" />
             Integration Guides
@@ -442,7 +442,7 @@ export default function UsageMeteringView({
           {/* Active Definitions List (3 cols) */}
           <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center justify-between text-left">
-              <h3 className="text-xs font-bold text-[#6E6E73] uppercase tracking-wider">Meter Definitions</h3>
+              <h3 className="text-xs font-bold dp-secondary uppercase tracking-wider">Meter Definitions</h3>
               <span className="text-[10px] bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full font-bold border border-sky-150">
                 {meters.length} Loaded
               </span>
@@ -452,13 +452,13 @@ export default function UsageMeteringView({
               {meters.map((meter) => (
                 <div
                   key={meter.id}
-                  className="bg-white border border-[#E5E5E7] p-4 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-left"
+                  className="dp-card border dp-border p-4 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-left"
                 >
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <Gauge className="h-3.5 w-3.5 text-[#111111]" />
-                        <h4 className="text-xs font-bold text-[#111111] leading-none">{meter.name}</h4>
+                        <Gauge className="h-3.5 w-3.5 dp-text" />
+                        <h4 className="text-xs font-bold dp-text leading-none">{meter.name}</h4>
                       </div>
                       <span className="text-[9px] font-mono text-neutral-500 mt-1 block">ID: {meter.id}</span>
                     </div>
@@ -468,11 +468,11 @@ export default function UsageMeteringView({
                     </span>
                   </div>
 
-                  <p className="text-[10px] text-[#6E6E73] font-medium leading-normal mt-2">
+                  <p className="text-[10px] dp-secondary font-medium leading-normal mt-2">
                     {meter.description}
                   </p>
 
-                  <div className="mt-3 pt-2.5 border-t border-neutral-100/50 flex justify-between items-center text-[9px] text-[#6E6E73] font-mono">
+                  <div className="mt-3 pt-2.5 border-t border-neutral-100/50 flex justify-between items-center text-[9px] dp-secondary font-mono">
                     <span>Field: <strong className="text-stone-800">{meter.targetField}</strong></span>
                     <span>Status: <strong className="text-emerald-700">ACTIVE</strong></span>
                   </div>
@@ -481,12 +481,12 @@ export default function UsageMeteringView({
             </div>
 
             {/* Quick Meter Schema Provisioner */}
-            <div className="bg-[#FAF9F6] border border-[#E5E5E7] p-4 rounded-xl text-left space-y-3">
-              <h4 className="text-xs font-bold text-[#111111] flex items-center gap-1.5 leading-none">
+            <div className="dp-surface-alt border dp-border p-4 rounded-xl text-left space-y-3">
+              <h4 className="text-xs font-bold dp-text flex items-center gap-1.5 leading-none">
                 <Sliders className="h-4 w-4 text-[#8b5cf6]" />
                 Provision Custom Meter Schema
               </h4>
-              <p className="text-[10px] text-[#6E6E73] font-medium leading-normal">
+              <p className="text-[10px] dp-secondary font-medium leading-normal">
                 Declare a new pricing element dimension. The pipeline builds aggregated tables automatically.
               </p>
 
@@ -497,7 +497,7 @@ export default function UsageMeteringView({
                   placeholder="e.g. LLM Engine API Tokens"
                   value={newMeterName}
                   onChange={(e) => setNewMeterName(e.target.value)}
-                  className="w-full text-xs font-semibold border border-[#E5E5E7] outline-none rounded-lg p-2 bg-white text-[#111111]"
+                  className="w-full text-xs font-semibold border dp-border outline-none rounded-lg p-2 dp-card dp-text"
                 />
                 
                 <input
@@ -506,7 +506,7 @@ export default function UsageMeteringView({
                   placeholder="e.g. Tracks total input/output raw tokens in production sessions..."
                   value={newMeterDesc}
                   onChange={(e) => setNewMeterDesc(e.target.value)}
-                  className="w-full text-xs border border-[#E5E5E7] outline-none rounded-lg p-2 bg-white text-[#111111]"
+                  className="w-full text-xs border dp-border outline-none rounded-lg p-2 dp-card dp-text"
                 />
 
                 <div className="grid grid-cols-2 gap-2">
@@ -514,7 +514,7 @@ export default function UsageMeteringView({
                     id="meter-prov-agg"
                     value={newMeterAgg}
                     onChange={(e) => setNewMeterAgg(e.target.value as any)}
-                    className="w-full text-[11px] font-semibold border border-[#E5E5E7] outline-none rounded-lg p-2 bg-white text-[#111111]"
+                    className="w-full text-[11px] font-semibold border dp-border outline-none rounded-lg p-2 dp-card dp-text"
                   >
                     <option value="sum">SUM</option>
                     <option value="count">COUNT (Hits)</option>
@@ -529,7 +529,7 @@ export default function UsageMeteringView({
                     placeholder="XML Target Field"
                     value={newMeterField}
                     onChange={(e) => setNewMeterField(e.target.value)}
-                    className="w-full text-xs border border-[#E5E5E7] outline-none rounded-lg p-2 bg-white text-[#111111]"
+                    className="w-full text-xs border dp-border outline-none rounded-lg p-2 dp-card dp-text"
                   />
                 </div>
 
@@ -540,7 +540,7 @@ export default function UsageMeteringView({
                     placeholder="Unit (e.g. Tokens)"
                     value={newMeterUnit}
                     onChange={(e) => setNewMeterUnit(e.target.value)}
-                    className="w-full text-xs border border-[#E5E5E7] outline-none rounded-lg p-2 bg-white text-[#111111]"
+                    className="w-full text-xs border dp-border outline-none rounded-lg p-2 dp-card dp-text"
                   />
                   <button
                     onClick={handleCreateMeter}
@@ -559,15 +559,15 @@ export default function UsageMeteringView({
           <div className="lg:col-span-8 space-y-6 text-left">
             
             {/* Live Chart Visualizer */}
-            <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl shadow-sm">
+            <div className="dp-card border dp-border p-5 rounded-2xl shadow-sm">
               <div className="flex justify-between items-start pb-4 border-b border-neutral-100 mb-4">
                 <div>
                   <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block leading-none mb-1">
                     ● PIPELINE INGEST SPEED ACTIVE
                   </span>
-                  <h3 className="text-sm font-semibold text-[#111111]">Real-time Event Ingestion Speed (Events / minute 24H clock)</h3>
+                  <h3 className="text-sm font-semibold dp-text">Real-time Event Ingestion Speed (Events / minute 24H clock)</h3>
                 </div>
-                <div className="text-xs text-[#6E6E73] font-mono bg-neutral-100 rounded px-2 py-0.5">
+                <div className="text-xs dp-secondary font-mono bg-neutral-100 rounded px-2 py-0.5">
                   Tenant Isolation Mode: REST API-1
                 </div>
               </div>
@@ -584,9 +584,9 @@ export default function UsageMeteringView({
                         <stop offset="95%" stopColor="#34c759" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E7" />
-                    <XAxis dataKey="hour" stroke="#86868B" fontSize={10} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#86868B" fontSize={10} tickLine={false} axisLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--dp-chart-grid)" />
+                    <XAxis dataKey="hour" stroke="var(--dp-chart-axis)" fontSize={10} tickLine={false} axisLine={false} />
+                    <YAxis stroke="var(--dp-chart-axis)" fontSize={10} tickLine={false} axisLine={false} />
                     <Tooltip />
                     <Area type="monotone" dataKey="volume" stroke="#34c759" strokeWidth={2} fillOpacity={1} fill="url(#velocityGrad)" name="Ingested Events/min" />
                   </AreaChart>
@@ -598,24 +598,24 @@ export default function UsageMeteringView({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
               {/* Single Telemetry Stream Entry */}
-              <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl space-y-4 shadow-sm">
-                <h4 className="text-xs font-bold text-[#111111] flex items-center gap-1.5 uppercase tracking-wide leading-none">
+              <div className="dp-card border dp-border p-5 rounded-2xl space-y-4 shadow-sm">
+                <h4 className="text-xs font-bold dp-text flex items-center gap-1.5 uppercase tracking-wide leading-none">
                   <Flame className="h-4 w-4 text-orange-500" />
                   Manual Telemetry Ingest Streamer
                 </h4>
-                <p className="text-[10px] text-[#6E6E73] leading-normal">
+                <p className="text-[10px] dp-secondary leading-normal">
                   Simulate live micro-billing triggers. Ingestion validation ensures deduplication across network retransmits.
                 </p>
 
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="text-[9px] font-bold text-[#6E6E73] uppercase tracking-wider block mb-1">Customer</label>
+                      <label className="text-[9px] font-bold dp-secondary uppercase tracking-wider block mb-1">Customer</label>
                       <select
                         id="select-single-cust"
                         value={selectedCustomerId}
                         onChange={(e) => setSelectedCustomerId(e.target.value)}
-                        className="w-full text-xs font-semibold border border-[#E5E5E7] rounded-lg p-2 bg-[#FAFAFA] text-[#111111]"
+                        className="w-full text-xs font-semibold border dp-border rounded-lg p-2 dp-surface dp-text"
                       >
                         {customers.map(c => (
                           <option key={c.id} value={c.id}>{c.name} ({c.id})</option>
@@ -624,12 +624,12 @@ export default function UsageMeteringView({
                     </div>
 
                     <div>
-                      <label className="text-[9px] font-bold text-[#6E6E73] uppercase tracking-wider block mb-1">Usage Meter</label>
+                      <label className="text-[9px] font-bold dp-secondary uppercase tracking-wider block mb-1">Usage Meter</label>
                       <select
                         id="select-single-meter"
                         value={selectedMeterId}
                         onChange={(e) => setSelectedMeterId(e.target.value)}
-                        className="w-full text-xs font-semibold border border-[#E5E5E7] rounded-lg p-2 bg-[#FAFAFA] text-[#111111]"
+                        className="w-full text-xs font-semibold border dp-border rounded-lg p-2 dp-surface dp-text"
                       >
                         {meters.map(m => (
                           <option key={m.id} value={m.id}>{m.name}</option>
@@ -640,35 +640,35 @@ export default function UsageMeteringView({
 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="text-[9px] font-bold text-[#6E6E73] uppercase tracking-wider block mb-1">Value Amount</label>
+                      <label className="text-[9px] font-bold dp-secondary uppercase tracking-wider block mb-1">Value Amount</label>
                       <input
                         id="input-single-val"
                         type="number"
                         value={eventValue}
                         onChange={(e) => setEventValue(Number(e.target.value))}
-                        className="w-full text-xs border border-[#E5E5E7] rounded-lg p-1.5 bg-white text-[#111111]"
+                        className="w-full text-xs border dp-border rounded-lg p-1.5 dp-card dp-text"
                       />
                     </div>
                     <div>
-                      <label className="text-[9px] font-bold text-[#6E6E73] uppercase tracking-wider block mb-1">Stream Source</label>
+                      <label className="text-[9px] font-bold dp-secondary uppercase tracking-wider block mb-1">Stream Source</label>
                       <input
                         id="input-single-source"
                         type="text"
                         value={sourceTag}
                         onChange={(e) => setSourceTag(e.target.value)}
-                        className="w-full text-xs border border-[#E5E5E7] rounded-lg p-1.5 bg-white text-[#111111]"
+                        className="w-full text-xs border dp-border rounded-lg p-1.5 dp-card dp-text"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-[9px] font-bold text-[#6E6E73] uppercase tracking-wider block mb-1">Deduplication Key (Idempotency)</label>
+                    <label className="text-[9px] font-bold dp-secondary uppercase tracking-wider block mb-1">Deduplication Key (Idempotency)</label>
                     <input
                       id="input-single-key"
                       type="text"
                       value={customKey}
                       onChange={(e) => setCustomKey(e.target.value)}
-                      className="w-full text-xs font-mono border border-[#E5E5E7] rounded-lg p-1.5 bg-[#FAF9F6] text-amber-900"
+                      className="w-full text-xs font-mono border dp-border rounded-lg p-1.5 dp-surface-alt text-amber-900"
                     />
                   </div>
 
@@ -692,46 +692,46 @@ export default function UsageMeteringView({
               </div>
 
               {/* Advanced Bulk and backfill importer */}
-              <div className="bg-[#FAF9F6] border border-[#E5E5E7] p-5 rounded-2xl flex flex-col justify-between shadow-sm">
+              <div className="dp-surface-alt border dp-border p-5 rounded-2xl flex flex-col justify-between shadow-sm">
                 <div className="space-y-4">
-                  <h4 className="text-xs font-bold text-[#111111] flex items-center gap-1.5 uppercase tracking-wide leading-none">
+                  <h4 className="text-xs font-bold dp-text flex items-center gap-1.5 uppercase tracking-wide leading-none">
                     <Layers className="h-4 w-4 text-stone-700" />
                     Bulk Ingress & Import Backfill
                   </h4>
-                  <p className="text-[10px] text-[#6E6E73] leading-normal">
+                  <p className="text-[10px] dp-secondary leading-normal">
                     Ditch tedious single requests. Feed hundreds of operations down the pipe in single HTTP arrays to verify high throughput batch performance.
                   </p>
 
                   <div className="space-y-2.5 pt-1">
                     <button
                       onClick={() => handleBulkPayloadInject("analytics")}
-                      className="w-full p-2.5 bg-white hover:bg-neutral-50 text-slate-800 text-xs rounded-xl flex items-center justify-between border border-[#E5E5E7] cursor-pointer transition-all"
+                      className="w-full p-2.5 dp-card hover:bg-neutral-50 text-slate-800 text-xs rounded-xl flex items-center justify-between border dp-border cursor-pointer transition-all"
                     >
                       <div className="text-left">
                         <strong className="block text-[11px]">Deploy Bulk API Operations</strong>
-                        <span className="text-[9px] text-[#6E6E73]">3 synchronized calls for Linear & Vercel</span>
+                        <span className="text-[9px] dp-secondary">3 synchronized calls for Linear & Vercel</span>
                       </div>
                       <ArrowUpRight className="h-4 w-4 text-stone-400" />
                     </button>
 
                     <button
                       onClick={() => handleBulkPayloadInject("tokens")}
-                      className="w-full p-2.5 bg-white hover:bg-neutral-50 text-slate-800 text-xs rounded-xl flex items-center justify-between border border-[#E5E5E7] cursor-pointer transition-all"
+                      className="w-full p-2.5 dp-card hover:bg-neutral-50 text-slate-800 text-xs rounded-xl flex items-center justify-between border dp-border cursor-pointer transition-all"
                     >
                       <div className="text-left">
                         <strong className="block text-[11px]">Stream AI Compute Usage Logs</strong>
-                        <span className="text-[9px] text-[#6E6E73]">Simulate raw high compute gemini metrics</span>
+                        <span className="text-[9px] dp-secondary">Simulate raw high compute gemini metrics</span>
                       </div>
                       <ArrowUpRight className="h-4 w-4 text-stone-400" />
                     </button>
                     
                     <button
                       onClick={() => handleBulkPayloadInject("compute")}
-                      className="w-full p-2.5 bg-white hover:bg-neutral-50 text-slate-800 text-xs rounded-xl flex items-center justify-between border border-[#E5E5E7] cursor-pointer transition-all"
+                      className="w-full p-2.5 dp-card hover:bg-neutral-50 text-slate-800 text-xs rounded-xl flex items-center justify-between border dp-border cursor-pointer transition-all"
                     >
                       <div className="text-left">
                         <strong className="block text-[11px]">Stream Standalone Usage Packets</strong>
-                        <span className="text-[9px] text-[#6E6E73]">Generate bulk inbound system telemetry</span>
+                        <span className="text-[9px] dp-secondary">Generate bulk inbound system telemetry</span>
                       </div>
                       <ArrowUpRight className="h-4 w-4 text-stone-400" />
                     </button>
@@ -739,7 +739,7 @@ export default function UsageMeteringView({
                 </div>
 
                 <div className="pt-4 border-t border-stone-200/50 flex items-center justify-between">
-                  <span className="text-[9px] text-[#6E6E73] font-medium leading-none">Need historic ledger import?</span>
+                  <span className="text-[9px] dp-secondary font-medium leading-none">Need historic ledger import?</span>
                   <button
                     onClick={handleImportHistoricStream}
                     className="text-[10px] font-bold text-blue-600 hover:underline inline-flex items-center gap-0.5"
@@ -762,30 +762,30 @@ export default function UsageMeteringView({
         <div className="space-y-4 text-left">
           
           {/* Filters shelf */}
-          <div className="bg-white border border-[#E5E5E7] rounded-xl p-3.5 flex flex-col md:flex-row gap-4 justify-between items-center text-xs">
+          <div className="dp-card border dp-border rounded-xl p-3.5 flex flex-col md:flex-row gap-4 justify-between items-center text-xs">
             
             {/* Left search */}
             <div className="relative w-full md:w-80">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-[#86868B]" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 dp-muted" />
               <input
                 id="explorer-search"
                 type="text"
                 placeholder="Search event ID or transaction metadata..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.8 bg-[#FAFAFA] border border-[#E5E5E7] rounded-lg outline-none text-xs focus:border-neutral-500 text-neutral-800"
+                className="w-full pl-9 pr-3 py-1.8 dp-surface border dp-border rounded-lg outline-none text-xs focus:border-neutral-500 text-neutral-800"
               />
             </div>
 
             {/* Middle Filters */}
             <div className="flex flex-wrap gap-2.5 w-full md:w-auto">
               <div>
-                <label className="text-[9px] text-[#6E6E73] uppercase tracking-wider font-bold block mb-1">Filter Meter</label>
+                <label className="text-[9px] dp-secondary uppercase tracking-wider font-bold block mb-1">Filter Meter</label>
                 <select
                   id="explorer-filter-meter"
                   value={filterMeter}
                   onChange={(e) => setFilterMeter(e.target.value)}
-                  className="bg-white border border-[#E5E5E7] text-[11px] p-1.5 rounded-lg font-medium outline-none text-[#111111]"
+                  className="dp-card border dp-border text-[11px] p-1.5 rounded-lg font-medium outline-none dp-text"
                 >
                   <option value="all">All Active Meters</option>
                   {meters.map(m => (
@@ -795,12 +795,12 @@ export default function UsageMeteringView({
               </div>
 
               <div>
-                <label className="text-[9px] text-[#6E6E73] uppercase tracking-wider font-bold block mb-1">Filter Customer ID</label>
+                <label className="text-[9px] dp-secondary uppercase tracking-wider font-bold block mb-1">Filter Customer ID</label>
                 <select
                   id="explorer-filter-cust"
                   value={filterCustomer}
                   onChange={(e) => setFilterCustomer(e.target.value)}
-                  className="bg-white border border-[#E5E5E7] text-[11px] p-1.5 rounded-lg font-medium outline-none text-[#111111]"
+                  className="dp-card border dp-border text-[11px] p-1.5 rounded-lg font-medium outline-none dp-text"
                 >
                   <option value="all">All SaaS Customers</option>
                   {customers.map(c => (
@@ -824,13 +824,13 @@ export default function UsageMeteringView({
           </div>
 
           {/* Event Ingestion History Table Ledger (Stripe Style) */}
-          <div className="bg-white border border-[#E5E5E7] rounded-2xl overflow-hidden shadow-sm">
-            <div className="p-4 bg-[#FAFAFA] border-b border-neutral-100 flex justify-between items-center">
+          <div className="dp-card border dp-border rounded-2xl overflow-hidden shadow-sm">
+            <div className="p-4 dp-surface border-b border-neutral-100 flex justify-between items-center">
               <div>
-                <h3 className="text-xs font-bold text-[#111111]">Active Ingest Event Queue Explorer</h3>
-                <p className="text-[10px] text-[#6E6E73] mt-0.5">Showing {filteredTimelineEvents.length} events processed to local ledger.</p>
+                <h3 className="text-xs font-bold dp-text">Active Ingest Event Queue Explorer</h3>
+                <p className="text-[10px] dp-secondary mt-0.5">Showing {filteredTimelineEvents.length} events processed to local ledger.</p>
               </div>
-              <span className="text-[9px] font-mono text-[#6E6E73] bg-neutral-100 rounded px-2 py-0.5">
+              <span className="text-[9px] font-mono dp-secondary bg-neutral-100 rounded px-2 py-0.5">
                 FIFO Sequence Order
               </span>
             </div>
@@ -860,15 +860,15 @@ export default function UsageMeteringView({
                           <span className="h-2 w-2 rounded-full bg-blue-500 shrink-0" />
                           <div className="text-left min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-1.5">
-                              <strong className="text-[#111111] font-bold text-xs">
+                              <strong className="dp-text font-bold text-xs">
                                 {evt.meterId}
                               </strong>
-                              <span className="text-[9px] font-mono bg-neutral-100 text-[#6E6E73] px-1.5 py-0.5 rounded">
+                              <span className="text-[9px] font-mono bg-neutral-100 dp-secondary px-1.5 py-0.5 rounded">
                                 {evt.id}
                               </span>
                             </div>
                             <span className="text-[10px] text-stone-500 font-medium block mt-0.5">
-                              Customer: <strong className="text-[#111111]">{custObj ? custObj.name : evt.customerId}</strong>
+                              Customer: <strong className="dp-text">{custObj ? custObj.name : evt.customerId}</strong>
                             </span>
                           </div>
                         </div>
@@ -876,10 +876,10 @@ export default function UsageMeteringView({
                         {/* Pipeline Telemetry value & status badges */}
                         <div className="flex items-center gap-4.5 justify-between md:justify-end shrink-0 text-right">
                           <div>
-                            <span className="text-xs font-bold text-[#111111] tabular-nums font-mono block">
+                            <span className="text-xs font-bold dp-text tabular-nums font-mono block">
                               +{evt.value.toLocaleString()} {evt.meterId.includes("compute") ? "credits" : "units"}
                             </span>
-                            <span className="text-[9px] text-[#6E6E73] block font-mono mt-0.5">
+                            <span className="text-[9px] dp-secondary block font-mono mt-0.5">
                               {new Date(evt.timestamp).toLocaleTimeString()}
                             </span>
                           </div>
@@ -892,7 +892,7 @@ export default function UsageMeteringView({
 
                       {/* Detail json and replay trigger */}
                       {isExpanded && (
-                        <div className="p-4 border-t border-neutral-100 bg-[#FAFAFA] text-[11px] space-y-3">
+                        <div className="p-4 border-t border-neutral-100 dp-surface text-[11px] space-y-3">
                           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                             
                             {/* Raw Data */}
@@ -904,7 +904,7 @@ export default function UsageMeteringView({
                             </div>
 
                             {/* Processing parameters metadata */}
-                            <div className="md:col-span-4 bg-white border border-neutral-150 rounded-xl p-3.5 space-y-2.5">
+                            <div className="md:col-span-4 dp-card border border-neutral-150 rounded-xl p-3.5 space-y-2.5">
                               <span className="text-[9.5px] font-bold text-neutral-400 uppercase tracking-wider block">Operational Trace</span>
                               
                               <div className="space-y-1.5 leading-none">
@@ -956,14 +956,14 @@ export default function UsageMeteringView({
             <div className="lg:col-span-5 bg-black text-neutral-200 p-5 rounded-2xl relative overflow-hidden flex flex-col justify-between shadow-xl">
               
               {/* Star details */}
-              <div className="absolute top-4 right-4 text-[9px] text-[#86868B] font-mono flex items-center gap-1">
+              <div className="absolute top-4 right-4 text-[9px] dp-muted font-mono flex items-center gap-1">
                 <Network className="h-3.5 w-3.5 text-neutral-500" />
                 Live canConsume() API Gate
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <span className="text-[10px] font-bold text-[#86868B] uppercase tracking-wider block mb-1">
+                  <span className="text-[10px] font-bold dp-muted uppercase tracking-wider block mb-1">
                     Edge Gatekeeper Agent
                   </span>
                   <h3 className="text-sm font-semibold text-white">Interactive Limits & Quotas Enforcement Checker</h3>
@@ -975,7 +975,7 @@ export default function UsageMeteringView({
                 <div className="space-y-3.5">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="text-[9px] text-[#86868B] uppercase font-bold block mb-1">SaaS Customer</label>
+                      <label className="text-[9px] dp-muted uppercase font-bold block mb-1">SaaS Customer</label>
                       <select
                         id="limit-gate-cust"
                         value={limitCheckCust}
@@ -989,7 +989,7 @@ export default function UsageMeteringView({
                     </div>
 
                     <div>
-                      <label className="text-[9px] text-[#86868B] uppercase font-bold block mb-1">Feature Meter</label>
+                      <label className="text-[9px] dp-muted uppercase font-bold block mb-1">Feature Meter</label>
                       <select
                         id="limit-gate-meter"
                         value={limitCheckMeter}
@@ -1004,7 +1004,7 @@ export default function UsageMeteringView({
                   </div>
 
                   <div>
-                    <label className="text-[9px] text-[#86868B] uppercase font-bold block mb-1">Requested consumption amount</label>
+                    <label className="text-[9px] dp-muted uppercase font-bold block mb-1">Requested consumption amount</label>
                     <div className="flex gap-2">
                       <input
                         id="limit-gate-amt"
@@ -1016,7 +1016,7 @@ export default function UsageMeteringView({
                       <button
                         onClick={handleCheckLimit}
                         disabled={isCheckingConsume}
-                        className="flex-1 py-1.5 bg-white hover:bg-neutral-100 text-black font-extrabold text-xs rounded-lg cursor-pointer flex items-center justify-center gap-1 font-sans transition-all"
+                        className="flex-1 py-1.5 dp-card hover:bg-neutral-100 text-black font-extrabold text-xs rounded-lg cursor-pointer flex items-center justify-center gap-1 font-sans transition-all"
                         id="btn-gate-check"
                       >
                         <Zap className="h-3.5 w-3.5 fill-black shrink-0" />
@@ -1062,13 +1062,13 @@ export default function UsageMeteringView({
             <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
               
               {/* assign quota form */}
-              <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl flex flex-col justify-between">
+              <div className="dp-card border dp-border p-5 rounded-2xl flex flex-col justify-between">
                 <div className="space-y-3">
-                  <h4 className="text-xs font-bold text-[#111111] flex items-center gap-1.5 uppercase tracking-wide leading-none">
+                  <h4 className="text-xs font-bold dp-text flex items-center gap-1.5 uppercase tracking-wide leading-none">
                     <Sliders className="h-4.5 w-4.5 text-[#0071E3]" />
                     Issue Quota Bounds
                   </h4>
-                  <p className="text-[10px] text-[#6E6E73] leading-normal">
+                  <p className="text-[10px] dp-secondary leading-normal">
                     Set a hard cap limit for specific meters inside customer operational accounts. Gating begins as soon as bounds are crossed.
                   </p>
 
@@ -1078,7 +1078,7 @@ export default function UsageMeteringView({
                         id="quota-form-cust"
                         value={quotaCust}
                         onChange={(e) => setQuotaCust(e.target.value)}
-                        className="w-full text-xs font-semibold border border-[#E5E5E7] rounded-lg p-2 bg-[#FAFAFA]"
+                        className="w-full text-xs font-semibold border dp-border rounded-lg p-2 dp-surface"
                       >
                         {customers.map(c => (
                           <option key={c.id} value={c.id}>{c.name}</option>
@@ -1091,7 +1091,7 @@ export default function UsageMeteringView({
                         id="quota-form-meter"
                         value={quotaMeter}
                         onChange={(e) => setQuotaMeter(e.target.value)}
-                        className="w-full text-xs font-semibold border border-[#E5E5E7] rounded-lg p-2 bg-[#FAFAFA]"
+                        className="w-full text-xs font-semibold border dp-border rounded-lg p-2 dp-surface"
                       >
                         {meters.map(m => (
                           <option key={m.id} value={m.id}>{m.name}</option>
@@ -1107,7 +1107,7 @@ export default function UsageMeteringView({
                           placeholder="Limit (e.g. 50000)"
                           value={quotaAmount}
                           onChange={(e) => setQuotaAmount(Number(e.target.value))}
-                          className="w-full text-xs border border-[#E5E5E7] rounded-lg p-1.5 bg-white"
+                          className="w-full text-xs border dp-border rounded-lg p-1.5 dp-card"
                         />
                       </div>
                       <div>
@@ -1115,7 +1115,7 @@ export default function UsageMeteringView({
                           id="quota-form-period"
                           value={quotaPeriod}
                           onChange={(e) => setQuotaPeriod(e.target.value as any)}
-                          className="w-full text-xs border border-[#E5E5E7] rounded-lg p-1.5 bg-white"
+                          className="w-full text-xs border dp-border rounded-lg p-1.5 dp-card"
                         >
                           <option value="monthly">Monthly</option>
                           <option value="yearly">Yearly</option>
@@ -1138,13 +1138,13 @@ export default function UsageMeteringView({
               </div>
 
               {/* issue credit ledger entry */}
-              <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl flex flex-col justify-between">
+              <div className="dp-card border dp-border p-5 rounded-2xl flex flex-col justify-between">
                 <div className="space-y-3">
-                  <h4 className="text-xs font-bold text-[#111111] flex items-center gap-1.5 uppercase tracking-wide leading-none">
+                  <h4 className="text-xs font-bold dp-text flex items-center gap-1.5 uppercase tracking-wide leading-none">
                     <Coins className="h-4.5 w-4.5 text-stone-700" />
                     IMMUTABLE CREDIT ENTRY
                   </h4>
-                  <p className="text-[10px] text-[#6E6E73] leading-normal">
+                  <p className="text-[10px] dp-secondary leading-normal">
                     Log double-entry ledger entries rather than static values. Supports issues, drawdowns, and promotional credit expirations.
                   </p>
 
@@ -1154,7 +1154,7 @@ export default function UsageMeteringView({
                         id="credit-form-cust"
                         value={creditCust}
                         onChange={(e) => setCreditCust(e.target.value)}
-                        className="w-full text-xs font-semibold border border-[#E5E5E7] rounded-lg p-2 bg-[#FAFAFA]"
+                        className="w-full text-xs font-semibold border dp-border rounded-lg p-2 dp-surface"
                       >
                         {customers.map(c => (
                           <option key={c.id} value={c.id}>{c.name}</option>
@@ -1170,7 +1170,7 @@ export default function UsageMeteringView({
                           placeholder="USD Credit Amount"
                           value={creditAmount}
                           onChange={(e) => setCreditAmount(Number(e.target.value))}
-                          className="w-full text-xs border border-[#E5E5E7] rounded-lg p-1.5"
+                          className="w-full text-xs border dp-border rounded-lg p-1.5"
                         />
                       </div>
                       <div>
@@ -1178,7 +1178,7 @@ export default function UsageMeteringView({
                           id="credit-form-type"
                           value={creditType}
                           onChange={(e) => setCreditType(e.target.value as any)}
-                          className="w-full text-xs border border-[#E5E5E7] rounded-lg p-1.5"
+                          className="w-full text-xs border dp-border rounded-lg p-1.5"
                         >
                           <option value="credit_issued">Credit Issued (+)</option>
                           <option value="credit_consumed">Overage Debit (-)</option>
@@ -1194,7 +1194,7 @@ export default function UsageMeteringView({
                         placeholder="Description (e.g. SOC2 SLA compensation)"
                         value={creditDesc}
                         onChange={(e) => setCreditDesc(e.target.value)}
-                        className="w-full text-xs border border-[#E5E5E7] rounded-lg p-1.5 bg-white"
+                        className="w-full text-xs border dp-border rounded-lg p-1.5 dp-card"
                       />
                     </div>
                   </div>
@@ -1220,9 +1220,9 @@ export default function UsageMeteringView({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
             
             {/* Active configured quotas limit list */}
-            <div className="bg-white border border-[#E5E5E7] rounded-2xl p-5 shadow-sm">
+            <div className="dp-card border dp-border rounded-2xl p-5 shadow-sm">
               <div className="flex justify-between items-center pb-3 border-b mb-3.5">
-                <h4 className="text-xs font-bold text-[#111111] uppercase tracking-wide">Active Assigned Quotas (Limits)</h4>
+                <h4 className="text-xs font-bold dp-text uppercase tracking-wide">Active Assigned Quotas (Limits)</h4>
                 <span className="text-[10px] font-bold text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded">
                   {quotas.length} Assignments
                 </span>
@@ -1239,10 +1239,10 @@ export default function UsageMeteringView({
                     const usagePercent = Math.min(100, Math.floor((q.usedValue / q.limitValue) * 100));
                     
                     return (
-                      <div key={q.id} className="text-xs border border-[#E5E5E7] p-3 rounded-xl bg-[#FAFAFA]/50 space-y-2">
+                      <div key={q.id} className="text-xs border dp-border p-3 rounded-xl dp-surface/50 space-y-2">
                         <div className="flex justify-between items-start leading-none">
                           <div>
-                            <strong className="text-[#111111] font-bold block">{c ? c.name : q.customerId}</strong>
+                            <strong className="dp-text font-bold block">{c ? c.name : q.customerId}</strong>
                             <span className="text-[10px] font-mono text-neutral-500 block mt-1">Meter: {q.meterId}</span>
                           </div>
                           
@@ -1278,9 +1278,9 @@ export default function UsageMeteringView({
             </div>
 
             {/* Immutable double entry transaction ledger stream */}
-            <div className="bg-white border border-[#E5E5E7] rounded-2xl p-5 shadow-sm">
+            <div className="dp-card border dp-border rounded-2xl p-5 shadow-sm">
               <div className="flex justify-between items-center pb-3 border-b mb-3.5">
-                <h4 className="text-xs font-bold text-[#111111] uppercase tracking-wide">Immutable Credits transaction Ledger</h4>
+                <h4 className="text-xs font-bold dp-text uppercase tracking-wide">Immutable Credits transaction Ledger</h4>
                 <span className="text-[10px] font-bold text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded">
                   Double-Entry
                 </span>
@@ -1297,10 +1297,10 @@ export default function UsageMeteringView({
                     const isCredit = entry.amount >= 0;
                     
                     return (
-                      <div key={entry.id} className="flex justify-between items-center p-2.5 rounded-xl border border-neutral-100 bg-[#FAFAFA] text-xs">
+                      <div key={entry.id} className="flex justify-between items-center p-2.5 rounded-xl border border-neutral-100 dp-surface text-xs">
                         <div className="text-left leading-none">
                           <strong className="block text-stone-900">{c ? c.name : entry.customerId}</strong>
-                          <span className="text-[10px] text-[#6E6E73] block mt-1 font-semibold">{entry.description}</span>
+                          <span className="text-[10px] dp-secondary block mt-1 font-semibold">{entry.description}</span>
                           <span className="text-[8px] text-stone-400 font-mono block mt-1 uppercase tracking-wider">
                             #{entry.id} • {new Date(entry.createdAt).toLocaleDateString()}
                           </span>
@@ -1326,7 +1326,7 @@ export default function UsageMeteringView({
         <div className="space-y-6 text-left">
           
           {/* Top customer selection dropdown */}
-          <div className="bg-white border border-[#E5E5E7] rounded-xl p-4 flex flex-col md:flex-row gap-4 justify-between items-center text-xs">
+          <div className="dp-card border dp-border rounded-xl p-4 flex flex-col md:flex-row gap-4 justify-between items-center text-xs">
             <div className="flex items-center gap-2.5">
               <div className="h-6.5 w-6.5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
                 <User className="h-3.5 w-3.5" />
@@ -1341,7 +1341,7 @@ export default function UsageMeteringView({
               id="portal-select-customer"
               value={portalCustomerId}
               onChange={(e) => setPortalCustomerId(e.target.value)}
-              className="bg-neutral-50 border border-[#E5E5E7] rounded-lg p-2 font-bold text-xs outline-none text-[#111111]"
+              className="bg-neutral-50 border dp-border rounded-lg p-2 font-bold text-xs outline-none dp-text"
             >
               {customers.map(c => (
                 <option key={c.id} value={c.id}>{c.name} ({c.id})</option>
@@ -1354,7 +1354,7 @@ export default function UsageMeteringView({
               
               {/* Left Column: Account Summary (4 cols) */}
               <div className="lg:col-span-4 space-y-4">
-                <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl space-y-4 shadow-sm">
+                <div className="dp-card border dp-border p-5 rounded-2xl space-y-4 shadow-sm">
                   
                   {/* Account Logo banner */}
                   <div className="flex items-center gap-3">
@@ -1401,8 +1401,8 @@ export default function UsageMeteringView({
                 </div>
 
                 {/* Micro-billing active ledger list */}
-                <div className="bg-white border border-[#E5E5E7] p-5 rounded-2xl shadow-sm text-xs">
-                  <h4 className="font-bold text-[#111111] uppercase tracking-wider text-[10px] pb-2 border-b mb-3">Client Audit Transactions Feed</h4>
+                <div className="dp-card border dp-border p-5 rounded-2xl shadow-sm text-xs">
+                  <h4 className="font-bold dp-text uppercase tracking-wider text-[10px] pb-2 border-b mb-3">Client Audit Transactions Feed</h4>
                   
                   {portalCustEvents.length === 0 ? (
                     <p className="text-stone-400 italic text-center py-6 text-[10px]">No events registered to customer account.</p>
@@ -1423,11 +1423,11 @@ export default function UsageMeteringView({
               </div>
 
               {/* Right Column: Quota Meters dashboard (8 cols) */}
-              <div className="lg:col-span-8 bg-white border border-[#E5E5E7] p-6 rounded-2xl shadow-sm space-y-6">
+              <div className="lg:col-span-8 dp-card border dp-border p-6 rounded-2xl shadow-sm space-y-6">
                 
                 <div>
-                  <h3 className="font-bold text-[#111111] text-sm">Customer Enforceable Quotas limits</h3>
-                  <p className="text-[11px] text-[#6E6E73] mt-0.5">Live developer metrics allocated during subscriber billing cycles.</p>
+                  <h3 className="font-bold dp-text text-sm">Customer Enforceable Quotas limits</h3>
+                  <p className="text-[11px] dp-secondary mt-0.5">Live developer metrics allocated during subscriber billing cycles.</p>
                 </div>
 
                 {portalCustQuotas.length === 0 ? (
@@ -1441,7 +1441,7 @@ export default function UsageMeteringView({
                       const usagePercent = Math.min(100, Math.floor((q.usedValue / q.limitValue) * 100));
 
                       return (
-                        <div key={q.id} className="border border-neutral-200 rounded-xl p-4 space-y-4 hover:border-black transition-all bg-[#FAFAFA]/40">
+                        <div key={q.id} className="border border-neutral-200 rounded-xl p-4 space-y-4 hover:border-black transition-all dp-surface/40">
                           
                           {/* Meter context header */}
                           <div className="flex justify-between leading-none items-start">
@@ -1463,13 +1463,13 @@ export default function UsageMeteringView({
                                 style={{ width: `${usagePercent}%` }}
                               />
                             </div>
-                            <div className="flex justify-between text-[9px] text-[#6E6E73] font-semibold">
+                            <div className="flex justify-between text-[9px] dp-secondary font-semibold">
                               <span>Used: {q.usedValue?.toLocaleString()}</span>
                               <span>Allowance Limit: {q.limitValue?.toLocaleString()}</span>
                             </div>
                           </div>
 
-                          <div className="bg-white border rounded-lg p-2 text-[9.5px] leading-tight text-stone-600">
+                          <div className="dp-card border rounded-lg p-2 text-[9.5px] leading-tight text-stone-600">
                             {q.usedValue >= q.limitValue ? (
                               <span className="text-rose-700 font-bold flex items-center gap-1">
                                 <AlertTriangle className="h-3 w-3 inline shrink-0" /> Limit Exceeded. Credit Offset actively applied.
@@ -1501,14 +1501,14 @@ export default function UsageMeteringView({
 
       {/* PANEL 5: ARCHITECTURAL BLUEPRINTS */}
       {activeSubTab === "blueprints" && (
-        <div className="bg-white border border-[#E5E5E7] rounded-2xl p-5 shadow-sm text-left space-y-6">
+        <div className="dp-card border dp-border rounded-2xl p-5 shadow-sm text-left space-y-6">
           
           <div className="border-b pb-4">
             <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block mb-1">
               PRODUCIBILITY & SYSTEM ARCHITECTURE LAYOUTS
             </span>
-            <h3 className="text-sm font-semibold text-[#111111]">Distributed Systems Billing Infra Blueprint Specifications</h3>
-            <p className="text-[11px] text-[#6E6E73] mt-0.5 leading-normal">
+            <h3 className="text-sm font-semibold dp-text">Distributed Systems Billing Infra Blueprint Specifications</h3>
+            <p className="text-[11px] dp-secondary mt-0.5 leading-normal">
               High fidelity specifications designed to support millions of customers with trillions of raw transactions without database saturation.
             </p>
           </div>
@@ -1517,25 +1517,25 @@ export default function UsageMeteringView({
           <div className="flex border-b text-xs pb-3 gap-2">
             <button
               onClick={() => setBlueprintInnerTab("sql")}
-              className={`pb-1 px-2.5 font-bold transition-all relative ${blueprintInnerTab === "sql" ? "text-black border-b-2 border-black" : "text-[#6E6E73] hover:text-black"}`}
+              className={`pb-1 px-2.5 font-bold transition-all relative ${blueprintInnerTab === "sql" ? "text-black border-b-2 border-black" : "dp-secondary hover:text-black"}`}
             >
               1. DB Physical Schema
             </button>
             <button
               onClick={() => setBlueprintInnerTab("pipeline")}
-              className={`pb-1 px-2.5 font-bold transition-all relative ${blueprintInnerTab === "pipeline" ? "text-black border-b-2 border-black" : "text-[#6E6E73] hover:text-black"}`}
+              className={`pb-1 px-2.5 font-bold transition-all relative ${blueprintInnerTab === "pipeline" ? "text-black border-b-2 border-black" : "dp-secondary hover:text-black"}`}
             >
               2. Distributed Ingestion Pipe
             </button>
             <button
               onClick={() => setBlueprintInnerTab("sdk")}
-              className={`pb-1 px-2.5 font-bold transition-all relative ${blueprintInnerTab === "sdk" ? "text-black border-b-2 border-black" : "text-[#6E6E73] hover:text-black"}`}
+              className={`pb-1 px-2.5 font-bold transition-all relative ${blueprintInnerTab === "sdk" ? "text-black border-b-2 border-black" : "dp-secondary hover:text-black"}`}
             >
               3. REST SDK interfaces
             </button>
             <button
               onClick={() => setBlueprintInnerTab("scale")}
-              className={`pb-1 px-2.5 font-bold transition-all relative ${blueprintInnerTab === "scale" ? "text-black border-b-2 border-black" : "text-[#6E6E73] hover:text-black"}`}
+              className={`pb-1 px-2.5 font-bold transition-all relative ${blueprintInnerTab === "scale" ? "text-black border-b-2 border-black" : "dp-secondary hover:text-black"}`}
             >
               4. Partitioning & Scale Strategy
             </button>
@@ -1543,11 +1543,11 @@ export default function UsageMeteringView({
 
           {blueprintInnerTab === "sql" && (
             <div className="space-y-4 font-mono text-[11px]">
-              <div className="bg-[#FAFAFA] border rounded-xl p-4 text-stone-700 space-y-4">
+              <div className="dp-surface border rounded-xl p-4 text-stone-700 space-y-4">
                 
                 <div>
-                  <h4 className="font-sans font-bold text-xs text-[#111111] mb-1">PostgreSQL relational physical schemas & indexes</h4>
-                  <p className="font-sans text-[10px] text-[#6E6E73] leading-normal">Immutable and event sourced tables. Standardized double entry ledger rules prevent float computation drift.</p>
+                  <h4 className="font-sans font-bold text-xs dp-text mb-1">PostgreSQL relational physical schemas & indexes</h4>
+                  <p className="font-sans text-[10px] dp-secondary leading-normal">Immutable and event sourced tables. Standardized double entry ledger rules prevent float computation drift.</p>
                 </div>
 
                 <div className="space-y-3">
@@ -1591,37 +1591,37 @@ CREATE INDEX idx_credits_cust ON credit_ledger (customer_id, created_at DESC) WH
           )}
 
           {blueprintInnerTab === "pipeline" && (
-            <div className="space-y-4 text-xs font-sans text-[#111111]">
-              <div className="bg-[#FAF9F6] border border-[#E5E5E7] rounded-xl p-4 grid grid-cols-1 md:grid-cols-6 gap-4">
+            <div className="space-y-4 text-xs font-sans dp-text">
+              <div className="dp-surface-alt border dp-border rounded-xl p-4 grid grid-cols-1 md:grid-cols-6 gap-4">
                 
-                <div className="md:col-span-2 border border-dashed rounded-lg p-3 space-y-1.5 bg-white text-left">
+                <div className="md:col-span-2 border border-dashed rounded-lg p-3 space-y-1.5 dp-card text-left">
                   <span className="text-[8.5px] font-mono text-stone-400 font-bold tracking-wider block">STAGE 1: ENTRANCE GATES</span>
                   <strong className="font-bold text-xs">NGINX / Redis Gateway</strong>
-                  <p className="text-[10px] text-[#6E6E73] leading-tight">Authenticates header keys, parses signature packets, and rate-limits rogue microservices instantly.</p>
+                  <p className="text-[10px] dp-secondary leading-tight">Authenticates header keys, parses signature packets, and rate-limits rogue microservices instantly.</p>
                 </div>
 
-                <div className="md:col-span-2 border border-dashed rounded-lg p-3 space-y-1.5 bg-white text-left">
+                <div className="md:col-span-2 border border-dashed rounded-lg p-3 space-y-1.5 dp-card text-left">
                   <span className="text-[8.5px] font-mono text-stone-400 font-bold tracking-wider block">STAGE 2: DUPLICATION FILTER</span>
                   <strong className="font-bold text-xs">Redis Cluster Dedupe Cache</strong>
-                  <p className="text-[10px] text-[#6E6E73] leading-tight">Caches deduplication keys with a 7-day TTL check. Ensures at-least-once deliveries don't double charge clients.</p>
+                  <p className="text-[10px] dp-secondary leading-tight">Caches deduplication keys with a 7-day TTL check. Ensures at-least-once deliveries don't double charge clients.</p>
                 </div>
 
-                <div className="md:col-span-2 border border-dashed rounded-lg p-3 space-y-1.5 bg-white text-left">
+                <div className="md:col-span-2 border border-dashed rounded-lg p-3 space-y-1.5 dp-card text-left">
                   <span className="text-[8.5px] font-mono text-stone-400 font-bold tracking-wider block">STAGE 3: BUFFERS & INGEST</span>
                   <strong className="font-bold text-xs">Kafka Stream Nodes</strong>
-                  <p className="text-[10px] text-[#6E6E73] leading-tight">Buffers input streams at high velocity (up to 1,000,000 requests/sec). Distributes load to background consumer loops.</p>
+                  <p className="text-[10px] dp-secondary leading-tight">Buffers input streams at high velocity (up to 1,000,000 requests/sec). Distributes load to background consumer loops.</p>
                 </div>
 
-                <div className="md:col-span-3 border border-dashed rounded-lg p-3 space-y-1.5 bg-white text-left">
+                <div className="md:col-span-3 border border-dashed rounded-lg p-3 space-y-1.5 dp-card text-left">
                   <span className="text-[8.5px] font-mono text-stone-400 font-bold tracking-wider block">STAGE 4: MATERIALIZED AGGREGATIONS</span>
                   <strong className="font-bold text-xs">ClickHouse / TimescaleDB Consumers</strong>
-                  <p className="text-[10px] text-[#6E6E73] leading-tight">Background consumer loops aggregate metrics into hourly, daily, and monthly tables. Queries access summarized records, avoiding heavy recalculations of billions of rows.</p>
+                  <p className="text-[10px] dp-secondary leading-tight">Background consumer loops aggregate metrics into hourly, daily, and monthly tables. Queries access summarized records, avoiding heavy recalculations of billions of rows.</p>
                 </div>
 
-                <div className="md:col-span-3 border border-dashed rounded-lg p-3 space-y-1.5 bg-white text-left">
+                <div className="md:col-span-3 border border-dashed rounded-lg p-3 space-y-1.5 dp-card text-left">
                   <span className="text-[8.5px] font-mono text-stone-400 font-bold tracking-wider block">STAGE 5: REAL-TIME ENFORCEMENT</span>
                   <strong className="font-bold text-xs">Quota Enforcement Engine</strong>
-                  <p className="text-[10px] text-[#6E6E73] leading-tight">Pushes calculated usage limits down to HTTP API gates on developer routers. Block metrics or reject calls the minute quotas are violated.</p>
+                  <p className="text-[10px] dp-secondary leading-tight">Pushes calculated usage limits down to HTTP API gates on developer routers. Block metrics or reject calls the minute quotas are violated.</p>
                 </div>
 
               </div>
@@ -1668,10 +1668,10 @@ if (!gate.allowed) {
 
           {blueprintInnerTab === "scale" && (
             <div className="text-xs leading-relaxed space-y-4 text-stone-700">
-              <div className="bg-[#FAF9F6] border border-[#E5E5E7] p-5 rounded-2xl grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="dp-surface-alt border dp-border p-5 rounded-2xl grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 <div className="space-y-2 text-left">
-                  <h4 className="font-sans font-bold text-xs text-[#111111] flex items-center gap-1">
+                  <h4 className="font-sans font-bold text-xs dp-text flex items-center gap-1">
                     <Database className="h-4 w-4 text-stone-700" />
                     Billions scale partition strategies
                   </h4>
@@ -1683,7 +1683,7 @@ if (!gate.allowed) {
                 </div>
 
                 <div className="space-y-2 text-left">
-                  <h4 className="font-sans font-bold text-xs text-[#111111] flex items-center gap-1">
+                  <h4 className="font-sans font-bold text-xs dp-text flex items-center gap-1">
                     <ShieldCheck className="h-4 w-4 text-stone-700" />
                     Security & SOC2 Isolation Guards
                   </h4>

@@ -35,7 +35,9 @@ export default function Navbar({ onNavigateTab, scrollToId }: NavbarProps) {
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <button onClick={() => scrollToId("hero")} className="flex items-center cursor-pointer">
-          <img src="/aorahq-logo.png" alt="AoraHQ" className="h-8 w-auto" />
+          <div className="rounded-lg p-1.5" style={{ backgroundColor: "#F5F5F7" }}>
+            <img src="/aorahq-logo.png" alt="AoraHQ" className="h-8 w-auto" />
+          </div>
         </button>
 
         <nav className="hidden md:flex items-center gap-8">
