@@ -137,20 +137,20 @@ function WaitlistForm() {
 
         {step === "done" && (
           <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center space-y-6 py-4">
-            <div className="inline-flex h-16 w-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 items-center justify-center">
-              <CheckCircle2 className="h-8 w-8 text-emerald-400" />
+            <div className="inline-flex h-16 w-16 rounded-full bg-neutral-800/50 border border-neutral-700/50 items-center justify-center">
+              <CheckCircle2 className="h-8 w-8 text-neutral-300" />
             </div>
             <div>
-              <h3 className="text-xl font-bold lp-text">You're on the list!</h3>
+              <h3 className="text-xl font-bold lp-text">Welcome to the inner circle!</h3>
               <p className="text-sm lp-secondary mt-2">
-                You're #{position.toLocaleString()} on the waitlist. We'll email <strong className="lp-text">{email}</strong> when your spot opens.
+                You've successfully secured your spot. You are on the waitlist, and we'll send a ping to <strong className="lp-text">{email}</strong> as soon as we launch.
               </p>
             </div>
             <div className="lp-surface border lp-border-glass rounded-2xl p-5">
-              <p className="text-[10px] font-bold lp-secondary uppercase tracking-widest mb-1">Your Founder's Plan</p>
-              <p className="text-sm lp-text font-semibold">3 months free on any tier — locked in for life.</p>
+              <p className="text-[10px] font-bold lp-secondary uppercase tracking-widest mb-1">Founder's Reward</p>
+              <p className="text-sm lp-text font-semibold">Because you're early, you've been upgraded to the Founder's Plan. That means you get 3 months free on any tier you choose—a perk locked in for the lifetime of your account.</p>
             </div>
-            <p className="text-[10px] lp-muted">Want to move up? Share this link with your network (coming soon).</p>
+            <p className="text-sm lp-text font-semibold">Big things are coming. Keep an eye on your inbox!</p>
           </motion.div>
         )}
       </AnimatePresence>
