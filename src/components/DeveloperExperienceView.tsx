@@ -292,7 +292,7 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
             {/* Path Selection row */}
             <div className="flex items-center gap-1.5 p-1.5 bg-neutral-900 rounded-lg text-xs border border-neutral-800">
               <span className="text-emerald-400 font-extrabold px-1.5">{playgroundMethod}</span>
-              <span className="text-neutral-500">https://api.aora.co</span>
+              <span className="text-neutral-500">https://api.aorahq.com</span>
               <span className="dp-muted">{playgroundEndpoint}</span>
             </div>
 

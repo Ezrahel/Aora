@@ -17,7 +17,7 @@ interface AccountDetailsViewProps {
 
 export default function AccountDetailsView({ onBack }: AccountDetailsViewProps) {
   const [fullName, setFullName] = useState("Ademola Olushola");
-  const [email, setEmail] = useState("ademola@aora.co");
+  const [email, setEmail] = useState("ademola@aorahq.com");
   const [phone, setPhone] = useState("+234 800 000 0000");
   const [role, setRole] = useState("Admin");
   const [timezone, setTimezone] = useState("Africa/Lagos");

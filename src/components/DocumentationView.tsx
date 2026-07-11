@@ -711,11 +711,11 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
 
                 <div className="pl-9 space-y-2">
                   <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
-                    <button onClick={() => triggerCopyToClipboard("curl -X POST https://api.aora.co/api/usage-events \\\n -H \"Authorization: Bearer sk_live_aora_5f2d93e810cb9921e42f2bca01\" \\\n -H \"Content-Type: application/json\" \\\n -d '{\n   \"customerId\": \"linear\",\n   \"meterId\": \"compute_meter\",\n   \"value\": 150,\n   \"metadata\": { \"source\": \"api\" }\n }'", "curl-qs")} className="absolute top-3 right-3 text-neutral-400 hover:text-neutral-950 p-1 rounded hover:bg-neutral-100 transition-colors cursor-pointer" title="Copy code snippet">
+                    <button onClick={() => triggerCopyToClipboard("curl -X POST https://api.aorahq.com/api/usage-events \\\n -H \"Authorization: Bearer sk_live_aora_5f2d93e810cb9921e42f2bca01\" \\\n -H \"Content-Type: application/json\" \\\n -d '{\n   \"customerId\": \"linear\",\n   \"meterId\": \"compute_meter\",\n   \"value\": 150,\n   \"metadata\": { \"source\": \"api\" }\n }'", "curl-qs")} className="absolute top-3 right-3 text-neutral-400 hover:text-neutral-950 p-1 rounded hover:bg-neutral-100 transition-colors cursor-pointer" title="Copy code snippet">
                       {copiedStates["curl-qs"] ? <Check className="h-3.5 w-3.5 text-[#34C759]" /> : <Copy className="h-3.5 w-3.5" />}
                     </button>
                     <pre className="text-[10.5px] font-mono text-emerald-800 leading-normal overflow-x-auto text-left py-1 select-all">
-{`curl -X POST https://api.aora.co/api/usage-events \\
+{`curl -X POST https://api.aorahq.com/api/usage-events \\
  -H "Authorization: Bearer sk_live_aora_5f2d93e810cb9921e42f2bca01" \\
  -H "Content-Type: application/json" \\
  -d '{
@@ -741,11 +741,11 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
 
                 <div className="pl-9 space-y-2">
                   <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
-                    <button onClick={() => triggerCopyToClipboard("curl -X GET \"https://api.aora.co/api/can-access?customerId=linear&featureSlug=api_access\" \\\n -H \"Authorization: Bearer sk_live_aora_...\"", "curl-qs-2")} className="absolute top-3 right-3 text-neutral-400 hover:text-neutral-950 p-1 rounded hover:bg-neutral-100 transition-colors cursor-pointer">
+                    <button onClick={() => triggerCopyToClipboard("curl -X GET \"https://api.aorahq.com/api/can-access?customerId=linear&featureSlug=api_access\" \\\n -H \"Authorization: Bearer sk_live_aora_...\"", "curl-qs-2")} className="absolute top-3 right-3 text-neutral-400 hover:text-neutral-950 p-1 rounded hover:bg-neutral-100 transition-colors cursor-pointer">
                       {copiedStates["curl-qs-2"] ? <Check className="h-3.5 w-3.5 text-[#34C759]" /> : <Copy className="h-3.5 w-3.5" />}
                     </button>
                     <pre className="text-[10.5px] font-mono text-slate-800 leading-normal overflow-x-auto text-left py-1">
-{`curl -X GET "https://api.aora.co/api/can-access?customerId=linear&featureSlug=api_access" \\
+{`curl -X GET "https://api.aorahq.com/api/can-access?customerId=linear&featureSlug=api_access" \\
  -H "Authorization: Bearer sk_live_aora_5f2d93e810cb9921e42f2bca01"`}
                     </pre>
                   </div>
@@ -1050,7 +1050,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
                 {/* HTTP Request URL bar */}
                 <div className="flex gap-2 items-center bg-neutral-900 border border-neutral-800 p-2 rounded-lg text-xs">
                   <span className={`${playgroundMethod === "POST" ? "text-emerald-400" : "text-blue-400"} font-extrabold`}>{playgroundMethod}</span>
-                  <span className="text-neutral-500 truncate select-all">https://api.aora.co{playgroundPath}</span>
+                  <span className="text-neutral-500 truncate select-all">https://api.aorahq.com{playgroundPath}</span>
                 </div>
 
                 {/* Body parameters and terminal responses */}
@@ -1243,7 +1243,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
 
                 <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
                   <pre className="text-[10px] font-mono text-slate-800 leading-normal select-all overflow-auto">
-{`PATCH https://api.aora.co/api/customers/cust_linear_102
+{`PATCH https://api.aorahq.com/api/customers/cust_linear_102
 Content-Type: application/json
 
 {
@@ -1279,7 +1279,7 @@ Content-Type: application/json
 
                 <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
                   <pre className="text-[10px] font-mono text-slate-800 select-all overflow-auto">
-{`POST https://api.aora.co/api/usage-events
+{`POST https://api.aorahq.com/api/usage-events
 Content-Type: application/json
 
 {

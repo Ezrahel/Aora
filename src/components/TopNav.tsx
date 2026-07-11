@@ -171,7 +171,7 @@ export default function TopNav({
             <div className="absolute right-0 top-12 z-50 w-64 rounded-2xl border dp-border dp-card p-2 shadow-xl">
               <div className="rounded-xl dp-surface p-3">
                 <p className="text-xs font-semibold dp-text">Ademola Olushola</p>
-                <p className="mt-0.5 text-[10px] dp-secondary">ademola@aora.co</p>
+                <p className="mt-0.5 text-[10px] dp-secondary">ademola@aorahq.com</p>
               </div>
 
               <div className="mt-2 space-y-1">

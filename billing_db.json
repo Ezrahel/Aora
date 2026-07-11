@@ -51,7 +51,7 @@
     {
       "id": "mem_ademola",
       "workspaceId": "ws_aora",
-      "email": "ademola@aora.co",
+      "email": "ademola@aorahq.com",
       "role": "owner",
       "permissions": [
         "*"
@@ -61,7 +61,7 @@
     {
       "id": "mem_sarah",
       "workspaceId": "ws_aora",
-      "email": "sarah.jenkins@aora.co",
+      "email": "sarah.jenkins@aorahq.com",
       "role": "developer",
       "permissions": [
         "read",
