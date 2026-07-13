@@ -4,6 +4,9 @@
 // production static serving.
 // ============================================================
 
+import dotenv from "dotenv";
+dotenv.config();
+
 import app, { initializeDatabase, dbAvailable } from "./src/app.ts";
 import express from "express";
 import path from "path";

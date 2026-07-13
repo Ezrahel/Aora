@@ -3,14 +3,14 @@
 // Shared between local server.ts and Vercel serverless api/index.ts
 // ============================================================
 
-import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
+
+import express from "express";
 import { GoogleGenAI } from "@google/genai";
 import { runMigrations, pool, query, customerRepo, planRepo, featureRepo, entitlementRepo, priceRepo, discountRepo, couponRepo, rateCardRepo, contractRepo, subscriptionRepo, invoiceRepo, meterRepo, usageRepo, quotaRepo, creditRepo, organizationRepo, workspaceRepo, memberRepo, productRepo, auditRepo, webhookRepo, addChatMessage, getChatMessages, genId, toNum, resolveWorkspace } from "./api/db.ts";
 import { asyncHandler, badRequest, notFound } from "./api/middleware.ts";
 import apiRouter from "./api/router.ts";
-
-dotenv.config();
 
 // ── Express App ─────────────────────────────────────────────
 const app = express();

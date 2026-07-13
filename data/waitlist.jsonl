@@ -9,3 +9,5 @@
 {"email":"test@example.com","name":null,"company":null,"gateway":null,"mrr":null,"referral":null,"createdAt":"2026-07-09T11:56:38.847Z"}
 {"email":"test@example.com","name":null,"company":null,"gateway":null,"mrr":null,"referral":null,"createdAt":"2026-07-09T11:57:48.786Z"}
 {"email":"test@example.com","name":null,"company":null,"gateway":null,"mrr":null,"referral":null,"createdAt":"2026-07-09T12:07:32.045Z"}
+{"email":"test@example.com","name":null,"company":null,"gateway":null,"mrr":null,"referral":null,"createdAt":"2026-07-13T21:18:56.164Z"}
+{"email":"testme@123.com","name":"testing","company":"testme","gateway":"paystack","mrr":"pre-revenue","referral":null,"createdAt":"2026-07-13T21:21:00.518Z"}

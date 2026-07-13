@@ -5,6 +5,9 @@
 // so routes never fire before migrations complete.
 // ============================================================
 
+import dotenv from "dotenv";
+dotenv.config();
+
 import type { Request, Response } from "express";
 import app, { initializeDatabase } from "../src/app.js";
 
