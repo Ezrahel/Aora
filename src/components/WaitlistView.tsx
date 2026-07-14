@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowRight, CheckCircle2, Sparkles, ChevronDown, Users, Zap, Shield, Mail, Twitter, Instagram } from "lucide-react";
 import { LandingThemeProvider, useLandingTheme } from "./landing/LandingTheme";
 import Navbar from "./landing/Navbar";
 import Footer from "./landing/Footer";
+import { pageSEO, updateMetaTags } from "../lib/seo";
 
 interface WaitlistViewProps {
   onNavigateTab: (tab: string) => void;
@@ -192,6 +193,10 @@ function CountUp({ end }: { end: number }) {
 }
 
 export default function WaitlistView({ onNavigateTab }: WaitlistViewProps) {
+  useEffect(() => {
+    updateMetaTags(pageSEO.waitlist);
+  }, []);
+
   return (
     <LandingThemeProvider>
       <div className="min-h-screen lp-bg font-sans antialiased selection:bg-[var(--lp-text)]/10 selection:text-[var(--lp-text)]">

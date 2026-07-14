@@ -1,0 +1,41 @@
+{
+  "name": "AoraHQ",
+  "short_name": "AoraHQ",
+  "description": "Billing orchestration engine for modern SaaS. Multi-gateway billing, usage metering, entitlements, and revenue analytics.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111011",
+  "theme_color": "#111011",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/aorahq-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/aorahq-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "finance", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Documentation",
+      "short_name": "Docs",
+      "description": "View AoraHQ documentation",
+      "url": "/docs",
+      "icons": [{ "src": "/aorahq-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Open AoraHQ dashboard",
+      "url": "/dashboard",
+      "icons": [{ "src": "/aorahq-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

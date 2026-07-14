@@ -3,14 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="format-detection" content="telephone=no" />
 
     <!-- Primary Meta Tags -->
     <title>AoraHQ — Billing Orchestration Engine | Stripe, Paystack & Flutterwave</title>
     <meta name="title" content="AoraHQ — Billing Orchestration Engine | Alternative to Stripe Billing, Chargebee & Lago" />
     <meta name="description" content="A developer-first billing orchestration engine. Replace Stripe Billing, Chargebee, or Lago with a single gateway-agnostic platform. Bring your own Stripe, Paystack, or Flutterwave keys. Declarative pricing, usage metering, entitlements, and revenue analytics." />
-    <meta name="keywords" content="billing orchestration, Stripe Billing alternative, Chargebee alternative, Lago alternative, usage-based billing, SaaS billing, Paystack billing, Flutterwave billing, revenue analytics, billing engine, Africa billing infrastructure" />
-    <meta name="robots" content="index, follow" />
+    <meta name="keywords" content="billing orchestration, Stripe Billing alternative, Chargebee alternative, Lago alternative, usage-based billing, SaaS billing, Paystack billing, Flutterwave billing, revenue analytics, billing engine, Africa billing infrastructure, metronome alternative, billing platform" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="bingbot" content="index, follow" />
     <link rel="canonical" href="https://aorahq.com" />
+
+    <!-- Mobile & PWA -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="AoraHQ" />
+    <meta name="theme-color" content="#111011" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#111011" media="(prefers-color-scheme: light)" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -18,6 +30,11 @@
     <meta property="og:title" content="AoraHQ — Billing Orchestration Engine | Stripe Billing Alternative" />
     <meta property="og:description" content="Stop juggling Stripe, Paystack, and Flutterwave. AoraHQ is a developer-first billing orchestration engine — pricing, metering, entitlements, and revenue analytics in one unified platform." />
     <meta property="og:image" content="https://aorahq.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="AoraHQ — Billing Orchestration Engine Dashboard" />
+    <meta property="og:site_name" content="AoraHQ" />
+    <meta property="og:locale" content="en_US" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
@@ -25,6 +42,15 @@
     <meta property="twitter:title" content="AoraHQ — Billing Orchestration Engine" />
     <meta property="twitter:description" content="Bring your gateway. Keep your data. Own your billing logic. A developer-first billing engine — the alternative to Stripe Billing, Chargebee, and Lago." />
     <meta property="twitter:image" content="https://aorahq.com/og-image.png" />
+    <meta property="twitter:image:alt" content="AoraHQ Dashboard" />
+    <meta name="twitter:creator" content="@aorahq" />
+    <meta name="twitter:site" content="@aorahq" />
+
+    <!-- LinkedIn -->
+    <meta property="linkedin:card" content="summary_large_image" />
+    <meta property="linkedin:title" content="AoraHQ — Billing Orchestration Engine" />
+    <meta property="linkedin:description" content="Developer-first billing orchestration for Stripe, Paystack, and Flutterwave." />
+    <meta property="linkedin:image" content="https://aorahq.com/og-image.png" />
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
@@ -36,12 +62,27 @@
       "operatingSystem": "Web",
       "description": "A developer-first billing orchestration engine. Gateway-agnostic billing infrastructure supporting Stripe, Paystack, and Flutterwave. Declarative pricing engine, usage metering, entitlements, and revenue analytics.",
       "url": "https://aorahq.com",
-      "sameAs": ["https://x.com/aorahq"],
+      "sameAs": ["https://x.com/aorahq", "https://github.com/aorahq"],
       "offers": {
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "NGN",
-        "eligibleCurrency": ["NGN", "USD"]
+        "eligibleCurrency": ["NGN", "USD", "GHS", "KES"],
+        "availability": "https://schema.org/InStock"
+      },
+      "featureList": [
+        "Gateway-agnostic: Stripe, Paystack, Flutterwave",
+        "Declarative pricing: flat, usage, hybrid, tiered, volume, per-seat",
+        "Usage metering: high-throughput event ingestion",
+        "Entitlements: real-time feature access control",
+        "Revenue analytics: MRR, ARR, churn, cohorts, NRR",
+        "Customer portal: self-service billing",
+        "Multi-currency: NGN, USD, GHS, KES, ZAR"
+      ],
+      "author": {
+        "@type": "Organization",
+        "name": "AoraHQ",
+        "url": "https://aorahq.com"
       }
     }
     </script>
@@ -59,6 +100,30 @@
           "urlTemplate": "https://aorahq.com/search?q={search_term_string}"
         },
         "query-input": "required name=search_term_string"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "AoraHQ",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://aorahq.com/logo.png"
+        }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "AoraHQ",
+      "url": "https://aorahq.com",
+      "logo": "https://aorahq.com/logo.png",
+      "sameAs": ["https://x.com/aorahq"],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+234-XXX-XXX-XXXX",
+        "contactType": "customer service",
+        "availableLanguage": ["English"]
       }
     }
     </script>
@@ -70,7 +135,18 @@
 
     <!-- Icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/aorahq-logo.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Preload Critical Assets -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.woff2" />
+    <link rel="preload" as="image" href="/og-image.png" />
+
+    <!-- DNS Prefetch -->
+    <meta name="generator" content="Vite" />
+    <meta name="application-name" content="AoraHQ" />
   </head>
   <body>
     <div id="root"></div>

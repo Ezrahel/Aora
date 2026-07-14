@@ -35,6 +35,8 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 
 import { DashboardThemeProvider } from "./DashboardTheme";
+import { getDocSEO } from "../lib/doc-seo";
+import { updateMetaTags } from "../lib/seo";
 
 interface DocumentationViewProps {
   onBackToDashboard: () => void;
@@ -47,6 +49,16 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
 
   // Active page controller
   const [activePage, setActivePage] = useState<string>("intro");
+
+  // Update SEO when active page changes
+  useEffect(() => {
+    import("../lib/doc-seo").then(({ getDocSEO }) => {
+      const seo = getDocSEO(activePage as any);
+      if (seo) {
+        import("../lib/seo").then(({ updateMetaTags }) => updateMetaTags(seo));
+      }
+    });
+  }, [activePage]);
 
   // Expanded sidebar sections
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({

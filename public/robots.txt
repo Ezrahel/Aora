@@ -1,3 +1,111 @@
+# AoraHQ robots.txt
+# Last updated: 2025-01-15
+# https://www.robotstxt.org/robotstxt.html
+
+# All crawlers
 User-agent: *
 Allow: /
+
+# Disallow private/admin routes
+Disallow: /api/
+Disallow: /_/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /portal/
+
+# Allow public documentation and landing pages
+Allow: /docs/
+Allow: /docs/*
+Allow: /waitlist
+Allow: /pricing
+
+# Sitemaps
+Sitemap: https://aorahq.com/sitemap-index.xml
 Sitemap: https://aorahq.com/sitemap.xml
+Sitemap: https://aorahq.com/sitemap-docs.xml
+Sitemap: https://aorahq.com/sitemap-blog.xml
+
+# Host preference
+Host: https://aorahq.com
+
+# Crawl delay for heavy crawlers
+Crawl-delay: 5
+
+# Specific bots
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /_/
+Disallow: /dashboard/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /_/
+Disallow: /dashboard/
+
+User-agent: GPTBot
+Allow: /
+Disallow: /api/
+Disallow: /_/
+Disallow: /dashboard/
+
+User-agent: CCBot
+Allow: /
+Disallow: /api/
+Disallow: /_/
+Disallow: /dashboard/
+
+User-agent: anthropic-ai
+Allow: /
+Disallow: /api/
+Disallow: /_/
+Disallow: /dashboard/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /api/
+Disallow: /_/
+Disallow: /dashboard/
+
+User-agent: Applebot
+Allow: /
+Disallow: /api/
+Disallow: /_/
+Disallow: /dashboard/
+
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /api/
+Disallow: /_/
+Disallow: /dashboard/
+
+User-agent: Slackbot
+Allow: /
+Disallow: /api/
+Disallow: /_/
+Disallow: /dashboard/
+
+User-agent: LinkedInBot
+Allow: /
+Disallow: /api/
+Disallow: /_/
+Disallow: /dashboard/
+
+User-agent: Twitterbot
+Allow: /
+Disallow: /api/
+Disallow: /_/
+Disallow: /dashboard/
+
+User-agent: FacebookBot
+Allow: /
+Disallow: /api/
+Disallow: /_/
+Disallow: /dashboard/
+
+User-agent: SkypeUriPreview
+Allow: /
+Disallow: /api/
+Disallow: /_/
+Disallow: /dashboard/

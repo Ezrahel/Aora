@@ -23,7 +23,6 @@ import SecurityAccessView from "./components/SecurityAccessView";
 import DocumentationView from "./components/DocumentationView";
 import WaitlistView from "./components/WaitlistView";
 import AIAssistantWidget from "./components/AIAssistantWidget";
-import { DashboardThemeProvider } from "./components/DashboardTheme";
 import {
   Plan,
   Customer,
@@ -33,7 +32,8 @@ import {
   DashboardStats,
   Invoice,
 } from "./types";
-import { routeToTab, syncUrl } from "./routes";
+import { routeToTab, syncUrl, tabToPath } from "./routes";
+import { pageSEO, updateMetaTags } from "./lib/seo";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<SidebarTab>(() =>
@@ -44,6 +44,7 @@ export default function App() {
   useEffect(() => {
     syncUrl(activeTab);
     window.scrollTo(0, 0);
+    updateMetaTags(pageSEO[activeTab]);
   }, [activeTab]);
 
   // Handle browser back / forward
