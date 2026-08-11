@@ -8,7 +8,7 @@ A developer-first, cloud-based billing orchestration and usage-based metering en
 
 - **Full billing dashboard** — 21 React components covering plans, pricing, entitlements, usage metering, customer portal, invoices, revenue ops, analytics, webhooks, settings
 - **Express REST API** — 14 route modules with full CRUD for all billing entities
-- **CockroachDB persistence** — 22 repository modules, serializable transactions, migration system, connection pooling with retry logic
+- **CockroachDB persistence** — 22 repository modules, serializable transactions, migration system (v1–12), connection pooling with retry logic
 - **Pricing engine** — flat, per-seat, usage, hybrid, tiered, volume, and package pricing with overage calculation
 - **Usage metering** — event ingestion, bulk import, aggregates, quotas, credit ledger with grant/deduct
 - **Entitlement engine** — plan-to-feature mapping with real-time access checks
@@ -19,6 +19,14 @@ A developer-first, cloud-based billing orchestration and usage-based metering en
 - **AI billing assistant** — Gemini-powered chat that can create plans, add notes, answer revenue questions
 - **Audit logging** — append-only ledger for all entity mutations
 - **Revenue analytics** — MRR, ARR, churn, trial conversion, plan performance
+- **Proration service** — bigint ceiling-division seat adjustments with mid-cycle charge/credit
+- **Ingress metering** — byte-size billing with Redis counter buffering and PostgreSQL flush
+- **Deduplication engine** — two-layer Redis/Postgres dedup with 24-hour sliding window
+- **Batch ingestion** — 1000-event bulk pipeline with dedup and tiered discounting
+- **Sandbox playground** — `sk_test_`/`sk_live_` isolation, simulated payments, time-travel headers
+- **Zero-trust encryption** — AES-256-GCM encrypt/decrypt for gateway secrets at rest
+- **Transactional outbox webhook dispatcher** — BullMQ-backed delivery with HMAC-SHA256 signing, 48-retry exponential backoff, and delivery audit logs
+- **Dunning state machine** — 3-step automated retry lifecycle (Day 0→3→7) with `FOR UPDATE SKIP LOCKED` concurrency safety
 
 ---
 

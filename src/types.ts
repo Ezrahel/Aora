@@ -10,6 +10,7 @@ export interface Plan {
   overageUnitPrice: number;
   description: string;
   code?: string;
+  status?: "active" | "draft" | "archived";
   pricingType?: "flat" | "per_seat" | "usage" | "hybrid";
 }
 

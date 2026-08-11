@@ -34,7 +34,7 @@ export default function Navbar({ onNavigateTab, scrollToId }: NavbarProps) {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <button onClick={() => scrollToId("hero")} className="flex items-center cursor-pointer">
+        <button onClick={() => onNavigateTab("dashboard")} className="flex items-center cursor-pointer">
           <div className="rounded-lg p-1.5" style={{ backgroundColor: "#F5F5F7" }}>
             <img src="/aorahq-logo.png" alt="AoraHQ" className="h-8 w-auto" />
           </div>
@@ -51,7 +51,7 @@ export default function Navbar({ onNavigateTab, scrollToId }: NavbarProps) {
             </button>
           ))}
           <button
-            onClick={() => scrollToId("docs")}
+            onClick={() => onNavigateTab("docs")}
             className="text-xs font-medium text-[var(--lp-muted)] hover:text-[var(--lp-text)] transition-colors cursor-pointer"
           >
             Docs
@@ -66,18 +66,12 @@ export default function Navbar({ onNavigateTab, scrollToId }: NavbarProps) {
           >
             {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
           </button>
-          {/* <button
-            onClick={() => onNavigateTab("dashboard")}
-            className="px-4 py-2 text-xs font-semibold text-[var(--lp-muted)] hover:text-[var(--lp-text)] transition-colors cursor-pointer"
+          <a
+            href="/sign-in"
+            className="px-5 py-2.5 bg-[var(--lp-btn-bg)] hover:opacity-90 text-[var(--lp-btn-text)] font-bold text-xs rounded-xl transition-all cursor-pointer inline-block"
           >
-            Sign In
-          </button> */}
-          <button
-            onClick={() => onNavigateTab("waitlist")}
-            className="px-5 py-2.5 bg-[var(--lp-btn-bg)] hover:opacity-90 text-[var(--lp-btn-text)] font-bold text-xs rounded-xl transition-all cursor-pointer"
-          >
-            Join the Waitlist
-          </button>
+            Get Started
+          </a>
         </div>
 
         <div className="md:hidden flex items-center gap-2">
@@ -108,11 +102,18 @@ export default function Navbar({ onNavigateTab, scrollToId }: NavbarProps) {
             </button>
           ))}
           <button
-            onClick={() => { onNavigateTab("waitlist"); setMobileOpen(false); }}
+            onClick={() => { onNavigateTab("docs"); setMobileOpen(false); }}
+            className="block text-sm font-medium text-[var(--lp-muted)] hover:text-[var(--lp-text)] w-full text-left py-2 cursor-pointer"
+          >
+            Docs
+          </button>
+          <a
+            href="/sign-in"
+            onClick={() => setMobileOpen(false)}
             className="block w-full text-center px-5 py-2.5 bg-[var(--lp-btn-bg)] text-[var(--lp-btn-text)] font-bold text-xs rounded-xl cursor-pointer"
           >
-            Join the Waitlist
-          </button>
+            Get Started
+          </a>
         </div>
       )}
     </header>

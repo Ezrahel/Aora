@@ -75,7 +75,7 @@ export async function findById(
   const { rows } = await (client ?? pool).query<CustomerRow>(
     `SELECT id, workspace_id, name, domain, email, logo_color, created_date, plan_id, status,
        payment_method, seats_used, usage_units, notes, contracts, is_deleted, deleted_at
-     FROM customers WHERE id = $1 AND NOT is_deleted`,
+     FROM customers WHERE id::text = $1 AND NOT is_deleted`,
     [id],
   );
   return rows[0] ?? null;

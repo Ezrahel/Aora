@@ -66,6 +66,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
     concepts: true,
     devTools: true,
     guides: true,
+    backend: true,
     reference: true
   });
 
@@ -114,6 +115,14 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
     { id: "errors", title: "Searchable Error Directory", cat: "Developer Sandbox", desc: "Lookup unauthorized, limit exceeded, and billing retry fault scenarios." },
     { id: "guide-seats", title: "SaaS Seat Pricing Guide", cat: "Step-by-Step Guides", desc: "Configure hybrid seat pricing with overage usage multipliers." },
     { id: "guide-usage", title: "Usage-Based Token Guide", cat: "Step-by-Step Guides", desc: "Track AI LLM completions, run-time executions, and API operations." },
+    { id: "backend-proration", title: "Proration Service", cat: "Backend Features", desc: "Seat-based mid-cycle adjustments with high-precision financial math." },
+    { id: "backend-ingress", title: "Fair Ingress Metering", cat: "Backend Features", desc: "Byte-size billing with Redis counter buffering and PostgreSQL flush." },
+    { id: "backend-dedup", title: "24-Hour Deduplication", cat: "Backend Features", desc: "Two-layer Redis/Postgres dedup preventing duplicate billing." },
+    { id: "backend-batch", title: "Batch Ingestion", cat: "Backend Features", desc: "Bulk event ingestion with pipelined dedup and batch discounts." },
+    { id: "backend-sandbox", title: "Sandbox Playground", cat: "Backend Features", desc: "Test billing flows with sk_test_ keys, simulated payments, and time-travel." },
+    { id: "backend-encryption", title: "Zero-Trust Credential Encryption", cat: "Backend Features", desc: "AES-256-GCM encryption for merchant secrets at rest." },
+    { id: "backend-webhooks", title: "Secure Webhook Dispatcher", cat: "Backend Features", desc: "Transactional outbox, HMAC-SHA256 signing, exponential backoff retries." },
+    { id: "backend-dunning", title: "Dunning & Retry State Machine", cat: "Backend Features", desc: "3-step automated dunning with SERIALIZABLE transactions and outbox integration." },
     { id: "sdks", title: "Official Runtimes SDKs", cat: "Reference", desc: "Installation steps for Node.js, Python, Go Lang, and PHP modules." },
     { id: "dashboard-integration", title: "Workspace Integration", cat: "Reference", desc: "Sync workspace accounts, track subscription ARR, and export ledgers." },
     { id: "status", title: "System Health Status", cat: "Reference", desc: "Real-time service status logs for five master ingestion nodes." },
@@ -439,7 +448,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
 
   return (
     <DashboardThemeProvider>
-    <div className="min-h-screen dp-bg dp-text font-sans antialiased text-left shadow-lg overflow-x-hidden">
+    <div className="docs-page h-screen dp-bg dp-text font-sans antialiased text-left shadow-lg overflow-hidden flex flex-col" data-theme="dark">
 
       {/* ----------------- WORLD-CLASS DOCS HEADER ----------------- */}
       <header className="sticky top-0 dp-card border-b dp-border py-3.5 px-6 z-40 flex items-center justify-between">
@@ -469,7 +478,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
           {/* Cmd + K search button triggers modal */}
           <button
             onClick={() => setSearchOpen(true)}
-            className="flex items-center gap-2.5 bg-[#FAFAFA] border border-[#E5E5E7] rounded-lg px-3 py-1.5 transition-all text-[#6E6E73] hover:border-black/35 hover:bg-neutral-50 text-xs font-medium cursor-pointer"
+            className="flex items-center gap-2.5 bg-[#FAFAFA] border border-[#E5E5E7] rounded-lg px-3 py-1.5 transition-all text-[#6E6E73] hover:border-white/40 hover:bg-neutral-50 text-xs font-medium cursor-pointer"
             id="docs-search-btn"
           >
             <Search className="h-3.5 w-3.5" />
@@ -498,10 +507,10 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
       </header>
 
       {/* ----------------- LAYOUT CONTENT ----------------- */}
-      <div className="max-w-8xl mx-auto flex">
+      <div className="max-w-8xl mx-auto flex flex-1 w-full overflow-hidden">
 
         {/* ----------------- FIXED SIDEBAR FOR DESKTOP / FLAGGED SHELF FOR MOBILE ----------------- */}
-        <aside className={`w-64 border-r border-[#E5E5E7] bg-[#FAFAFA] shrink-0 h-[calc(100vh-53px)] overflow-y-auto sticky top-[53px] z-30 transition-all duration-300 lg:block ${mobileSidebarOpen ? "fixed left-0 top-[53px] bg-white w-72 h-[calc(100vh-53px)] border-r shadow-xl z-50 block" : "hidden lg:block animate-in"}`}>
+        <aside className={`w-64 border-r border-[#E5E5E7] bg-[#FAFAFA] shrink-0 h-full overflow-y-auto z-30 transition-all duration-300 lg:block ${mobileSidebarOpen ? "fixed left-0 top-[53px] bg-white w-72 h-[calc(100vh-53px)] border-r shadow-xl z-50 block" : "hidden lg:block animate-in"}`}>
           <div className="py-6 px-4 space-y-6">
 
             {/* Section: Getting Started */}
@@ -598,6 +607,42 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
               )}
             </div>
 
+            {/* Section: Backend Features */}
+            <div>
+              <button onClick={() => toggleSection("backend")} className="w-full flex items-center justify-between text-[#86868B] text-[10px] uppercase font-bold tracking-wider mb-2 hover:text-[#111111] transition-colors cursor-pointer">
+                <span>Backend Features</span>
+                {expandedSections.backend ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+              </button>
+              {expandedSections.backend && (
+                <div className="space-y-1 pl-1">
+                  <button onClick={() => { setActivePage("backend-proration"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-proration" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    Proration Service
+                  </button>
+                  <button onClick={() => { setActivePage("backend-ingress"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-ingress" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    Fair Ingress Metering
+                  </button>
+                  <button onClick={() => { setActivePage("backend-dedup"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-dedup" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    Deduplication Engine
+                  </button>
+                  <button onClick={() => { setActivePage("backend-batch"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-batch" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    Batch Ingestion
+                  </button>
+                  <button onClick={() => { setActivePage("backend-sandbox"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-sandbox" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    Sandbox Playground
+                  </button>
+                  <button onClick={() => { setActivePage("backend-encryption"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-encryption" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    Zero-Trust Encryption
+                  </button>
+                  <button onClick={() => { setActivePage("backend-webhooks"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-webhooks" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    Webhook Outbox
+                  </button>
+                  <button onClick={() => { setActivePage("backend-dunning"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-dunning" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                    Dunning & Retry
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Section: References & Logs */}
             <div>
               <button onClick={() => toggleSection("reference")} className="w-full flex items-center justify-between text-[#86868B] text-[10px] uppercase font-bold tracking-wider mb-2 hover:text-[#111111] transition-colors cursor-pointer">
@@ -630,7 +675,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
         </aside>
 
         {/* ----------------- CORE VIEWS MAIN OUTLET STAGE ----------------- */}
-        <main className="flex-1 min-h-[calc(100vh-53px)] px-6 sm:px-12 py-10 max-w-4xl mx-auto space-y-12 bg-white pb-32">
+        <main className="flex-1 h-full overflow-y-auto px-6 sm:px-12 py-10 max-w-4xl mx-auto space-y-12 bg-white pb-32">
 
           {/* ----------------- INTRO VIEW ----------------- */}
           {activePage === "intro" && (
@@ -1032,13 +1077,13 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
               <div className="flex gap-2.5 border-b border-[#E5E5E7] pb-3 text-xs font-semibold text-[#6E6E73]">
                 <button
                   onClick={() => handlePlaygroundPreset("/api/usage-events")}
-                  className={`pb-1.5 focus:outline-none transition-all cursor-pointer ${playgroundPath === "/api/usage-events" ? "text-[#111111] border-b-2 border-black" : "hover:text-[#111111]"}`}
+                  className={`pb-1.5 focus:outline-none transition-all cursor-pointer ${playgroundPath === "/api/usage-events" ? "text-[#111111] border-b-2 border-[#0071E3]" : "hover:text-[#111111]"}`}
                 >
                   POST /api/usage-events
                 </button>
                 <button
                   onClick={() => handlePlaygroundPreset("/api/can-access")}
-                  className={`pb-1.5 focus:outline-none transition-all cursor-pointer ${playgroundPath === "/api/can-access" ? "text-[#111111] border-b-2 border-black" : "hover:text-[#111111]"}`}
+                  className={`pb-1.5 focus:outline-none transition-all cursor-pointer ${playgroundPath === "/api/can-access" ? "text-[#111111] border-b-2 border-[#0071E3]" : "hover:text-[#111111]"}`}
                 >
                   GET /api/can-access
                 </button>
@@ -1205,7 +1250,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
                   placeholder="Filter errors (e.g. 401, METER, ENTITLEMENT)..."
                   value={errorSearchQuery}
                   onChange={(e) => setErrorSearchQuery(e.target.value)}
-                  className="w-full bg-neutral-50 px-3 py-2 pl-9 rounded-xl border border-[#E5E5E7] text-xs font-medium focus:outline-none focus:border-black transition-all"
+                  className="w-full bg-neutral-50 px-3 py-2 pl-9 rounded-xl border border-[#E5E5E7] text-xs font-medium focus:outline-none focus:border-white/60 transition-all"
                   id="error-catalog-search-input"
                 />
               </div>
@@ -1267,8 +1312,78 @@ Content-Type: application/json
 
                 <h3 className="text-sm font-bold text-[#111111] pt-2">Step 2: Pro-rata Calculations and Invoicing</h3>
                 <p>
-                  Aora automatic schedulers evaluate exact timestamp offsets, prorating seat charges from the active hour membership changed rather than charging fully for the calendar cycle.
+                  Aora automatic schedulers evaluate exact timestamp offsets, prorating seat charges from the active hour membership changed rather than charging fully for the calendar cycle. When seats increase, the system charges only the remaining days in the period.
                 </p>
+
+                <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
+                  <pre className="text-[10px] font-mono text-slate-800 leading-normal select-all overflow-auto">
+{`PATCH https://api.aorahq.com/api/subscriptions/sub_linear_102
+Content-Type: application/json
+Authorization: Bearer sk_live_...
+
+{
+  "seatsCount": 14,
+  "action": "prorate"
+}
+
+// Response (200 OK):
+{
+  "proratedCharge": 42150,
+  "currency": "NGN",
+  "periodEnd": "2026-08-15T00:00:00Z",
+  "adjustmentType": "charge",
+  "transactionRef": "tx_seat_prorate_abc123"
+}`}
+                  </pre>
+                </div>
+
+                <h3 className="text-sm font-bold text-[#111111] pt-2">Step 3: Review the invoice</h3>
+                <p>
+                  Each prorated seat change generates a line item on the next invoice. View pending invoices to confirm proration was applied correctly:
+                </p>
+
+                <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
+                  <pre className="text-[10px] font-mono text-emerald-800 leading-normal select-all overflow-auto">
+{`GET https://api.aorahq.com/api/invoices?customerId=cust_linear_102&status=open
+Authorization: Bearer sk_live_...
+
+// Response (200 OK):
+{
+  "invoices": [{
+    "id": "INV-2026-0715",
+    "lineItems": [
+      { "description": "Base Plan (Growth)", "amount": 150000 },
+      { "description": "Seat Adjustment (+2 seats, prorated 15 days)", "amount": 42150 },
+      { "description": "Overage (API operations: 12,000 extra)", "amount": 24000 }
+    ],
+    "total": 216150,
+    "currency": "NGN",
+    "dueDate": "2026-08-01T00:00:00Z"
+  }]
+}`}
+                  </pre>
+                </div>
+
+                <h3 className="text-sm font-bold text-[#111111] pt-2">Step 4: Verify the credit ledger</h3>
+                <p>
+                  When seats are reduced mid-cycle, the prorated credit is deposited into the customer&apos;s credit ledger and automatically applied to future invoices:
+                </p>
+
+                <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
+                  <pre className="text-[10px] font-mono text-indigo-800 leading-normal select-all overflow-auto">
+{`GET https://api.aorahq.com/api/customers/cust_linear_102/credits
+Authorization: Bearer sk_live_...
+
+// Response (200 OK):
+{
+  "credits": [
+    { "type": "proration_credit", "amount": 28100, "remaining": 28100,
+      "description": "Seat reduction (-1 seat, prorated 20 days)", "createdAt": "..." }
+  ],
+  "totalAvailable": 28100
+}`}
+                  </pre>
+                </div>
               </div>
             </div>
           )}
@@ -1278,27 +1393,158 @@ Content-Type: application/json
             <div className="space-y-6">
               <div className="space-y-2">
                 <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Guide</span>
-                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Usage-Based Token billing</h1>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Usage-Based Token Billing</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Track volumetric variables like API requests processed, streaming minutes rendered, or LLM tokens generated accurately.
                 </p>
               </div>
 
-              <div className="prose prose-stone max-w-none text-xs text-[#6E6E73] leading-relaxed space-y-3 font-medium">
+              <div className="prose prose-stone max-w-none text-xs text-[#6E6E73] leading-relaxed space-y-4 font-medium">
                 <p>
-                  Volumetric pipelines forward individual metrics. For example, capturing AI tokens completions:
+                  Usage-based pricing lets you charge customers based on their consumption &mdash; API calls, storage GB, AI tokens, or streaming minutes. Aora handles deduplication, aggregation, and overage calculation automatically.
+                </p>
+
+                <h3 className="text-sm font-bold text-[#111111] pt-2">Step 1: Define a meter</h3>
+                <p>
+                  First, create a meter that defines what you&apos;re tracking and how it aggregates. Meters support <strong>sum</strong>, <strong>count</strong>, <strong>max</strong>, and <strong>unique</strong> aggregation modes.
                 </p>
 
                 <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
-                  <pre className="text-[10px] font-mono text-slate-800 select-all overflow-auto">
-{`POST https://api.aorahq.com/api/usage-events
+                  <pre className="text-[10px] font-mono text-slate-800 leading-normal select-all overflow-auto">
+{`POST https://api.aorahq.com/api/meters
 Content-Type: application/json
+Authorization: Bearer sk_live_...
+
+{
+  "slug": "llm_tokens",
+  "name": "LLM Token Output",
+  "aggregation": "sum",
+  "unit": "token",
+  "unitPriceCents": 2,
+  "tiers": [
+    { "upTo": 1000000, "unitPriceCents": 2 },
+    { "upTo": null, "unitPriceCents": 1.5 }
+  ]
+}
+
+// Response (201 Created):
+{
+  "id": "meter_llm_001",
+  "slug": "llm_tokens",
+  "aggregation": "sum",
+  "unit": "token"
+}`}
+                  </pre>
+                </div>
+
+                <h3 className="text-sm font-bold text-[#111111] pt-2">Step 2: Ingest usage events</h3>
+                <p>
+                  Forward usage events in real-time as customers use your product. Each event is deduplicated within a 24-hour sliding window using the <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">eventId</code> field:
+                </p>
+
+                <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
+                  <pre className="text-[10px] font-mono text-slate-800 leading-normal select-all overflow-auto">
+{`POST https://api.aorahq.com/api/ingress
+Content-Type: application/json
+Authorization: Bearer sk_live_...
 
 {
   "customerId": "v_acme_corps",
-  "meterId": "api_operations",
+  "meterId": "llm_tokens",
   "value": 15000,
-  "metadata": { "model": "gemini-3.5-flash", "direction": "output" }
+  "eventId": "evt_unique_abc123",
+  "metadata": {
+    "model": "gemini-3.5-flash",
+    "direction": "output",
+    "latency_ms": 342
+  }
+}
+
+// Response (200 OK):
+{
+  "accepted": true,
+  "deduplicated": false,
+  "currentPeriodTotal": 275000
+}`}
+                  </pre>
+                </div>
+
+                <h3 className="text-sm font-bold text-[#111111] pt-2">Step 3: Batch ingest for high volume</h3>
+                <p>
+                  When processing large volumes of events, use the batch endpoint (up to 1,000 events per request) with pipelined deduplication and tiered discounting:
+                </p>
+
+                <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
+                  <pre className="text-[10px] font-mono text-emerald-800 leading-normal select-all overflow-auto">
+{`POST https://api.aorahq.com/api/ingress/batch
+Content-Type: application/json
+Authorization: Bearer sk_live_...
+
+{
+  "events": [
+    { "customerId": "v_acme_corps", "meterId": "llm_tokens",
+      "value": 5000, "eventId": "evt_001", "timestamp": "2026-07-15T10:00:00Z" },
+    { "customerId": "v_acme_corps", "meterId": "llm_tokens",
+      "value": 3000, "eventId": "evt_002", "timestamp": "2026-07-15T10:00:01Z" }
+  ]
+}
+
+// Response (200 OK):
+{
+  "accepted": 2,
+  "deduplicated": 0,
+  "batchDiscount": 0.8,
+  "aggregatedTotal": 8000
+}`}
+                  </pre>
+                </div>
+
+                <h3 className="text-sm font-bold text-[#111111] pt-2">Step 4: Check usage &amp; limits</h3>
+                <p>
+                  Query a customer&apos;s current usage against their plan allowances at any time. The response includes whether they&apos;ve exceeded included quota:
+                </p>
+
+                <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
+                  <pre className="text-[10px] font-mono text-indigo-800 leading-normal select-all overflow-auto">
+{`GET https://api.aorahq.com/api/customers/v_acme_corps/usage?meterId=llm_tokens
+Authorization: Bearer sk_live_...
+
+// Response (200 OK):
+{
+  "meterId": "llm_tokens",
+  "periodStart": "2026-07-01T00:00:00Z",
+  "periodEnd": "2026-07-31T23:59:59Z",
+  "currentTotal": 275000,
+  "includedQuota": 100000,
+  "overageUnits": 175000,
+  "overageCharges": 262500,
+  "currency": "NGN"
+}`}
+                  </pre>
+                </div>
+
+                <h3 className="text-sm font-bold text-[#111111] pt-2">Step 5: View the invoice</h3>
+                <p>
+                  At the end of each billing period, Aora generates an invoice that includes the base plan charge plus all usage overages computed from your aggregated meters:
+                </p>
+
+                <div className="bg-[#F8F8F8] border border-[#E5E5E7] p-4 rounded-xl relative">
+                  <pre className="text-[10px] font-mono text-stone-800 leading-normal select-all overflow-auto">
+{`GET https://api.aorahq.com/api/invoices?customerId=v_acme_corps&status=open
+Authorization: Bearer sk_live_...
+
+// Response (200 OK):
+{
+  "invoices": [{
+    "id": "INV-2026-0715",
+    "lineItems": [
+      { "description": "Base Plan (Scale Monthly)", "amount": 240000 },
+      { "description": "LLM Tokens Overage (175,000 tokens @ 1.5/ token)", "amount": 262500 }
+    ],
+    "total": 502500,
+    "currency": "NGN",
+    "dueDate": "2026-08-15T00:00:00Z"
+  }]
 }`}
                   </pre>
                 </div>
@@ -1488,6 +1734,562 @@ Content-Type: application/json
             </div>
           )}
 
+          {/* ----------------- BACKEND: PRORATION SERVICE ----------------- */}
+          {activePage === "backend-proration" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Seat Adjustments</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Proration Service</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  When customers add or remove seats mid-cycle, charge or credit the exact prorated amount for remaining time. No rounding losses. No arbitrary flat fees.
+                </p>
+              </div>
+
+              <div className="bg-[#F5F5F7] border border-[#E5E5E7] rounded-2xl p-5 space-y-4">
+                <h3 className="text-xs font-bold text-[#111111]">Proration Math</h3>
+                <div className="bg-neutral-950 p-4 rounded-xl text-xs font-mono text-neutral-300">
+                  <div>millisecondsRemaining = periodEnd - adjustmentAt</div>
+                  <div>proratedAmount = floor(fullAmount &times; millisecondsRemaining / millisecondsInPeriod)</div>
+                </div>
+                <p className="text-xs text-[#6E6E73] leading-relaxed font-medium">
+                  All amounts are <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">bigint</code> in lowest denomination. Division uses ceiling so the merchant never loses a fractional cent.
+                </p>
+              </div>
+
+              <div className="bg-white border border-[#E5E5E7] rounded-2xl overflow-hidden">
+                <div className="p-5 space-y-3">
+                  <h3 className="text-xs font-bold text-[#111111]">Database Schema</h3>
+                  <pre className="text-[10.5px] font-mono text-emerald-800 leading-relaxed bg-[#F8F8F8] p-4 rounded-xl select-all overflow-x-auto">
+{`seat_adjustments
+  id, subscription_id, previous_seat_count,
+  new_seat_count, adjustment_cents, is_charge,
+  transaction_ref, created_at
+
+credit_ledger type constraint extended:
+  'proration_credit', 'proration_charge'`}
+                  </pre>
+                </div>
+              </div>
+
+              <div className="bg-white border border-[#E5E5E7] rounded-2xl p-5 space-y-2">
+                <h3 className="text-xs font-bold text-[#111111]">Integration</h3>
+                <p className="text-xs text-[#6E6E73] leading-relaxed font-medium">
+                  Seat additions charge via the non-custodial gateway adapter and create an invoice. Seat removals issue a proration credit to the <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">credit_ledger</code>. An audit trail is written to <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">seat_adjustments</code> in both cases.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- BACKEND: INGRESS METERING ----------------- */}
+          {activePage === "backend-ingress" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Byte-Size Billing</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Fair Ingress Metering</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Measure every byte passing through the ingestion API and bill in 64 KB units. Redis-backed counter buffer flushes to PostgreSQL every 60 seconds.
+                </p>
+              </div>
+
+              <div className="bg-[#F5F5F7] border border-[#E5E5E7] rounded-2xl p-5 space-y-3">
+                <h3 className="text-xs font-bold text-[#111111]">Data Flow</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-2 text-[10px] font-medium text-[#6E6E73]">
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl text-left">
+                    <span className="font-bold text-[#111111] block">1. Ingest</span>
+                    <span>POST /ingress receives raw JSON</span>
+                  </div>
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl text-left">
+                    <span className="font-bold text-[#111111] block">2. Measure</span>
+                    <span>Buffer.byteLength, ceil(bytes / 65536)</span>
+                  </div>
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl text-left">
+                    <span className="font-bold text-[#111111] block">3. Dedup</span>
+                    <span>Redis SETNX 24h, pipelined for batch</span>
+                  </div>
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl text-left">
+                    <span className="font-bold text-[#111111] block">4. Flush</span>
+                    <span>Every 60s: UPSERT to ingress_ledger</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white border border-[#E5E5E7] rounded-2xl p-5 space-y-2">
+                <h3 className="text-xs font-bold text-[#111111]">Redis Key Patterns</h3>
+                <pre className="text-[10.5px] font-mono text-slate-800 leading-relaxed bg-[#F8F8F8] p-4 rounded-xl select-all overflow-x-auto">
+{`Dedup:   dedup:{env}:{tenantId}:{eventId}
+Counter: ingress:{tenantId}:{hourBucketISO}
+  Fields: event_count, billable_units, batch_count`}
+                </pre>
+              </div>
+
+              <div className="bg-[#FAF9F6] border border-[#FF9F0A]/20 p-4 rounded-xl flex gap-3 text-left">
+                <Info className="h-5 w-5 text-[#FF9F0A] shrink-0 mt-0.5" />
+                <div className="text-xs font-semibold text-stone-800 leading-normal space-y-1">
+                  <span>In-Memory Fallback</span>
+                  <p className="text-[#6E6E73] font-medium text-[11px]">
+                    When REDIS_URL is not set, CacheClient falls back to an in-memory Map with TTL sweep. All Redis operations are fire-and-forget safe; the background Postgres flush provides durability.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- BACKEND: DEDUPLICATION ENGINE ----------------- */}
+          {activePage === "backend-dedup" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Duplicate Prevention</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">24-Hour Deduplication Engine</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Prevent duplicate billing when a customer retries the same usage event. Primary layer is Redis SETNX with 24h TTL; Postgres is the durable fallback.
+                </p>
+              </div>
+
+              <div className="bg-[#F5F5F7] border border-[#E5E5E7] rounded-2xl p-5 space-y-4">
+                <h3 className="text-xs font-bold text-[#111111]">Two-Layer Strategy</h3>
+                <div className="space-y-2 text-xs text-[#6E6E73] font-medium">
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl flex items-center gap-3">
+                    <span className="bg-blue-500 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">LAYER 1</span>
+                    <span>Redis SET NX EX 86400 &mdash; atomic read-and-write in one round-trip. 99.9% of dedup decisions happen here at sub-ms latency.</span>
+                  </div>
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl flex items-center gap-3">
+                    <span className="bg-amber-500 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">LAYER 2</span>
+                    <span>PostgreSQL INSERT &hellip; ON CONFLICT DO NOTHING &mdash; durable fallback for Redis cache-flush or outage scenarios.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#FAF9F6] border border-[#FF9F0A]/20 p-4 rounded-xl flex gap-3 text-left">
+                <Info className="h-5 w-5 text-[#FF9F0A] shrink-0 mt-0.5" />
+                <div className="text-xs font-semibold text-stone-800 leading-normal space-y-1">
+                  <span>Fail-Open Guarantee</span>
+                  <p className="text-[#6E6E73] font-medium text-[11px]">
+                    If both Redis and Postgres fail, the middleware sets <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">req.isDuplicate = false</code> and logs aggressively. Ingestion never crashes due to dedup failure.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white border border-[#E5E5E7] rounded-2xl overflow-hidden">
+                <div className="p-5 space-y-3">
+                  <h3 className="text-xs font-bold text-[#111111]">Database Schema</h3>
+                  <pre className="text-[10.5px] font-mono text-emerald-800 leading-relaxed bg-[#F8F8F8] p-4 rounded-xl select-all overflow-x-auto">
+{`processed_events
+  dedup_key  STRING(512) PRIMARY KEY
+  tenant_id  UUID NOT NULL
+  event_id   STRING(255) NOT NULL
+  is_test    BOOL NOT NULL DEFAULT false
+  expires_at TIMESTAMPTZ NOT NULL
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()`}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- BACKEND: BATCH INGESTION ----------------- */}
+          {activePage === "backend-batch" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Bulk Events</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Batch Ingestion</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Accept arrays of up to 1000 usage events in a single request. Each event is measured by JSON byte size, deduplicated via pipelined Redis, and aggregated with a batch discount multiplier.
+                </p>
+              </div>
+
+              <div className="bg-[#F5F5F7] border border-[#E5E5E7] rounded-2xl p-5 space-y-3">
+                <h3 className="text-xs font-bold text-[#111111]">Processing Pipeline</h3>
+                <div className="text-xs text-[#6E6E73] font-medium space-y-1.5">
+                  <div className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-[#111111] text-white text-[9px] font-bold flex items-center justify-center shrink-0">1</span><span>Validate: non-empty array, max 1000 events</span></div>
+                  <div className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-[#111111] text-white text-[9px] font-bold flex items-center justify-center shrink-0">2</span><span>Measure each event&apos;s JSON byte size via <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">Buffer.byteLength</code></span></div>
+                  <div className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-[#111111] text-white text-[9px] font-bold flex items-center justify-center shrink-0">3</span><span>Pipeline dedup: <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">batchCheckAndMark</code> for all event IDs in one round-trip</span></div>
+                  <div className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-[#111111] text-white text-[9px] font-bold flex items-center justify-center shrink-0">4</span><span>Compute base units = ceil(bytes / 65536)</span></div>
+                  <div className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-[#111111] text-white text-[9px] font-bold flex items-center justify-center shrink-0">5</span><span>Apply batch discount: <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">chargedUnits = round(baseUnits &times; 0.8)</code></span></div>
+                  <div className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-[#111111] text-white text-[9px] font-bold flex items-center justify-center shrink-0">6</span><span>UPSERT into ingress_ledger with <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">charged_units</code> and <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">is_test</code> flags</span></div>
+                </div>
+              </div>
+
+              <div className="bg-white border border-[#E5E5E7] rounded-2xl overflow-hidden">
+                <div className="p-5 space-y-2">
+                  <h3 className="text-xs font-bold text-[#111111]">Response Format</h3>
+                  <pre className="text-[10.5px] font-mono text-slate-800 leading-relaxed bg-[#F8F8F8] p-4 rounded-xl select-all overflow-x-auto">
+{`{
+  "status": "processed",
+  "total_received": 100,
+  "successfully_metered": 92,
+  "duplicates_ignored": 8,
+  "base_units": 92,
+  "charged_units": 73.6,
+  "batch_discount": 0.8,
+  "events": [
+    { "index": 0, "event_id": "evt_001",
+      "base_units": 1, "is_duplicate": false }
+  ]
+}`}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- BACKEND: ZERO-TRUST ENCRYPTION ----------------- */}
+          {activePage === "backend-encryption" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">AES-256-GCM</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Zero-Trust Credential Encryption</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Merchant gateway API keys are encrypted at rest with AES-256-GCM and only decrypted in-memory during billing operations. The decrypted buffer is wiped immediately after use.
+                </p>
+              </div>
+
+              <div className="bg-[#F5F5F7] border border-[#E5E5E7] rounded-2xl p-5 space-y-4">
+                <h3 className="text-xs font-bold text-[#111111]">Encryption Scheme</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-2 text-[10px] font-medium text-[#6E6E73]">
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl text-left">
+                    <span className="font-bold text-[#111111] block">Algorithm</span>
+                    <span className="font-mono text-[10px]">aes-256-gcm</span>
+                  </div>
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl text-left">
+                    <span className="font-bold text-[#111111] block">Key</span>
+                    <span>32 bytes from <code className="text-[10px] bg-neutral-100 px-1 rounded">AORAHQ_MASTER_ENCRYPTION_KEY</code></span>
+                  </div>
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl text-left">
+                    <span className="font-bold text-[#111111] block">IV</span>
+                    <span>12 bytes <code className="text-[10px] bg-neutral-100 px-1 rounded">crypto.randomBytes()</code> per encryption</span>
+                  </div>
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl text-left">
+                    <span className="font-bold text-[#111111] block">Auth Tag</span>
+                    <span>16 bytes, tamper detection on decrypt</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#FAF9F6] border border-[#FF9F0A]/20 p-4 rounded-xl flex gap-3 text-left">
+                <ShieldAlert className="h-5 w-5 text-[#FF9F0A] shrink-0 mt-0.5" />
+                <div className="text-xs font-semibold text-stone-800 leading-normal space-y-1">
+                  <span>Startup Validation</span>
+                  <p className="text-[#6E6E73] font-medium text-[11px]">
+                    If <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">AORAHQ_MASTER_ENCRYPTION_KEY</code> is missing or not exactly 32 bytes, the application crashes immediately with a clear error. No fallback. No silent degradation.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white border border-[#E5E5E7] rounded-2xl overflow-hidden">
+                <div className="p-5 space-y-3">
+                  <h3 className="text-xs font-bold text-[#111111]">Database Schema</h3>
+                  <pre className="text-[10.5px] font-mono text-emerald-800 leading-relaxed bg-[#F8F8F8] p-4 rounded-xl select-all overflow-x-auto">
+{`tenant_gateways
+  encrypted_secret_key   STRING(512) NOT NULL  -- ciphertext (base64)
+  encryption_iv          STRING(32)  NOT NULL  -- 12-byte IV (base64)
+  encryption_tag         STRING(32)  NOT NULL  -- 16-byte auth tag (base64)
+  key_preview            STRING(20)  NOT NULL  -- last 4 chars only`}
+                  </pre>
+                  <p className="text-xs text-[#6E6E73] leading-relaxed font-medium">
+                    Three separate columns instead of a single blob so each cryptographic primitive can be validated and audited independently.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white border border-[#E5E5E7] rounded-2xl p-5 space-y-3">
+                <h3 className="text-xs font-bold text-[#111111]">In-Memory Lifecycle</h3>
+                <div className="text-xs text-[#6E6E73] font-medium space-y-1.5">
+                  <div className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-[#111111] text-white text-[9px] font-bold flex items-center justify-center shrink-0">1</span><span>Load encrypted row from <code className="text-[10px] bg-neutral-100 px-1 rounded">tenant_gateways</code></span></div>
+                  <div className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-[#111111] text-white text-[9px] font-bold flex items-center justify-center shrink-0">2</span><span>Decrypt in memory: GCM auth tag verified, <code className="text-[10px] bg-neutral-100 px-1 rounded">SecurityError</code> on tamper</span></div>
+                  <div className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-[#111111] text-white text-[9px] font-bold flex items-center justify-center shrink-0">3</span><span>Use plaintext key for gateway API call</span></div>
+                  <div className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-[#111111] text-white text-[9px] font-bold flex items-center justify-center shrink-0">4</span><span><code className="text-[10px] bg-neutral-100 px-1 rounded">buffer.wipe()</code> in <code className="text-[10px] bg-neutral-100 px-1 rounded">finally</code> block zeros the memory</span></div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- BACKEND: SECURE WEBHOOK DISPATCHER ----------------- */}
+          {activePage === "backend-webhooks" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Outbox + HMAC + BullMQ</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Secure Webhook Dispatcher</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Three guarantees: events are never lost (transactional outbox), never spoofed (HMAC-SHA256 signing), and never permanently missed (exponential backoff retries over 24h).
+                </p>
+              </div>
+
+              <div className="bg-[#F5F5F7] border border-[#E5E5E7] rounded-2xl p-5 space-y-4">
+                <h3 className="text-xs font-bold text-[#111111]">Architecture</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[10px] font-medium text-[#6E6E73]">
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl text-left">
+                    <span className="font-bold text-[#111111] block">1. Outbox</span>
+                    <span>Event written to <code className="text-[10px] bg-neutral-100 px-1 rounded">webhook_outbox</code> inside the same DB transaction as the state change</span>
+                  </div>
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl text-left">
+                    <span className="font-bold text-[#111111] block">2. Sign</span>
+                    <span>Payload signed with HMAC-SHA256: <code className="text-[10px] bg-neutral-100 px-1 rounded">t=ts,v1=hash</code> header format</span>
+                  </div>
+                  <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl text-left">
+                    <span className="font-bold text-[#111111] block">3. Deliver</span>
+                    <span>BullMQ worker POSTs with 10s timeout. Retries with exponential backoff up to 24h.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white border border-[#E5E5E7] rounded-2xl p-5 space-y-2">
+                <h3 className="text-xs font-bold text-[#111111]">Signature Format</h3>
+                <pre className="text-[10.5px] font-mono text-slate-800 leading-relaxed bg-[#F8F8F8] p-4 rounded-xl select-all overflow-x-auto">
+{`X-AoraHQ-Signature: t=1719300000,v1=abc123def456...
+
+t  = Unix epoch seconds (replay protection)
+v1 = HMAC-SHA256(whsec_secret, timestamp + "." + payload)`}
+                </pre>
+              </div>
+
+              <div className="bg-white border border-[#E5E5E7] rounded-2xl overflow-hidden">
+                <div className="p-5 space-y-3">
+                  <h3 className="text-xs font-bold text-[#111111]">Exponential Backoff Schedule</h3>
+                  <div className="bg-[#F8F8F8] p-4 rounded-xl">
+                    <table className="w-full text-left text-[10px] text-[#6E6E73] font-medium">
+                      <thead>
+                        <tr className="border-b border-[#E5E5E7] text-[9px] uppercase font-bold text-[#86868B]">
+                          <th className="pb-2 pr-4">Attempt</th>
+                          <th className="pb-2 pr-4">Delay</th>
+                          <th className="pb-2">Cumulative</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr><td className="py-1 pr-4">1</td><td className="py-1 pr-4">1 min</td><td className="py-1">1 min</td></tr>
+                        <tr><td className="py-1 pr-4">2</td><td className="py-1 pr-4">2 min</td><td className="py-1">3 min</td></tr>
+                        <tr><td className="py-1 pr-4">3</td><td className="py-1 pr-4">4 min</td><td className="py-1">7 min</td></tr>
+                        <tr><td className="py-1 pr-4">4</td><td className="py-1 pr-4">8 min</td><td className="py-1">15 min</td></tr>
+                        <tr><td className="py-1 pr-4">5</td><td className="py-1 pr-4">16 min</td><td className="py-1">31 min</td></tr>
+                        <tr><td className="py-1 pr-4">6</td><td className="py-1 pr-4">32 min</td><td className="py-1">~1h</td></tr>
+                        <tr><td className="py-1 pr-4">7</td><td className="py-1 pr-4">64 min</td><td className="py-1">~2h</td></tr>
+                        <tr><td className="py-1 pr-4">8</td><td className="py-1 pr-4">128 min</td><td className="py-1">~4h</td></tr>
+                        <tr><td className="py-1 pr-4">9</td><td className="py-1 pr-4">256 min</td><td className="py-1">~8h</td></tr>
+                        <tr><td className="py-1 pr-4">10</td><td className="py-1 pr-4">512 min</td><td className="py-1">~17h</td></tr>
+                        <tr><td className="py-1 pr-4 text-[#111111] font-bold">11+</td><td className="py-1 pr-4" colSpan={2}>Capped at 24h total</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#FAF9F6] border border-[#FF9F0A]/20 p-4 rounded-xl flex gap-3 text-left">
+                <ShieldAlert className="h-5 w-5 text-[#FF9F0A] shrink-0 mt-0.5" />
+                <div className="text-xs font-semibold text-stone-800 leading-normal space-y-1">
+                  <span>Transactional Outbox Guarantee</span>
+                  <p className="text-[#6E6E73] font-medium text-[11px]">
+                    The outbox INSERT happens inside <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">withTransaction()</code> alongside the subscription/customer state change. If the DB update succeeds, the event is guaranteed to be persisted. If the transaction rolls back, the webhook event rolls back too.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- BACKEND: SANDBOX PLAYGROUND ----------------- */}
+          {activePage === "backend-sandbox" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Test Mode</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Sandbox Playground</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Test the entire billing flow &mdash; API calls, metering, charges, refunds, subscription renewals &mdash; without touching real payment gateways. The API key prefix (<code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">sk_test_</code> vs <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">sk_live_</code>) determines the mode. Zero configuration required.
+                </p>
+              </div>
+
+              <div className="bg-[#F5F5F7] border border-[#E5E5E7] rounded-2xl p-5 space-y-4">
+                <h3 className="text-xs font-bold text-[#111111]">API Key Routing</h3>
+                <div className="bg-white border border-[#E5E5E7] rounded-xl overflow-hidden">
+                  <table className="w-full text-left text-xs text-[#111111]">
+                    <thead>
+                      <tr className="bg-[#FAFAFA] border-b border-[#E5E5E7] uppercase font-bold text-[9px] tracking-widest text-[#6E6E73]">
+                        <th className="py-3 px-4">Key Prefix</th>
+                        <th className="py-3 px-4">Mode</th>
+                        <th className="py-3 px-4">Workspace Environment</th>
+                        <th className="py-3 px-4">Gateway Adapter</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#E5E5E7] text-[#6E6E73] font-medium">
+                      <tr>
+                        <td className="py-3 px-4 font-mono text-[10px] text-[#111111]">sk_live_xxx</td>
+                        <td className="py-3 px-4">Production</td>
+                        <td className="py-3 px-4 font-mono text-[10px]">production</td>
+                        <td className="py-3 px-4">Real gateway from <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">gateway_connections</code></td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-4 font-mono text-[10px] text-[#111111]">sk_test_xxx</td>
+                        <td className="py-3 px-4">Sandbox</td>
+                        <td className="py-3 px-4 font-mono text-[10px]">sandbox / development</td>
+                        <td className="py-3 px-4"><code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">SandboxPaymentAdapter</code></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white border border-[#E5E5E7] p-4 rounded-2xl space-y-2">
+                  <h3 className="text-xs font-bold text-[#111111]">SandboxPaymentAdapter</h3>
+                  <div className="text-[10px] text-[#6E6E73] font-medium space-y-1">
+                    <p><strong className="text-[#111111]">Normal charge:</strong> Returns <code className="text-[10px] bg-neutral-100 px-1 rounded">status: &quot;succeeded&quot;</code></p>
+                    <p><strong className="text-[#111111]">Simulated decline:</strong> Amount ending in <code className="text-[10px] bg-neutral-100 px-1 rounded">4002</code> throws <code className="text-[10px] bg-neutral-100 px-1 rounded">card_declined</code></p>
+                    <p><strong className="text-[#111111]">Refund:</strong> Always succeeds</p>
+                  </div>
+                </div>
+                <div className="bg-white border border-[#E5E5E7] p-4 rounded-2xl space-y-2">
+                  <h3 className="text-xs font-bold text-[#111111]">Time-Travel</h3>
+                  <p className="text-[10px] text-[#6E6E73] font-medium">
+                    Use the <code className="text-[10px] bg-neutral-100 px-1 rounded">X-AoraHQ-Simulate-Time</code> header to fast-forward subscription state:
+                  </p>
+                  <pre className="text-[10px] font-mono text-slate-800 bg-[#F8F8F8] p-3 rounded-xl select-all">
+{`X-AoraHQ-Simulate-Time: +7d
+X-AoraHQ-Simulate-Time: +30d
+X-AoraHQ-Simulate-Time: +2h`}
+                  </pre>
+                </div>
+              </div>
+
+              <div className="bg-[#FAF9F6] border border-[#FF9F0A]/20 p-4 rounded-xl flex gap-3 text-left">
+                <Info className="h-5 w-5 text-[#FF9F0A] shrink-0 mt-0.5" />
+                <div className="text-xs font-semibold text-stone-800 leading-normal space-y-1">
+                  <span>Cross-Contamination Prevention</span>
+                  <p className="text-[#6E6E73] font-medium text-[11px]">
+                    Every function has an <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">isTest: boolean = false</code> parameter. Sandbox dedup keys use a <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">test:</code> prefix, ingress billing is zeroed out, and all rows written to PostgreSQL include the <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">is_test</code> column with partial live-only indexes.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white border border-[#E5E5E7] rounded-2xl p-5 space-y-2">
+                <h3 className="text-xs font-bold text-[#111111]">Smoke Test</h3>
+                <pre className="text-[10.5px] font-mono text-emerald-800 leading-relaxed bg-[#F8F8F8] p-4 rounded-xl select-all overflow-x-auto">
+{`curl -X POST https://api.aorahq.com/ingress \\
+  -H "Authorization: Bearer sk_test_xxx" \\
+  -H "Content-Type: application/json" \\
+  -H "X-AoraHQ-Simulate-Time: +7d" \\
+  -d '{"customerId":"...","meterId":"...","value":42,"eventId":"evt_001"}'`}
+                </pre>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- BACKEND: DUNNING STATE MACHINE ----------------- */}
+          {activePage === "backend-dunning" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Retry Logic</span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Dunning &amp; Retry State Machine</h1>
+                <p className="text-sm text-[#6E6E73]">
+                  Automated payment failure recovery with a 3-step lifecycle. Subscriptions transition through active (grace) &rarr; past_due &rarr; canceled unless a retry succeeds.
+                </p>
+              </div>
+
+              <div className="bg-[#F5F5F7] border border-[#E5E5E7] rounded-2xl p-5 space-y-4">
+                <h3 className="text-xs font-bold text-[#111111]">Dunning Lifecycle</h3>
+                <div className="grid grid-cols-3 gap-3 text-xs">
+                  <div className="bg-white border border-[#E5E5E7] rounded-xl p-3 space-y-1">
+                    <span className="text-[9px] uppercase font-bold tracking-wider text-neutral-400 block">Step 1</span>
+                    <span className="font-bold text-emerald-700 text-sm">Day 0</span>
+                    <p className="text-[#6E6E73] font-medium">First failure. Subscription stays active. Next retry in 3 days.</p>
+                  </div>
+                  <div className="bg-white border border-[#E5E5E7] rounded-xl p-3 space-y-1">
+                    <span className="text-[9px] uppercase font-bold tracking-wider text-neutral-400 block">Step 2</span>
+                    <span className="font-bold text-amber-600 text-sm">Day 3</span>
+                    <p className="text-[#6E6E73] font-medium">Second failure. Status &rarr; past_due. Final retry in 4 days.</p>
+                  </div>
+                  <div className="bg-white border border-[#E5E5E7] rounded-xl p-3 space-y-1">
+                    <span className="text-[9px] uppercase font-bold tracking-wider text-neutral-400 block">Step 3</span>
+                    <span className="font-bold text-red-600 text-sm">Day 7</span>
+                    <p className="text-[#6E6E73] font-medium">Third failure. Subscription canceled. Webhook dispatched.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white border border-[#E5E5E7] rounded-2xl p-5 space-y-3">
+                <h3 className="text-xs font-bold text-[#111111]">State Machine Design</h3>
+                <ul className="text-xs text-[#6E6E73] space-y-2 font-medium">
+                  <li className="flex gap-2"><span className="text-[#0071E3] font-bold shrink-0">&bull;</span> <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded font-bold">handleInitialPaymentFailure</code> - Called inside an existing transaction. Sets dunning_step=1, next_retry_at=+3d. Dispatches <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">invoice.payment_failed</code> via outbox.</li>
+                  <li className="flex gap-2"><span className="text-[#0071E3] font-bold shrink-0">&bull;</span> <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">handleRetryAttempt</code> - Opens its own transaction, locks the row with <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">SELECT ... FOR UPDATE SKIP LOCKED</code>, attempts the charge via the gateway adapter, and transitions state.</li>
+                  <li className="flex gap-2"><span className="text-[#0071E3] font-bold shrink-0">&bull;</span> On success: dunning resets to step 0, status &rarr; active, period extended. On failure: step increments, status transitions, next_retry_at updated, outbox event dispatched.</li>
+                </ul>
+              </div>
+
+              <div className="bg-white border border-[#E5E5E7] rounded-2xl p-5 space-y-3">
+                <h3 className="text-xs font-bold text-[#111111]">Concurrency Safety</h3>
+                <p className="text-xs text-[#6E6E73] font-medium">
+                  The worker uses <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">FOR UPDATE SKIP LOCKED</code> to safely process subscriptions across multiple worker instances. Each subscription is locked atomically during the charge attempt to prevent double-billing. The batch worker queries <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">next_retry_at &lt;= NOW()</code>, processes up to 25 subscriptions per cycle, and uses <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">Promise.allSettled</code> for concurrent processing.
+                </p>
+              </div>
+
+              <div className="bg-[#FAFAFA] border border-[#E5E5E7] rounded-2xl p-5 space-y-2">
+                <h3 className="text-xs font-bold text-[#111111]">Webhook Events</h3>
+                <pre className="text-[10.5px] font-mono text-stone-700 leading-relaxed bg-white p-4 rounded-xl select-all overflow-x-auto">
+{`invoice.payment_failed   — dispatched on initial failure (step 0→1)
+subscription.past_due    — dispatched on step 1→2 transition
+subscription.canceled    — dispatched on step 2→0 cancel
+invoice.payment_succeeded — dispatched on successful retry`}
+                </pre>
+              </div>
+            </div>
+          )}
+
+          {/* ----------------- DOCUMENTATION NAVIGATION (PREV / NEXT) ----------------- */}
+          {(() => {
+            const navOrder = [
+              "intro", "quickstart",
+              "architecture", "concepts-products", "concepts-usage", "concepts-entitlements",
+              "dev-keys", "playground", "webhooks", "errors",
+              "guide-seats", "guide-usage",
+              "backend-proration", "backend-ingress", "backend-dedup", "backend-batch",
+              "backend-sandbox", "backend-encryption", "backend-webhooks", "backend-dunning",
+              "sdks", "dashboard-integration", "status", "changelog",
+            ];
+            const navTitles: Record<string, string> = {
+              intro: "Overview & Introduction", quickstart: "Quick Start Guide",
+              architecture: "System Architecture", "concepts-products": "Products & Plans Catalog",
+              "concepts-usage": "Usage Metering Ingestion", "concepts-entitlements": "Entitlement Gate Engine",
+              "dev-keys": "Authentication & API Keys", playground: "Interactive API Playground",
+              webhooks: "Webhook Developer Center", errors: "Error Catalog Directory",
+              "guide-seats": "SaaS Seat Pricing Guide", "guide-usage": "Usage-Based Token Billing",
+              "backend-proration": "Proration Service", "backend-ingress": "Fair Ingress Metering",
+              "backend-dedup": "Deduplication Engine", "backend-batch": "Batch Ingestion",
+              "backend-sandbox": "Sandbox Playground", "backend-encryption": "Zero-Trust Encryption",
+              "backend-webhooks": "Secure Webhook Dispatcher", "backend-dunning": "Dunning & Retry State Machine",
+              sdks: "Official Runtime SDKs", "dashboard-integration": "Workspace Integration",
+              status: "System Health Status", changelog: "Product Changelog",
+            };
+            const idx = navOrder.indexOf(activePage);
+            if (idx === -1) return null;
+            const prevId = idx > 0 ? navOrder[idx - 1] : null;
+            const nextId = idx < navOrder.length - 1 ? navOrder[idx + 1] : null;
+            return (
+              <div className="flex items-center justify-between pt-8 pb-2 border-t border-[#E5E5E7] mt-8">
+                <div>
+                  {prevId && (
+                    <button onClick={() => setActivePage(prevId)} className="flex items-center gap-1.5 text-xs text-[#6E6E73] hover:text-[#111111] transition-colors cursor-pointer group">
+                      <ChevronRight className="h-3.5 w-3.5 rotate-180 group-hover:-translate-x-0.5 transition-transform" />
+                      <span className="text-left">
+                        <span className="block text-[9px] uppercase tracking-wider text-neutral-400 font-bold">Previous</span>
+                        <span className="block font-semibold">{navTitles[prevId]}</span>
+                      </span>
+                    </button>
+                  )}
+                </div>
+                <div className="text-[9px] text-neutral-400 font-mono uppercase tracking-wider">
+                  {idx + 1} / {navOrder.length}
+                </div>
+                <div>
+                  {nextId && (
+                    <button onClick={() => setActivePage(nextId)} className="flex items-center gap-1.5 text-xs text-[#6E6E73] hover:text-[#111111] transition-colors cursor-pointer group">
+                      <span className="text-right">
+                        <span className="block text-[9px] uppercase tracking-wider text-neutral-400 font-bold">Next</span>
+                        <span className="block font-semibold">{navTitles[nextId]}</span>
+                      </span>
+                      <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+
         </main>
 
         {/* ----------------- EMBEDDED AI DOCUMENTATION ASSISTANT FLOATING SIDEBAR PANEL ----------------- */}
@@ -1519,16 +2321,16 @@ Content-Type: application/json
             {/* Quick preset links helpful buttons */}
             <div className="space-y-1.5 shrink-0 pt-3 border-t border-[#E5E5E7]">
               <span className="text-[9px] font-bold text-[#86868B] uppercase block">Suggested Queries:</span>
-              <button onClick={() => handleAskAIAssistant("How do I create a usage meter?")} className="w-full text-left p-1.5 bg-white border border-[#E5E5E7] hover:border-black rounded text-[10.5px] font-medium block truncate transition-colors cursor-pointer text-stone-700">"How do I create a usage meter?"</button>
-              <button onClick={() => handleAskAIAssistant("How do credits work?")} className="w-full text-left p-1.5 bg-white border border-[#E5E5E7] hover:border-black rounded text-[10.5px] font-medium block truncate transition-colors cursor-pointer text-stone-700">"How do credits work?"</button>
-              <button onClick={() => handleAskAIAssistant("Show me seat billing examples.")} className="w-full text-left p-1.5 bg-white border border-[#E5E5E7] hover:border-black rounded text-[10.5px] font-medium block truncate transition-colors cursor-pointer text-stone-700">"Show me seat billing examples."</button>
+              <button onClick={() => handleAskAIAssistant("How do I create a usage meter?")} className="w-full text-left p-1.5 bg-white border border-[#E5E5E7] hover:border-white/40 rounded text-[10.5px] font-medium block truncate transition-colors cursor-pointer text-stone-700">"How do I create a usage meter?"</button>
+              <button onClick={() => handleAskAIAssistant("How do credits work?")} className="w-full text-left p-1.5 bg-white border border-[#E5E5E7] hover:border-white/40 rounded text-[10.5px] font-medium block truncate transition-colors cursor-pointer text-stone-700">"How do credits work?"</button>
+              <button onClick={() => handleAskAIAssistant("Show me seat billing examples.")} className="w-full text-left p-1.5 bg-white border border-[#E5E5E7] hover:border-white/40 rounded text-[10.5px] font-medium block truncate transition-colors cursor-pointer text-stone-700">"Show me seat billing examples."</button>
             </div>
 
             {/* Input Form submission */}
             <div className="pt-3 shrink-0">
               <form
                 onSubmit={(e) => { e.preventDefault(); handleAskAIAssistant(); }}
-                className="flex gap-1.5 bg-white border border-[#E5E5E7] p-1.5 rounded-lg focus-within:border-black transition-colors"
+                className="flex gap-1.5 bg-white border border-[#E5E5E7] p-1.5 rounded-lg focus-within:border-white/60 transition-colors"
               >
                 <input
                   type="text"

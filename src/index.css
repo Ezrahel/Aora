@@ -168,3 +168,198 @@ body {
 .hover\:dp-surface:hover { background-color: var(--dp-surface); }
 .hover\:dp-card:hover { background-color: var(--dp-card); border-color: var(--dp-border); }
 .focus-within\:dp-border:focus-within { border-color: var(--dp-border); }
+
+/* ============================================
+   Documentation page — always dark mode.
+   The docs view is hand-built with light-mode
+   Tailwind utilities, so we remap those to dark
+   equivalents inside the .docs-page scope.
+   ============================================ */
+.docs-page {
+  --dp-bg: #111011;
+  --dp-text: #F5F5F7;
+  --dp-secondary: #C4C4C7;
+  --dp-muted: #A1A1A6;
+  --dp-surface: rgba(255,255,255,0.03);
+  --dp-surface-alt: rgba(255,255,255,0.05);
+  --dp-border: rgba(255,255,255,0.12);
+  --dp-card: #1C1C1E;
+  --dp-hover: rgba(255,255,255,0.06);
+  --dp-tooltip-bg: rgba(17,16,17,0.95);
+  --dp-tooltip-border: rgba(255,255,255,0.1);
+  --dp-chart-grid: rgba(255,255,255,0.06);
+  --dp-chart-axis: rgba(255,255,255,0.15);
+  --dp-btn-bg: #F5F5F7;
+  --dp-btn-text: #111011;
+  background-color: var(--dp-bg);
+  color: var(--dp-text);
+}
+
+/* Body/secondary text */
+.docs-page .text-\[\#111111\] { color: #FFFFFF; }
+.docs-page .text-\[\#6E6E73\] { color: #A1A1A6; }
+.docs-page .text-\[\#86868B\] { color: #98989D; }
+.docs-page .text-black { color: #FFFFFF; }
+.docs-page .text-neutral-200 { color: #B9B9BE; }
+.docs-page .text-neutral-300 { color: #A9A9AE; }
+.docs-page .text-neutral-400 { color: #98989D; }
+.docs-page .text-neutral-500 { color: #A1A1A6; }
+.docs-page .text-neutral-600 { color: #B0B0B5; }
+.docs-page .text-neutral-700 { color: #C4C4C7; }
+.docs-page .text-neutral-800 { color: #D5D5D8; }
+.docs-page .text-neutral-900 { color: #FFFFFF; }
+.docs-page .text-neutral-950 { color: #FFFFFF; }
+
+/* Near-black neutral code text -> white */
+.docs-page .text-slate-800 { color: #FFFFFF; }
+.docs-page .text-stone-900 { color: #FFFFFF; }
+.docs-page .text-stone-800 { color: #FFFFFF; }
+.docs-page .text-stone-700 { color: #F5F5F7; }
+.docs-page .text-stone-600 { color: #D4D4D8; }
+
+/* Colored code text — brightened for a deep, clear read on dark bg */
+.docs-page .text-emerald-800 { color: #34D399; }
+.docs-page .text-emerald-700 { color: #10B981; }
+.docs-page .text-emerald-600 { color: #10B981; }
+.docs-page .text-indigo-800 { color: #818CF8; }
+.docs-page .text-rose-700 { color: #FB7185; }
+.docs-page .text-blue-700 { color: #60A5FA; }
+.docs-page .text-amber-600 { color: #FBBF24; }
+.docs-page .text-amber-500 { color: #FBBF24; }
+.docs-page .text-red-600 { color: #F87171; }
+.docs-page .text-purple-600 { color: #A78BFA; }
+.docs-page .border-emerald-600 { border-color: #10B981; }
+
+/* Hover text variants */
+.docs-page .hover\:text-\[\#111111\]:hover { color: #FFFFFF; }
+.docs-page .hover\:text-\[\#0071E3\]:hover { color: #0A84FF; }
+.docs-page .hover\:text-neutral-200:hover { color: #C4C4C7; }
+.docs-page .hover\:text-neutral-950:hover { color: #FFFFFF; }
+
+/* Accent (brightened for dark background) */
+.docs-page .text-\[\#0071E3\] { color: #0A84FF; }
+.docs-page .border-\[\#0071E3\] { border-color: #0A84FF; }
+
+/* Surfaces */
+.docs-page .bg-white { background-color: #1C1C1E; }
+.docs-page .bg-neutral-50 { background-color: #1A1A1C; }
+.docs-page .bg-neutral-100 { background-color: #232326; }
+.docs-page .bg-neutral-300 { background-color: #2E2E31; }
+.docs-page .bg-\[\#FAFAFA\] { background-color: #1C1C1E; }
+.docs-page .bg-\[\#F8F8F8\] { background-color: #1E1E20; }
+.docs-page .bg-\[\#F2F2F2\] { background-color: #222225; }
+.docs-page .bg-\[\#F5F5F7\] { background-color: #242427; }
+.docs-page .bg-\[\#FAF9F6\] { background-color: #1C1C1E; }
+.docs-page .bg-\[\#111111\] { background-color: #2C2C2E; }
+.docs-page .bg-\[\#EAF2FC\] { background-color: rgba(10,132,255,0.15); }
+.docs-page .bg-rose-50 { background-color: rgba(251,113,133,0.15); }
+.docs-page .bg-blue-50 { background-color: rgba(96,165,250,0.15); }
+.docs-page .bg-emerald-50 { background-color: rgba(52,211,153,0.15); }
+.docs-page .hover\:bg-\[\#1D1D1F\]:hover { background-color: #3A3A3D; }
+.docs-page .hover\:bg-\[\#F2F2F2\]:hover { background-color: #2A2A2D; }
+.docs-page .hover\:bg-neutral-100:hover { background-color: #2E2E31; }
+.docs-page .hover\:bg-neutral-50:hover { background-color: #242427; }
+.docs-page .hover\:bg-neutral-50\/70:hover { background-color: rgba(36,36,39,0.7); }
+
+/* Borders & dividers */
+.docs-page .border-\[\#E5E5E7\] { border-color: rgba(255,255,255,0.12); }
+.docs-page .border-\[\#F5F5F7\] { border-color: rgba(255,255,255,0.1); }
+.docs-page .border-neutral-100 { border-color: rgba(255,255,255,0.1); }
+.docs-page .border-neutral-400 { border-color: rgba(255,255,255,0.2); }
+.docs-page .divide-\[\#E5E5E7\] > :not(:last-child) { border-color: rgba(255,255,255,0.12); }
+
+/* ============================================
+   Dashboard dark mode — global hardcoded-color
+   safety net. Several dashboard views mix dp-*
+   tokens with hardcoded light-mode Tailwind
+   utilities (black text on light surfaces). In
+   dark mode those surfaces go dark and the dark
+   text would disappear. This block remaps the
+   hardcoded classes whenever the dashboard
+   theme is dark, so no text ever vanishes.
+   ============================================ */
+.dashboard-page[data-theme="dark"] .text-black { color: var(--dp-text); }
+.dashboard-page[data-theme="dark"] .text-neutral-950,
+.dashboard-page[data-theme="dark"] .text-neutral-900,
+.dashboard-page[data-theme="dark"] .text-gray-900,
+.dashboard-page[data-theme="dark"] .text-stone-900 { color: #F5F5F7; }
+.dashboard-page[data-theme="dark"] .text-neutral-800,
+.dashboard-page[data-theme="dark"] .text-gray-800,
+.dashboard-page[data-theme="dark"] .text-stone-800,
+.dashboard-page[data-theme="dark"] .text-slate-800 { color: #D5D5D8; }
+.dashboard-page[data-theme="dark"] .text-neutral-700,
+.dashboard-page[data-theme="dark"] .text-gray-700,
+.dashboard-page[data-theme="dark"] .text-stone-700,
+.dashboard-page[data-theme="dark"] .text-slate-700 { color: #C4C4C7; }
+.dashboard-page[data-theme="dark"] .text-neutral-600,
+.dashboard-page[data-theme="dark"] .text-gray-600,
+.dashboard-page[data-theme="dark"] .text-stone-600,
+.dashboard-page[data-theme="dark"] .text-slate-600 { color: #B0B0B5; }
+.dashboard-page[data-theme="dark"] .text-neutral-500,
+.dashboard-page[data-theme="dark"] .text-gray-500,
+.dashboard-page[data-theme="dark"] .text-stone-500 { color: #A1A1A6; }
+.dashboard-page[data-theme="dark"] .text-neutral-400,
+.dashboard-page[data-theme="dark"] .text-gray-400,
+.dashboard-page[data-theme="dark"] .text-stone-400 { color: #98989D; }
+.dashboard-page[data-theme="dark"] .text-neutral-300,
+.dashboard-page[data-theme="dark"] .text-gray-300,
+.dashboard-page[data-theme="dark"] .text-stone-300 { color: #A9A9AE; }
+.dashboard-page[data-theme="dark"] .text-neutral-200,
+.dashboard-page[data-theme="dark"] .text-neutral-100 { color: #C4C4C7; }
+
+/* Dark-mode hover text */
+.dashboard-page[data-theme="dark"] .hover\:text-black:hover { color: var(--dp-text); }
+.dashboard-page[data-theme="dark"] .hover\:text-neutral-900:hover,
+.dashboard-page[data-theme="dark"] .hover\:text-stone-900:hover { color: #F5F5F7; }
+.dashboard-page[data-theme="dark"] .hover\:text-neutral-800:hover { color: #D5D5D8; }
+.dashboard-page[data-theme="dark"] .hover\:text-gray-600:hover,
+.dashboard-page[data-theme="dark"] .hover\:text-gray-700:hover { color: #B0B0B5; }
+
+/* Light surfaces -> dark (keep dark blocks dark) */
+.dashboard-page[data-theme="dark"] .bg-white { background-color: #1C1C1E; }
+.dashboard-page[data-theme="dark"] .bg-neutral-50 { background-color: #1A1A1C; }
+.dashboard-page[data-theme="dark"] .bg-neutral-100 { background-color: #232326; }
+.dashboard-page[data-theme="dark"] .bg-neutral-200 { background-color: #2A2A2D; }
+.dashboard-page[data-theme="dark"] .bg-neutral-300 { background-color: #2E2E31; }
+.dashboard-page[data-theme="dark"] .bg-gray-50 { background-color: #1A1A1C; }
+.dashboard-page[data-theme="dark"] .bg-gray-100 { background-color: #232326; }
+.dashboard-page[data-theme="dark"] .bg-gray-200 { background-color: #2A2A2D; }
+.dashboard-page[data-theme="dark"] .bg-stone-100 { background-color: #232326; }
+.dashboard-page[data-theme="dark"] .bg-\[\#FAFAFA\] { background-color: #1C1C1E; }
+.dashboard-page[data-theme="dark"] .bg-neutral-50\/50 { background-color: rgba(255,255,255,0.04); }
+.dashboard-page[data-theme="dark"] .bg-neutral-50\/20 { background-color: rgba(255,255,255,0.03); }
+.dashboard-page[data-theme="dark"] .bg-neutral-200\/60 { background-color: rgba(255,255,255,0.07); }
+.dashboard-page[data-theme="dark"] .bg-gray-200\/50 { background-color: rgba(255,255,255,0.05); }
+.dashboard-page[data-theme="dark"] .bg-stone-50\/50 { background-color: rgba(255,255,255,0.04); }
+.dashboard-page[data-theme="dark"] .bg-slate-50\/60 { background-color: rgba(255,255,255,0.05); }
+
+/* Dark-mode hover surfaces */
+.dashboard-page[data-theme="dark"] .hover\:bg-neutral-50:hover,
+.dashboard-page[data-theme="dark"] .hover\:bg-neutral-100:hover,
+.dashboard-page[data-theme="dark"] .hover\:bg-neutral-200:hover,
+.dashboard-page[data-theme="dark"] .hover\:bg-gray-50:hover,
+.dashboard-page[data-theme="dark"] .hover\:bg-gray-100:hover,
+.dashboard-page[data-theme="dark"] .hover\:bg-gray-200:hover,
+.dashboard-page[data-theme="dark"] .hover\:bg-neutral-50\/50:hover,
+.dashboard-page[data-theme="dark"] .hover\:bg-gray-200\/50:hover,
+.dashboard-page[data-theme="dark"] .hover\:bg-black\/5:hover { background-color: var(--dp-hover); }
+.dashboard-page[data-theme="dark"] .hover\:bg-neutral-800:hover,
+.dashboard-page[data-theme="dark"] .hover\:bg-gray-800:hover,
+.dashboard-page[data-theme="dark"] .hover\:bg-black:hover,
+.dashboard-page[data-theme="dark"] .hover\:bg-neutral-900:hover,
+.dashboard-page[data-theme="dark"] .hover\:bg-\[\#1D1D1F\]:hover { background-color: var(--dp-hover); }
+
+/* Lifted dark buttons remain visible on the dark canvas */
+.dashboard-page[data-theme="dark"] .bg-\[\#111111\] { background-color: #2C2C2E; }
+
+/* Dark-mode borders (black borders would vanish on dark) */
+.dashboard-page[data-theme="dark"] .border-black,
+.dashboard-page[data-theme="dark"] .border-neutral-200,
+.dashboard-page[data-theme="dark"] .border-neutral-300,
+.dashboard-page[data-theme="dark"] .border-slate-200,
+.dashboard-page[data-theme="dark"] .border-\[\#E5E5E7\],
+.dashboard-page[data-theme="dark"] .border-\[\#F5F5F7\] { border-color: rgba(255,255,255,0.12); }
+.dashboard-page[data-theme="dark"] .border-neutral-100 { border-color: rgba(255,255,255,0.1); }
+.dashboard-page[data-theme="dark"] .hover\:border-black:hover,
+.dashboard-page[data-theme="dark"] .focus\:border-black:focus,
+.dashboard-page[data-theme="dark"] .focus-within\:border-black:focus-within { border-color: rgba(255,255,255,0.4); }

@@ -104,6 +104,23 @@ export async function findAll(client: pg.PoolClient | null): Promise<Entitlement
   return rows.map(rowToEntitlement);
 }
 
+export async function findByCustomerIds(
+  customerIds: string[],
+): Promise<Array<Entitlement & { customerId: string }>> {
+  if (customerIds.length === 0) return [];
+  const placeholders = customerIds.map((_, i) => `$${i + 1}`).join(", ");
+  const { rows } = await query<EntitlementRow & { customer_id: string }>(
+    `SELECT DISTINCT e.id, e.plan_id, e.feature_id, e.value, e.is_enabled, e.created_at,
+            c.id AS customer_id
+     FROM entitlements e
+     JOIN subscriptions s ON s.plan_id = e.plan_id
+     JOIN customers c ON c.id = s.customer_id
+     WHERE c.id IN (${placeholders})`,
+    customerIds,
+  );
+  return rows.map((r) => ({ ...rowToEntitlement(r), customerId: r.customer_id }));
+}
+
 export const entitlementRepo = {
   findByPlan,
   findByFeature,
@@ -112,4 +129,5 @@ export const entitlementRepo = {
   updateValueForFeature,
   updateEnabledForFeature,
   findAll,
+  findByCustomerIds,
 };

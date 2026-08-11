@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { motion } from "motion/react";
+import { motion, type Variants } from "motion/react";
 import { ShieldCheck, Database, Activity, Layers, TrendingUp, Sparkles } from "lucide-react";
 
 const features = [
@@ -11,8 +11,8 @@ const features = [
   { icon: Sparkles, title: "AI Billing Assistant", desc: "Powered by Gemini. Ask natural language questions about revenue, create plans, inspect customers, or run pricing simulations. Real results." },
 ];
 
-const containerVariants = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
-const cardVariants = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } } };
+const containerVariants: Variants = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
+const cardVariants: Variants = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } } };
 
 export default function Features() {
   const ref = useRef(null);

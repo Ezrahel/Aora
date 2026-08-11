@@ -31,17 +31,26 @@ export async function requireApiKey(req: Request, res: Response, next: NextFunct
   }
 
   try {
+    // Route to sandbox or live workspace based on key prefix
+    const isTestKey = apiKey.startsWith("sk_test_");
+    const targetEnvs = isTestKey
+      ? ["sandbox", "development"]
+      : ["production"];
+
     const result = await query(
       `SELECT w.id, w.organization_id, w.name, w.environment, w.api_keys, w.profile, w.settings, w.created_at
        FROM workspaces w
-       WHERE $1 = ANY(w.api_keys) AND w.environment = 'production'
+       WHERE $1 = ANY(w.api_keys) AND w.environment = ANY($2::STRING[])
        LIMIT 1`,
-      [apiKey],
+      [apiKey, targetEnvs],
     );
     const rows = result.rows;
 
     if (rows.length === 0) {
-      return res.status(403).json({ error: "Invalid API key.", code: "FORBIDDEN" });
+      const msg = isTestKey
+        ? "Invalid sandbox API key. Workspace environment must be 'sandbox' or 'development'."
+        : "Invalid API key.";
+      return res.status(403).json({ error: msg, code: "FORBIDDEN" });
     }
 
     req.workspace = rows[0] as any;

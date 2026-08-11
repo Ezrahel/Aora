@@ -6,6 +6,7 @@
 
 import { Router } from "express";
 import { rateLimit } from "./middleware.ts";
+import { sandboxIsolationMiddleware } from "./middleware/sandbox.ts";
 
 import healthRouter        from "./routes/health.ts";
 import workspacesRouter    from "./routes/workspaces.ts";
@@ -23,28 +24,36 @@ import webhooksRouter      from "./routes/webhooks.ts";
 import chatRouter          from "./routes/chat.ts";
 import gatewaysRouter      from "./routes/gateways.ts";
 import waitlistRouter      from "./routes/waitlist.ts";
+import checkoutRouter      from "./routes/checkout.ts";
+import ingressRouter       from "./routes/ingress.ts";
 
 const apiRouter = Router();
 
 // Apply rate limiting to all API routes
 apiRouter.use(rateLimit);
 
+// Sandbox isolation middleware — detects sk_test_ / sk_live_ API keys,
+// injects req.context with isTest, paymentAdapter, and time-travel offset.
+apiRouter.use(sandboxIsolationMiddleware);
+
 // ── Resource Routes ────────────────────────────────────────────
 apiRouter.use(healthRouter);          // GET /health
 apiRouter.use(workspacesRouter);      // /workspaces, /workspace-info, /members, /audit-logs
 apiRouter.use(plansRouter);           // /plans
 apiRouter.use(productsRouter);        // /products, /features
-apiRouter.use(customersRouter);       // /customers
-apiRouter.use(subscriptionsRouter);   // /subscriptions
+apiRouter.use("/customers", customersRouter);       // /customers, /customers/:id
+apiRouter.use("/subscriptions", subscriptionsRouter); // /subscriptions, /subscriptions/:id
 apiRouter.use(metersRouter);          // /meters
 apiRouter.use(usageRouter);           // /usage-events, /quotas, /credits, /can-consume, /events/replay
 apiRouter.use(entitlementsRouter);    // /entitlements, /can-access
-apiRouter.use(invoicesRouter);        // /invoices
+apiRouter.use("/invoices", invoicesRouter);        // /invoices, /invoices/:id
 apiRouter.use(pricingRouter);         // /prices, /rate-cards, /discounts, /coupons, /contracts, /pricing-calculate
 apiRouter.use(analyticsRouter);       // /revenue-metrics, /analytics/*
 apiRouter.use(webhooksRouter);        // /webhooks
 apiRouter.use(chatRouter);            // /chat, /chat-history
 apiRouter.use(gatewaysRouter);        // /gateways/*
 apiRouter.use(waitlistRouter);        // POST /waitlist
+apiRouter.use("/checkout", checkoutRouter);        // /checkout/*
+apiRouter.use(ingressRouter);                      // /ingress, /ingress/usage, /ingress/flush
 
 export default apiRouter;

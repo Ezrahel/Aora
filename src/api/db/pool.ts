@@ -1,5 +1,7 @@
 import pg from "pg";
 
+export type Client = pg.PoolClient;
+
 let pool: pg.Pool;
 
 function getPool(): pg.Pool {
@@ -12,7 +14,7 @@ function getPool(): pg.Pool {
       connectionString: dbUrl,
       max: parseInt(process.env.DATABASE_POOL_MAX || "5", 10),
       idleTimeoutMillis: parseInt(process.env.DATABASE_IDLE_TIMEOUT || "30000", 10),
-      connectionTimeoutMillis: parseInt(process.env.DATABASE_CONNECTION_TIMEOUT || "5000", 10),
+      connectionTimeoutMillis: parseInt(process.env.DATABASE_CONNECTION_TIMEOUT || "30000", 10),
       statement_timeout: parseInt(process.env.DATABASE_STATEMENT_TIMEOUT || "10000", 10),
       application_name: "aora_billing",
     });

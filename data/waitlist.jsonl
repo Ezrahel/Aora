@@ -12,3 +12,10 @@
 {"email":"test@example.com","name":null,"company":null,"gateway":null,"mrr":null,"referral":null,"createdAt":"2026-07-13T21:18:56.164Z"}
 {"email":"testme@123.com","name":"testing","company":"testme","gateway":"paystack","mrr":"pre-revenue","referral":null,"createdAt":"2026-07-13T21:21:00.518Z"}
 {"email":"seo-test@example.com","name":null,"company":null,"gateway":null,"mrr":null,"referral":null,"createdAt":"2026-07-14T10:18:07.934Z"}
+{"email":"test@test.com","name":null,"company":null,"gateway":null,"mrr":null,"referral":null,"createdAt":"2026-07-14T20:31:34.021Z"}
+{"email":"test@test.com","name":null,"company":null,"gateway":null,"mrr":null,"referral":null,"createdAt":"2026-07-14T21:00:21.528Z"}
+{"email":"landing@test.com","name":null,"company":null,"gateway":null,"mrr":null,"referral":null,"createdAt":"2026-07-14T21:02:51.639Z"}
+{"email":"test@redirect.com","name":null,"company":null,"gateway":null,"mrr":null,"referral":null,"createdAt":"2026-07-14T21:10:07.106Z"}
+{"email":"redirect@test.com","name":null,"company":null,"gateway":null,"mrr":null,"referral":null,"createdAt":"2026-07-14T21:12:19.147Z"}
+{"email":"test@test.com","name":null,"company":null,"gateway":null,"mrr":null,"referral":null,"createdAt":"2026-07-14T21:31:02.457Z"}
+{"email":"test@test.com","name":null,"company":null,"gateway":null,"mrr":null,"referral":null,"createdAt":"2026-07-14T21:32:12.339Z"}

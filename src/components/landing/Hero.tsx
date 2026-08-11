@@ -119,7 +119,7 @@ export default function Hero({ onNavigateTab }: HeroProps) {
 
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <button
-              onClick={() => onNavigateTab("waitlist")}
+              onClick={() => onNavigateTab("dashboard")}
               className="px-7 py-3.5 rounded-xl transition-all cursor-pointer flex items-center gap-2 group"
               style={{ backgroundColor: "var(--lp-btn-bg)", color: "var(--lp-btn-text)" }}
             >

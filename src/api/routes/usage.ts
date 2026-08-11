@@ -18,6 +18,18 @@ import { asyncHandler, parsePagination, badRequest, notFound, conflict } from ".
 
 export const router = Router();
 
+router.get("/usage-events", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customerIds = customers.map((c) => c.id);
+
+  if (customerIds.length === 0) return res.json([]);
+
+  const { customerId, meterId, from, to } = req.query as Record<string, string | undefined>;
+  const { rows } = await usageRepo.findByWorkspace(customerIds, { customerId, meterId, from, to }, 500, 0);
+  res.json(rows);
+}));
+
 router.get("/usage", asyncHandler(async (req, res) => {
   const ws = await resolveWorkspace(req);
   const customers = await customerRepo.findByWorkspace(ws.id);

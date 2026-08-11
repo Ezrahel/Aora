@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { updateMetaTags } from "./seo";
+import { updateMetaTags } from "./lib/seo.ts";
 
-export function useSEO(seo: import("./seo").SEOProps) {
+export function useSEO(seo: import("./lib/seo.ts").SEOProps) {
   useEffect(() => {
     updateMetaTags(seo);
   }, [seo.title, seo.description, seo.path, seo.image]);
@@ -14,13 +14,6 @@ export const routeSEO = {
     path: "/",
     type: "website" as const,
     image: "https://aorahq.com/og-home.png",
-  },
-  "/waitlist": {
-    title: "Join the AoraHQ Waitlist — Early Access & 3 Months Free",
-    description: "Join 340+ founders building on AoraHQ. Get early access, dedicated onboarding call, and 3 months free on any tier — locked in for life.",
-    path: "/waitlist",
-    type: "website" as const,
-    image: "https://aorahq.com/og-waitlist.png",
   },
   "/docs": {
     title: "AoraHQ Documentation — Implementation Guides & API Reference",

@@ -11,11 +11,11 @@ export default function CTASection({ onNavigateTab }: CTASectionProps) {
         <h2 className="text-4xl sm:text-5xl font-black lp-text tracking-tight leading-tight">Your billing infrastructure should be an asset, not a tax.</h2>
         <p className="text-lg lp-secondary font-medium max-w-xl mx-auto">Stop maintaining billing code. Start shipping your product. Connect your gateway in minutes.</p>
         <div className="flex flex-wrap justify-center gap-4 pt-4">
-          <button onClick={() => onNavigateTab("waitlist")} className="px-8 py-4 rounded-xl transition-all cursor-pointer flex items-center gap-2 group text-sm font-bold" style={{ backgroundColor: "var(--lp-btn-bg)", color: "var(--lp-btn-text)" }}>
+          <button onClick={() => onNavigateTab("dashboard")} className="px-8 py-4 rounded-xl transition-all cursor-pointer flex items-center gap-2 group text-sm font-bold" style={{ backgroundColor: "var(--lp-btn-bg)", color: "var(--lp-btn-text)" }}>
             Connect Your Gateway <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </button>
-          <button onClick={() => onNavigateTab("waitlist")} className="px-8 py-4 lp-surface border lp-border-glass lp-secondary font-semibold text-sm rounded-xl transition-all cursor-pointer hover:opacity-80">
-            Talk to Sales
+          <button onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })} className="px-8 py-4 lp-surface border lp-border-glass lp-secondary font-semibold text-sm rounded-xl transition-all cursor-pointer hover:opacity-80">
+            See How It Works
           </button>
         </div>
       </div>

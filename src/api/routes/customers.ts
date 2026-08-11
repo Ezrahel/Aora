@@ -11,7 +11,7 @@ import {
   usageRepo,
   creditRepo,
 } from "../db.ts";
-import { asyncHandler, parsePagination, badRequest, notFound } from "../middleware.ts";
+import { asyncHandler, badRequest, notFound } from "../middleware.ts";
 
 export const router = Router();
 
@@ -19,16 +19,7 @@ router.get("/", asyncHandler(async (req, res) => {
   const ws = await resolveWorkspace(req);
   const { status, planId, q } = req.query as Record<string, string | undefined>;
   const rows = await customerRepo.findByWorkspace(ws.id, { status, planId, q });
-  const pagination = parsePagination(req);
-  const sliced = rows.slice(pagination.offset, pagination.offset + pagination.limit);
-
-  res.json({
-    data: sliced,
-    total: rows.length,
-    page: pagination.page,
-    limit: pagination.limit,
-    hasMore: pagination.offset + pagination.limit < rows.length,
-  });
+  res.json(rows);
 }));
 
 router.get("/:id", asyncHandler(async (req, res) => {

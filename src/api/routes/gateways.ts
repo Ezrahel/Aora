@@ -34,15 +34,6 @@ router.get("/gateways", asyncHandler(async (req, res) => {
   res.json(gateways);
 }));
 
-/** Get connection details */
-router.get("/gateways/:id", asyncHandler(async (req, res) => {
-  const conn = await gatewayRepo.findById(req.params.id);
-  if (!conn) return notFound(res, "Gateway connection");
-  const ws = await resolveWorkspace(req);
-  if (conn.workspace_id !== ws.id) return notFound(res, "Gateway connection");
-  res.json(conn);
-}));
-
 /** Connect a payment gateway (validate format → encrypt → verify → store) */
 router.post("/gateways/connect", asyncHandler(async (req, res) => {
   const ws = await resolveWorkspace(req);
@@ -387,6 +378,256 @@ router.get("/gateways/reconciliation", asyncHandler(async (req, res) => {
     totals,
     customers: reports,
   });
+}));
+
+// ─────────────────────────────────────────────────────────────
+// Encrypted Gateway V2 Routes (Zero-Trust)
+// Uses EncryptionService + EncryptedGatewayRepository with
+// AES-256-GCM and in-memory credential lifecycle management.
+// ─────────────────────────────────────────────────────────────
+
+import { encryptedGatewayRepository, previewKey as encPreviewKey } from "../../gateways/encrypted-gateway-repository.ts";
+import { encryptionService } from "../../gateways/encryption-service.ts";
+
+/**
+ * POST /gateways/v2/connect
+ *
+ * Connect a payment gateway with zero-trust encryption.
+ * The plaintext API key is AES-256-GCM encrypted before the
+ * INSERT statement touches the database. Only ciphertext, IV,
+ * and auth tag are stored in tenant_gateways.
+ *
+ * Request body:
+ *   { gateway, apiKey, mode?, webhookSecret? }
+ *
+ * Response: TenantGatewayRow (without any decrypted secrets)
+ */
+router.post("/gateways/v2/connect", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const { gateway, apiKey, mode, webhookSecret } = req.body as {
+    gateway?: string;
+    apiKey?: string;
+    mode?: string;
+    webhookSecret?: string;
+  };
+
+  if (!gateway || !apiKey) {
+    return badRequest(res, "gateway and apiKey are required");
+  }
+
+  const gwMode = mode === "live" ? "live" : "test";
+
+  // 1. Verify the key with the gateway while it's still in memory
+  const adapter = getAdapter(gateway);
+  const verifyResult = await adapter.verifyConnection(apiKey);
+  if (!verifyResult.verified) {
+    return res.status(422).json({
+      error: "Gateway connection failed",
+      detail: verifyResult.error || "Could not verify API key with the gateway",
+      code: "GATEWAY_VERIFICATION_FAILED",
+    });
+  }
+
+  // 2. Encrypt and persist — at this point the plaintext key
+  //    exists only in the local `apiKey` variable. It will be
+  //    garbage collected after this function returns.
+  const created = await encryptedGatewayRepository.create({
+    workspaceId: ws.id,
+    gateway,
+    mode: gwMode,
+    plaintextApiKey: apiKey,
+    plaintextWebhookSecret: webhookSecret,
+    isVerified: true,
+    lastVerifiedAt: new Date().toISOString(),
+    gatewayAccountId: verifyResult.accountId,
+    gatewayAccountName: verifyResult.accountName,
+    gatewayAccountEmail: verifyResult.accountEmail,
+  });
+
+  // 3. Return the row — decrypted fields are NEVER exposed
+  await writeAuditLog(ws.id, "System", "CREATE", "GATEWAY", created.id, null, {
+    gateway,
+    mode: gwMode,
+    accountName: verifyResult.accountName,
+  });
+
+  res.status(201).json({
+    ...created,
+    message: `${gateway} (${gwMode}) connected securely with zero-trust encryption`,
+  });
+}));
+
+/**
+ * GET /gateways/v2
+ *
+ * List encrypted gateway connections for the workspace.
+ * Only safe metadata is returned (no decrypted keys).
+ */
+router.get("/gateways/v2", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const gateways = await encryptedGatewayRepository.findByWorkspace(ws.id);
+  res.json(gateways);
+}));
+
+/**
+ * GET /gateways/v2/:id
+ *
+ * Get a single encrypted gateway connection by ID.
+ */
+router.get("/gateways/v2/:id", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const conn = await encryptedGatewayRepository.findById(req.params.id);
+  if (!conn) return notFound(res, "Gateway connection");
+  if (conn.workspaceId !== ws.id) return notFound(res, "Gateway connection");
+  res.json(conn);
+}));
+
+/**
+ * POST /gateways/v2/:id/charge
+ *
+ * Demonstrates the secure in-memory credential lifecycle:
+ *
+ *   1. Load encrypted row from DB
+ *   2. Decrypt in memory (AES-256-GCM with auth tag verification)
+ *   3. Use the plaintext key for the gateway API call
+ *   4. Wipe the buffer immediately after
+ *
+ * This pattern should be followed by all billing workers that
+ * need to use merchant gateway credentials.
+ */
+router.post("/gateways/v2/:id/charge", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const { customerToken, paymentToken, amount, currency, description } = req.body as {
+    customerToken?: string;
+    paymentToken?: string;
+    amount?: number;
+    currency?: string;
+    description?: string;
+  };
+
+  if (!customerToken || !paymentToken || !amount || !currency) {
+    return badRequest(res, "customerToken, paymentToken, amount, and currency are required");
+  }
+
+  // 1. Load and decrypt — credential exists in memory now
+  const credential = await encryptedGatewayRepository.getDecryptedKey(req.params.id);
+
+  if (credential.row.workspaceId !== ws.id) {
+    // Wipe before returning 404 to avoid leaking
+    credential.secretKeyBuffer.wipe();
+    credential.webhookBuffer?.wipe();
+    return notFound(res, "Gateway connection");
+  }
+
+  try {
+    // 2. Use the decrypted key for the gateway call
+    const adapter = getAdapter(credential.row.gateway);
+    const result = await adapter.chargeToken({
+      secretKey: credential.secretKey,
+      customerToken,
+      paymentToken,
+      amount: BigInt(amount),
+      currency,
+      description,
+    });
+
+    res.json(result);
+  } finally {
+    // 3. Wipe credentials from memory — ALWAYS runs, even on error
+    credential.secretKeyBuffer.wipe();
+    credential.webhookBuffer?.wipe();
+  }
+}));
+
+/**
+ * POST /gateways/v2/:id/re-verify
+ *
+ * Re-verify a gateway connection by decrypting the stored key
+ * and testing it against the gateway API.
+ */
+router.post("/gateways/v2/:id/re-verify", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+
+  const credential = await encryptedGatewayRepository.getDecryptedKey(req.params.id);
+
+  if (credential.row.workspaceId !== ws.id) {
+    credential.secretKeyBuffer.wipe();
+    credential.webhookBuffer?.wipe();
+    return notFound(res, "Gateway connection");
+  }
+
+  try {
+    const adapter = getAdapter(credential.row.gateway);
+    const verifyResult = await adapter.verifyConnection(credential.secretKey);
+
+    // Update verification status
+    await query(
+      `UPDATE tenant_gateways SET
+        is_verified = $2, last_verified_at = $3, updated_at = now()
+      WHERE id = $1`,
+      [req.params.id, verifyResult.verified, new Date().toISOString()],
+    );
+
+    await writeAuditLog(ws.id, "System", "ACCESS_VERIFY", "GATEWAY", req.params.id, null, {
+      verified: verifyResult.verified,
+    });
+
+    res.json({ verified: verifyResult.verified, accountName: verifyResult.accountName });
+  } finally {
+    credential.secretKeyBuffer.wipe();
+    credential.webhookBuffer?.wipe();
+  }
+}));
+
+/**
+ * DELETE /gateways/v2/:id
+ *
+ * Delete a gateway connection.
+ */
+router.delete("/gateways/v2/:id", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const conn = await encryptedGatewayRepository.findById(req.params.id);
+  if (!conn || conn.workspaceId !== ws.id) return notFound(res, "Gateway connection");
+
+  const deleted = await encryptedGatewayRepository.delete(req.params.id);
+  if (deleted) {
+    await writeAuditLog(ws.id, "System", "DELETE", "GATEWAY", req.params.id, conn, null);
+  }
+  res.json({ deleted, id: req.params.id });
+}));
+
+/**
+ * GET /gateways/v2/:id/health
+ *
+ * Health check that verifies stored encrypted credentials can
+ * still be decrypted (tests key integrity without exposing it).
+ */
+router.get("/gateways/v2/:id/health", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const conn = await encryptedGatewayRepository.findById(req.params.id);
+  if (!conn || conn.workspaceId !== ws.id) return notFound(res, "Gateway connection");
+
+  const canDecrypt = await encryptedGatewayRepository.verifyDecryption(req.params.id);
+  res.json({
+    id: req.params.id,
+    gateway: conn.gateway,
+    mode: conn.mode,
+    isVerified: conn.isVerified,
+    canDecrypt,
+    keyPreview: conn.keyPreview,
+    healthy: canDecrypt && conn.isVerified,
+  });
+}));
+
+/** Get connection details (registered last so fixed paths like
+ *  /gateways/events, /gateways/reconciliation and /gateways/v2
+ *  are matched before this :id route) */
+router.get("/gateways/:id", asyncHandler(async (req, res) => {
+  const conn = await gatewayRepo.findById(req.params.id);
+  if (!conn) return notFound(res, "Gateway connection");
+  const ws = await resolveWorkspace(req);
+  if (conn.workspace_id !== ws.id) return notFound(res, "Gateway connection");
+  res.json(conn);
 }));
 
 export default router;

@@ -85,6 +85,38 @@ export const docPages: Record<string, { title: string; description: string; faqs
     title: "Troubleshooting",
     description: "Common issues: webhook failures, ingestion latency, quota exceeded errors, gateway connectivity, and reconciliation mismatches.",
   },
+  backendProration: {
+    title: "Proration Service",
+    description: "Seat-based pricing mid-cycle adjustments with high-precision financial mathematics and non-custodial gateway charging.",
+  },
+  backendIngress: {
+    title: "Fair Ingress Metering",
+    description: "Byte-size billing for usage event ingestion with Redis counter buffering and PostgreSQL flush.",
+  },
+  backendDedup: {
+    title: "24-Hour Deduplication Engine",
+    description: "Two-layer Redis/Postgres dedup preventing duplicate billing within a 24-hour sliding window.",
+  },
+  backendBatch: {
+    title: "Batch Ingestion",
+    description: "Bulk event ingestion with pipelined dedup, batch discount pricing, and aggregated ledger writes.",
+  },
+  backendSandbox: {
+    title: "Sandbox Playground",
+    description: "Test billing flows with sk_test_ API keys, simulated payments, and time-travel without touching real gateways.",
+  },
+  backendEncryption: {
+    title: "Zero-Trust Credential Encryption",
+    description: "AES-256-GCM encryption for merchant gateway API keys. Keys never exist in plaintext in the database.",
+  },
+  backendWebhooks: {
+    title: "Secure Webhook Dispatcher",
+    description: "Transactional outbox pattern, HMAC-SHA256 signing, and BullMQ-backed exponential backoff retries for bulletproof webhook delivery.",
+  },
+  backendDunning: {
+    title: "Dunning & Retry State Machine",
+    description: "3-step automated dunning retry lifecycle with SERIALIZABLE transactions, FOR UPDATE SKIP LOCKED safety, and transactional outbox integration.",
+  },
 } as const;
 
 export type DocPageId = keyof typeof docPages;

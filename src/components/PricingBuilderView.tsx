@@ -40,6 +40,7 @@ import {
   CustomContract,
   Tier,
 } from "../types";
+import PricingPlanLivePreview from "./PricingPlanLivePreview";
 
 interface PricingBuilderViewProps {
   onPlanCreated: () => void;
@@ -131,7 +132,7 @@ export default function PricingBuilderView({
     "flat" | "usage" | "seat" | "tiered" | "volume" | "package" | "hybrid"
   >("hybrid");
   const [builderBillingPeriod, setBuilderBillingPeriod] = useState<
-    "monthly" | "yearly" | "quarterly" | "unlimited"
+    "weekly" | "monthly" | "yearly"
   >("monthly");
   const [builderCurrency, setBuilderCurrency] = useState("NGN");
   const [builderBaseFee, setBuilderBaseFee] = useState(15000);
@@ -231,6 +232,12 @@ export default function PricingBuilderView({
       usage_metering: builderType === "flat",
     }));
   }, [builderType]);
+
+  // Edit mode state
+  const [editMode, setEditMode] = useState(false);
+  const [editPlanStatus, setEditPlanStatus] = useState<
+    "active" | "draft" | "archived"
+  >("draft");
 
   const handleDeployPrice = async () => {
     setSubmitSuccessMsg("");
@@ -1300,16 +1307,33 @@ export default function PricingBuilderView({
                       <div className="border-b pb-4 flex justify-between items-center dp-surface -mx-6 -mt-6 p-6 rounded-t-3xl">
                         <div>
                           <h4 className="text-sm font-bold dp-text">
-                            Guided Form Path
+                            Plan Builder
                           </h4>
                           <p className="text-[11px] dp-secondary mt-0.5">
-                            Continuous fields form structured for finance &
-                            operations
+                            {editMode
+                              ? `Editing: ${builderName}`
+                              : "Design your pricing plan configuration"}
                           </p>
                         </div>
-                        <span className="text-[10px] bg-blue-50 text-[#0071E3] px-2 py-0.5 rounded font-bold uppercase">
-                          Form Interface
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {editMode ? (
+                            <span
+                              className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
+                                editPlanStatus === "active"
+                                  ? "bg-amber-50 text-amber-700"
+                                  : "bg-blue-50 text-blue-700"
+                              }`}
+                            >
+                              {editPlanStatus === "active"
+                                ? "Live Plan"
+                                : "Draft Plan"}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] bg-blue-50 text-[#0071E3] px-2 py-0.5 rounded font-bold uppercase">
+                              New Plan
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       {/* Section 1: Basic specifications */}
@@ -1324,27 +1348,85 @@ export default function PricingBuilderView({
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-1">
                             <label className="text-[10px] font-bold dp-secondary uppercase block">
-                              Associate with Contract Plan
+                              Link to Plan
                             </label>
-                            <select
-                              value={builderPlanId}
-                              onChange={(e) => {
-                                setBuilderPlanId(e.target.value);
-                                const match = existingPlans.find(
-                                  (p) => p.id === e.target.value,
-                                );
-                                setBuilderName(
-                                  `${match?.name || e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1)} Scale Pricing`,
-                                );
-                              }}
-                              className="w-full text-xs border dp-border focus:border-black rounded-lg p-2 bg-transparent text-neutral-900"
-                            >
-                              {existingPlans.map((p) => (
-                                <option key={p.id} value={p.id}>
-                                  {p.name}
-                                </option>
-                              ))}
-                            </select>
+                            <div className="flex gap-2">
+                              <select
+                                value={builderPlanId}
+                                onChange={(e) => {
+                                  setBuilderPlanId(e.target.value);
+                                  const match = existingPlans.find(
+                                    (p) => p.id === e.target.value,
+                                  );
+                                  if (match) {
+                                    setBuilderName(
+                                      `${match.name} Plan`,
+                                    );
+                                  }
+                                }}
+                                className="flex-1 text-xs border dp-border focus:border-black rounded-lg p-2 bg-transparent text-neutral-900"
+                              >
+                                {existingPlans.map((p) => (
+                                  <option key={p.id} value={p.id}>
+                                    {p.name}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const match = existingPlans.find(
+                                    (p) => p.id === builderPlanId,
+                                  );
+                                  if (match) {
+                                    setBuilderName(match.name);
+                                    setBuilderDesc(match.description);
+                                    setBuilderBaseFee(match.price);
+                                    setBuilderCurrency(match.currency);
+                                    setBuilderBillingPeriod(
+                                      match.billingPeriod,
+                                    );
+                                    const isSeat =
+                                      match.pricingType === "per_seat" ||
+                                      match.pricingType === "hybrid" ||
+                                      match.includedSeats > 0;
+                                    setBuilderType(
+                                      isSeat ? "seat" : "flat",
+                                    );
+                                    setBuilderIncludedSeats(
+                                      match.includedSeats || 0,
+                                    );
+                                    setBuilderSeatPrice(
+                                      isSeat
+                                        ? Math.round(
+                                            match.price /
+                                              Math.max(
+                                                1,
+                                                match.includedSeats || 1,
+                                              ),
+                                          )
+                                        : 0,
+                                    );
+                                    setEditMode(true);
+                                    setEditPlanStatus(
+                                      match.status === "active" ||
+                                        match.id === "growth" ||
+                                        match.id === "pro" ||
+                                        match.id === "enterprise"
+                                        ? "active"
+                                        : "draft",
+                                    );
+                                  }
+                                }}
+                                className={`px-3 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                  editMode
+                                    ? "bg-amber-100 text-amber-800 border border-amber-300"
+                                    : "bg-neutral-100 text-neutral-700 border border-neutral-200 hover:bg-neutral-200"
+                                }`}
+                              >
+                                {editMode ? "Editing" : "Edit"}
+                              </button>
+                            </div>
                           </div>
 
                           <div className="space-y-1">
@@ -1361,22 +1443,46 @@ export default function PricingBuilderView({
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                          <div className="space-y-1">
+                          <div className="space-y-1.5">
                             <label className="text-[10px] font-bold dp-secondary uppercase block">
-                              Billing Interval
+                              Billing Cadence
                             </label>
-                            <select
-                              value={builderBillingPeriod}
-                              onChange={(e) =>
-                                setBuilderBillingPeriod(e.target.value as any)
-                              }
-                              className="w-full text-xs border dp-border focus:border-black rounded-lg p-2 bg-transparent text-neutral-900"
-                            >
-                              <option value="monthly">Monthly</option>
-                              <option value="quarterly">Quarterly</option>
-                              <option value="yearly">Yearly</option>
-                              <option value="unlimited">Lifetime Flat</option>
-                            </select>
+                            <div className="flex gap-1.5 bg-neutral-50 p-1 rounded-lg border dp-border w-fit">
+                              {(["weekly", "monthly", "yearly"] as const).map(
+                                (period) => {
+                                  const isLiveLocked =
+                                    editMode && editPlanStatus === "active";
+                                  return (
+                                    <button
+                                      key={period}
+                                      type="button"
+                                      disabled={isLiveLocked}
+                                      onClick={() =>
+                                        setBuilderBillingPeriod(period)
+                                      }
+                                      className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                                        builderBillingPeriod === period
+                                          ? "bg-white text-neutral-900 shadow-sm border border-neutral-200"
+                                          : "text-neutral-500 hover:text-neutral-800"
+                                      } ${
+                                        isLiveLocked
+                                          ? "opacity-50 cursor-not-allowed"
+                                          : ""
+                                      }`}
+                                    >
+                                      {period.charAt(0).toUpperCase() +
+                                        period.slice(1)}
+                                    </button>
+                                  );
+                                },
+                              )}
+                            </div>
+                            {editMode && editPlanStatus === "active" && (
+                              <span className="text-[9px] text-amber-600 flex items-center gap-1">
+                                <Lock className="h-3 w-3" />
+                                Locked for live plan
+                              </span>
+                            )}
                           </div>
 
                           <div className="space-y-1">
@@ -1396,55 +1502,43 @@ export default function PricingBuilderView({
                             </select>
                           </div>
 
-                          <div className="space-y-1">
+                          <div className="space-y-1.5">
                             <label className="text-[10px] font-bold dp-secondary uppercase block">
-                              Methodology Class
+                              Pricing Model
                             </label>
-                            <select
-                              value={builderType}
-                              onChange={(e) => {
-                                const nextType = e.target.value as any;
-                                setBuilderType(nextType);
-
-                                // sync automatic togglers
-                                setDisabledBlocks((prev) => ({
-                                  ...prev,
-                                  seat_licensing:
-                                    nextType !== "seat" &&
-                                    nextType !== "hybrid",
-                                  usage_metering: nextType === "flat",
-                                }));
-                              }}
-                              className="w-full text-xs border dp-border focus:border-black rounded-lg p-2 bg-transparent text-neutral-900 font-bold"
-                            >
-                              <option value="flat">
-                                Flat Model (Single Fee)
-                              </option>
-                              <option value="usage">
-                                Usage Model (Per-Unit Overage)
-                              </option>
-                              <option value="seat">
-                                Seat Model (Pricing per member)
-                              </option>
-                              <option value="tiered">
-                                Tiered Pricing Brackets
-                              </option>
-                              <option value="volume">
-                                Volume Pricing Brackets
-                              </option>
-                              <option value="package">
-                                Package Pricing blocks
-                              </option>
-                              <option value="hybrid">
-                                Hybrid Engine (Base + Seat + Overage)
-                              </option>
-                            </select>
+                            <div className="flex gap-1.5 bg-neutral-50 p-1 rounded-lg border dp-border w-fit">
+                              {(["flat", "seat"] as const).map((model) => (
+                                <button
+                                  key={model}
+                                  type="button"
+                                  onClick={() => {
+                                    const nextType = model === "flat" ? "flat" : "seat";
+                                    setBuilderType(nextType);
+                                    setDisabledBlocks((prev) => ({
+                                      ...prev,
+                                      seat_licensing: nextType !== "seat",
+                                      usage_metering: nextType === "flat",
+                                    }));
+                                  }}
+                                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                                    (builderType === "flat" && model === "flat") ||
+                                    (builderType === "seat" && model === "seat")
+                                      ? "bg-white text-neutral-900 shadow-sm border border-neutral-200"
+                                      : "text-neutral-500 hover:text-neutral-800"
+                                  }`}
+                                >
+                                  {model === "flat"
+                                    ? "Flat Rate"
+                                    : "Seat-Based"}
+                                </button>
+                              ))}
+                            </div>
                           </div>
                         </div>
 
                         <div className="space-y-1">
                           <label className="text-[10px] font-bold dp-secondary uppercase block">
-                            Internal Memo & Description
+                            Description
                           </label>
                           <textarea
                             rows={2}
@@ -1529,19 +1623,19 @@ export default function PricingBuilderView({
                       </div>
 
                       {/* Section 3: Seats allowances if chosen */}
-                      {(builderType === "seat" || builderType === "hybrid") && (
+                      {builderType === "seat" && (
                         <div className="space-y-4 pt-3 border-t p-4 bg-slate-50/60 rounded-2xl border">
                           <div className="flex items-center gap-2">
                             <Users className="h-4 w-4 text-indigo-600" />
                             <span className="text-[11px] font-bold text-indigo-900 uppercase tracking-wider">
-                              Seats Pricing & allowances
+                              Seat Pricing
                             </span>
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1">
                               <label className="text-[10px] font-bold text-slate-600 block">
-                                Included Baseline seats
+                                Included Free Seats
                               </label>
                               <input
                                 type="number"
@@ -1557,7 +1651,7 @@ export default function PricingBuilderView({
 
                             <div className="space-y-1">
                               <label className="text-[10px] font-bold text-slate-600 block">
-                                Pricing per excess member
+                                Per Seat Price
                               </label>
                               <div className="relative flex items-center">
                                 <span className="absolute left-3 text-xs text-neutral-400 font-mono">
@@ -1578,58 +1672,6 @@ export default function PricingBuilderView({
                                   className="w-full text-xs border border-slate-200 rounded-lg p-2 pl-7 dp-card text-neutral-900 font-mono"
                                 />
                               </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Section 4: Hybrid configurations and metric hooks */}
-                      {builderType === "hybrid" && (
-                        <div className="space-y-4 pt-3 border-t p-4 bg-orange-50/50 rounded-2xl border border-orange-100">
-                          <div className="flex items-center gap-2">
-                            <Activity className="h-4 w-4 text-orange-600" />
-                            <span className="text-[11px] font-bold text-orange-900 uppercase tracking-wider">
-                              Dynamic Metric Overage Integration
-                            </span>
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                              <label className="text-[10px] font-bold text-orange-850 block">
-                                Usage Allowance floor
-                              </label>
-                              <input
-                                type="number"
-                                value={builderIncludedUsage}
-                                onChange={(e) =>
-                                  setBuilderIncludedUsage(
-                                    Math.max(0, Number(e.target.value)),
-                                  )
-                                }
-                                className="w-full text-xs border border-orange-200 rounded-lg p-2 dp-card text-neutral-900"
-                              />
-                              <span className="text-[9px] dp-muted block">
-                                Calcula balance before overage kicks in
-                              </span>
-                            </div>
-
-                            <div className="space-y-1">
-                              <label className="text-[10px] font-bold text-orange-850 block">
-                                Linked event Meter
-                              </label>
-                              <select
-                                value={builderMeterId}
-                                onChange={(e) =>
-                                  setBuilderMeterId(e.target.value)
-                                }
-                                className="w-full text-xs border border-orange-200 rounded-lg p-2 dp-card text-neutral-900"
-                              >
-                                {meters.map((m) => (
-                                  <option key={m.id} value={m.id}>
-                                    {m.name} ({m.id})
-                                  </option>
-                                ))}
-                              </select>
                             </div>
                           </div>
                         </div>
@@ -2585,349 +2627,57 @@ export default function PricingBuilderView({
                   )}
                 </div>
 
-                {/* Right Column Strategy: Interactive Previews (Bill Preview + Customer Preview + Validation Indicators) */}
+                {/* Right Column: Live Interactive Canvas (Code Preview + Customer View) */}
                 <div className="lg:col-span-5 space-y-6 text-left">
-                  {/* PREVIEW CONTAINER A: BILL PREVIEW & DYNAMIC CALCULATOR */}
-                  <div className="bg-neutral-900 text-neutral-100 p-6 rounded-3xl shadow-xl flex flex-col justify-between border border-neutral-850">
-                    <div>
-                      <div className="flex justify-between items-center border-b border-neutral-800 pb-3">
-                        <span className="text-[9px] bg-red-500 text-white px-2 py-0.5 rounded font-bold uppercase tracking-widest leading-relaxed">
-                          Bill Preview Engine
-                        </span>
-                        <span className="text-[10px] text-neutral-400 font-mono">
-                          Live Inputs Calculator
-                        </span>
-                      </div>
-
-                      {/* Simulation parameters sliders adjusters */}
-                      <div className="mt-4 space-y-4">
-                        <p className="text-[11px] text-neutral-300 leading-normal">
-                          Simulate user metrics variables to confirm
-                          calculations against hybrid brackets in real-time.
-                        </p>
-
-                        {/* Seat Licensing slider */}
-                        {(builderType === "seat" ||
-                          builderType === "hybrid" ||
-                          !disabledBlocks["seat_licensing"]) && (
-                          <div>
-                            <div className="flex justify-between text-[11px] mb-1 font-semibold">
-                              <span className="text-neutral-400">
-                                Team seats occupied
-                              </span>
-                              <span className="text-white font-mono">
-                                {testActiveSeats} active seats
-                              </span>
-                            </div>
-                            <input
-                              type="range"
-                              min="1"
-                              max="100"
-                              value={testActiveSeats}
-                              onChange={(e) =>
-                                setTestActiveSeats(Number(e.target.value))
-                              }
-                              className="w-full h-1 bg-neutral-800 rounded-lg accent-white cursor-pointer"
-                            />
-                          </div>
-                        )}
-
-                        {/* Metric overage consumed slider */}
-                        {builderType !== "flat" && builderType !== "seat" && (
-                          <div>
-                            <div className="flex justify-between text-[11px] mb-1 font-semibold">
-                              <span className="text-neutral-400">
-                                Simulated monthly consumed units
-                              </span>
-                              <span className="text-white font-mono">
-                                {testMonthlyUsage.toLocaleString()} API calls
-                              </span>
-                            </div>
-                            <input
-                              type="range"
-                              min="0"
-                              max="300000"
-                              step="1000"
-                              value={testMonthlyUsage}
-                              onChange={(e) =>
-                                setTestMonthlyUsage(Number(e.target.value))
-                              }
-                              className="w-full h-1 bg-neutral-800 rounded-lg accent-white cursor-pointer"
-                            />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Sequential formula breakdown lines sheet */}
-                      <div className="mt-6 pt-4 border-t border-neutral-800 space-y-2.5 text-[11px]">
-                        <div className="flex justify-between text-neutral-400">
-                          <span>Base recurring fee:</span>
-                          <span className="text-white font-semibold">
-                            ₦{bill.flatBase.toLocaleString()}
+                  {editMode && (
+                    <div
+                      className={`px-4 py-2.5 rounded-2xl border text-xs font-semibold flex items-center gap-2 ${
+                        editPlanStatus === "active"
+                          ? "bg-amber-50 border-amber-200 text-amber-900"
+                          : "bg-blue-50 border-blue-200 text-blue-900"
+                      }`}
+                    >
+                      {editPlanStatus === "active" ? (
+                        <>
+                          <Lock className="h-3.5 w-3.5 shrink-0" />
+                          <span>
+                            Editing <strong>live plan</strong> — billing cadence
+                            is locked. Price updates apply to new subscribers
+                            only.
                           </span>
-                        </div>
-
-                        {bill.annualDiscount > 0 && (
-                          <div className="flex justify-between text-emerald-400 bg-emerald-900/10 p-1.5 rounded">
-                            <span>
-                              🏷️ Cycle Annual Discount Applied (
-                              {builderAnnualDiscount}%):
-                            </span>
-                            <span>
-                              -₦{bill.annualDiscount.toLocaleString()}
-                            </span>
-                          </div>
-                        )}
-
-                        {bill.seatsCharge > 0 && (
-                          <div className="flex justify-between text-neutral-400">
-                            <span>
-                              Seat overage ({bill.seatsOverage} extra @ ₦
-                              {builderSeatPrice}/seat):
-                            </span>
-                            <span className="text-white font-semibold">
-                              ₦{bill.seatsCharge.toLocaleString()}
-                            </span>
-                          </div>
-                        )}
-
-                        {bill.usageCharge > 0 && (
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-neutral-400">
-                              <span>Usage consumed charges:</span>
-                              <span className="text-white font-semibold">
-                                ₦{bill.usageCharge.toLocaleString()}
-                              </span>
-                            </div>
-                            <div className="bg-neutral-950 p-2 rounded text-[10px] text-stone-400 space-y-1 border border-neutral-850">
-                              {bill.usageDetailLines.map((line, lIdx) => (
-                                <p key={lIdx} className="font-mono">
-                                  {line}
-                                </p>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {bill.addonCost > 0 && (
-                          <div className="flex justify-between text-neutral-400">
-                            <span>Continuous Addons cost:</span>
-                            <span className="text-white font-semibold">
-                              +₦{bill.addonCost.toLocaleString()}
-                            </span>
-                          </div>
-                        )}
-
-                        {bill.minSpendAdjustment > 0 && (
-                          <div className="flex justify-between text-indigo-300 bg-indigo-950/40 p-2 rounded border border-indigo-900/20">
-                            <span>⚙ Committed Spend Floor offset topup:</span>
-                            <span>
-                              +₦{bill.minSpendAdjustment.toLocaleString()}
-                            </span>
-                          </div>
-                        )}
-
-                        {bill.cappedAdjustment > 0 && (
-                          <div className="flex justify-between text-pink-400 bg-pink-950/40 p-2 rounded border border-pink-900/20">
-                            <span>
-                              🔒 Wallet limits protection Capped reduction:
-                            </span>
-                            <span>
-                              -₦{bill.cappedAdjustment.toLocaleString()}
-                            </span>
-                          </div>
-                        )}
-
-                        {bill.prepaidOffset > 0 && (
-                          <div className="flex justify-between text-cyan-400 bg-cyan-950/40 p-2 rounded border border-cyan-900/20">
-                            <span>🔋 Balance prepaid credits deducted:</span>
-                            <span>-₦{bill.prepaidOffset.toLocaleString()}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Grand total client invoice display */}
-                    <div className="border-t border-neutral-800 pt-5 mt-5 flex justify-between items-baseline font-mono">
-                      <span className="text-[11px] font-bold text-neutral-300 uppercase tracking-wider">
-                        Estimated Client invoice:
-                      </span>
-                      <span className="text-3xl font-extrabold text-blue-400 font-mono tracking-tight animate-pulse">
-                        ₦{bill.total.toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* PREVIEW CONTAINER B: CONSUMER PRICING CARD PREVIEW */}
-                  <div className="dp-card border dp-border p-6 rounded-3xl shadow-sm text-left space-y-5">
-                    <div className="flex justify-between items-center border-b pb-3">
-                      <h5 className="text-xs font-bold text-neutral-900 uppercase tracking-tight flex items-center gap-2">
-                        <Eye className="h-4 w-4 text-[#0071E3]" />
-                        Customer Card View
-                      </h5>
-                      <span className="text-[10px] text-stone-500 font-bold dp-surface px-2 py-0.5 rounded border">
-                        Preview
-                      </span>
-                    </div>
-
-                    {/* Pricing Card Simulation */}
-                    <div className="rounded-2xl border border-neutral-200 p-5 bg-gradient-to-b from-neutral-50/50 to-white hover:shadow-md transition-shadow relative overflow-hidden">
-                      {/* Corner badge overlay */}
-                      {builderBillingPeriod === "yearly" && (
-                        <div className="absolute top-0 right-0 p-2 bg-emerald-500 text-white text-[8px] font-bold uppercase tracking-wider">
-                          Save {builderAnnualDiscount}%
-                        </div>
-                      )}
-
-                      <div className="space-y-1 text-left">
-                        <span className="text-[9px] bg-neutral-100 dp-text px-2 py-0.5 rounded-full font-bold uppercase font-mono tracking-wide">
-                          {builderPlanId.toUpperCase()} SPEC
-                        </span>
-                        <h4 className="text-lg font-extrabold dp-text leading-tight pt-1">
-                          {builderName}
-                        </h4>
-                        <p className="text-[11px] dp-secondary leading-snug">
-                          {builderDesc ||
-                            "Professional monetization rule for scale workspaces."}
-                        </p>
-                      </div>
-
-                      <div className="my-5 flex items-baseline gap-1 dp-surface -mx-5 p-4 border-y border-neutral-100 text-left">
-                        <span className="text-2xl font-black text-neutral-900 font-mono">
-                          {builderCurrency === "NGN"
-                            ? "₦"
-                            : builderCurrency === "USD"
-                              ? "$"
-                              : "€"}
-                          {builderBaseFee.toLocaleString()}
-                        </span>
-                        <span className="text-[10px] dp-secondary font-bold uppercase tracking-wider">
-                          / {builderBillingPeriod}
-                        </span>
-                      </div>
-
-                      <div className="space-y-2 text-xs font-medium text-neutral-700 text-left">
-                        {/* included seats check */}
-                        {builderType === "seat" ||
-                        builderType === "hybrid" ||
-                        !disabledBlocks["seat_licensing"] ? (
-                          <div className="flex items-center gap-2 text-neutral-600">
-                            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                            <span>
-                              Included baseline of{" "}
-                              <strong>{builderIncludedSeats} Seats</strong>
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2 text-neutral-600">
-                            <div className="h-1.5 w-1.5 rounded-full bg-slate-300" />
-                            <span>Standard team member limits apply</span>
-                          </div>
-                        )}
-
-                        {/* meter allowances checks */}
-                        {builderType === "hybrid" && (
-                          <div className="flex items-center gap-2 text-neutral-600">
-                            <div className="h-1.5 w-1.5 rounded-full bg-[#0071E3]" />
-                            <span>
-                              Includes{" "}
-                              <strong>
-                                {builderIncludedUsage.toLocaleString()} free
-                                compute units
-                              </strong>
-                            </span>
-                          </div>
-                        )}
-
-                        {/* overage rates check */}
-                        {builderType !== "flat" && builderType !== "seat" && (
-                          <div className="flex items-center gap-2 text-neutral-600">
-                            <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                            <span>
-                              Overage rate:{" "}
-                              <strong>
-                                ₦{builderOverageUnitPrice}/api call
-                              </strong>
-                            </span>
-                          </div>
-                        )}
-
-                        {/* spending ceiling check */}
-                        {!disabledBlocks["advanced_spend_limits"] && (
-                          <div className="flex items-center gap-2 text-neutral-600">
-                            <div className="h-1.5 w-1.5 rounded-full bg-pink-500" />
-                            <span>
-                              Minimum monthly commitment floor:{" "}
-                              <strong>
-                                ₦{builderMinSpend.toLocaleString()}
-                              </strong>
-                            </span>
-                          </div>
-                        )}
-
-                        {/* credit offset check */}
-                        {!disabledBlocks["prepaid_credits"] &&
-                          builderPrepaidCredits > 0 && (
-                            <div className="flex items-center gap-1.5 bg-cyan-50 text-cyan-800 p-2 rounded-xl border border-cyan-100 font-mono text-[10px] font-bold">
-                              🔋 Loaded signup credits balance ₦
-                              {builderPrepaidCredits.toLocaleString()}{" "}
-                              automatically included
-                            </div>
-                          )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* PREVIEW CONTAINER C: VALIDATIONS DIAGNOSTICS ENGINE REPORT */}
-                  <div className="dp-card border dp-border p-6 rounded-3xl shadow-sm text-left space-y-4">
-                    <h5 className="text-xs font-extrabold text-neutral-900 uppercase tracking-wider flex items-center gap-2 border-b pb-3">
-                      <ShieldAlert className="h-4.5 w-4.5 text-[#0071E3]" />
-                      Real-time Validations diagnostics
-                    </h5>
-
-                    <div className="space-y-3">
-                      {validations.map((issue) => (
-                        <div
-                          key={issue.id}
-                          className={`p-3.5 rounded-2xl border flex items-start gap-3 text-xs leading-relaxed ${
-                            issue.type === "error"
-                              ? "bg-red-50 border-red-200 text-red-900"
-                              : "bg-amber-50 border-amber-200 text-amber-900"
-                          }`}
-                        >
-                          <ShieldAlert
-                            className={`h-4.5 w-4.5 shrink-0 mt-0.5 ${issue.type === "error" ? "text-red-600" : "text-amber-600"}`}
-                          />
-                          <div className="space-y-1">
-                            <p className="font-extrabold text-stone-900">
-                              {issue.type === "error"
-                                ? "Blocker: "
-                                : "Warning: "}{" "}
-                              {issue.message}
-                            </p>
-                            <p className="text-[11px] text-stone-600">
-                              {issue.fix}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-
-                      {validations.length === 0 && (
-                        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl flex items-center gap-2.5 text-xs font-semibold">
-                          <Check className="h-4.5 w-4.5 bg-emerald-500 text-white rounded-full p-0.5 shadow shrink-0" />
-                          <div>
-                            <p className="font-bold text-stone-900">
-                              Pricing Spec Pristine
-                            </p>
-                            <p className="text-[10px] text-stone-600 font-medium leading-none mt-1">
-                              Zero structural circular constraints detected.
-                              Safe to commit.
-                            </p>
-                          </div>
-                        </div>
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="h-3.5 w-3.5 shrink-0" />
+                          <span>
+                            Editing <strong>draft plan</strong> — all fields can
+                            be modified.
+                          </span>
+                        </>
                       )}
                     </div>
-                  </div>
+                  )}
+
+                  <PricingPlanLivePreview
+                    planName={builderName}
+                    planDescription={builderDesc}
+                    basePrice={builderBaseFee}
+                    currency={builderCurrency}
+                    billingPeriod={
+                      (builderBillingPeriod === "weekly" ||
+                      builderBillingPeriod === "monthly" ||
+                      builderBillingPeriod === "yearly"
+                        ? builderBillingPeriod
+                        : "monthly") as "weekly" | "monthly" | "yearly"
+                    }
+                    pricingModel={
+                      builderType === "seat" || builderType === "hybrid"
+                        ? "seat"
+                        : "flat"
+                    }
+                    seatPrice={builderSeatPrice}
+                    includedSeats={builderIncludedSeats}
+                  />
                 </div>
               </div>
             </div>

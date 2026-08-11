@@ -322,8 +322,8 @@ export function generateJsonLd(seo: SEOProps): string {
 }
 
 
-export function updateMetaTags(seo: SEOProps) {
-  if (typeof document === "undefined") return;
+export function updateMetaTags(seo: SEOProps | undefined) {
+  if (typeof document === "undefined" || !seo) return;
 
   const updateMeta = (name: string, content: string, property = false) => {
     const selector = property ? `meta[property="${name}"]` : `meta[name="${name}"]`;

@@ -12,7 +12,7 @@ import {
   subscriptionRepo,
   usageRepo,
 } from "../db.ts";
-import { asyncHandler, parsePagination, badRequest, notFound, conflict } from "../middleware.ts";
+import { asyncHandler, badRequest, notFound, conflict } from "../middleware.ts";
 import { createInvoiceOnGateway } from "../services/billing-sync.ts";
 
 export const router = Router();
@@ -23,7 +23,7 @@ router.get("/", asyncHandler(async (req, res) => {
   const customerIds = customers.map((c) => c.id);
 
   if (customerIds.length === 0) {
-    return res.json({ data: [], total: 0, page: 1, limit: 50, hasMore: false });
+    return res.json([]);
   }
 
   const invoices = await invoiceRepo.findByCustomerIds(customerIds);
@@ -38,27 +38,7 @@ router.get("/", asyncHandler(async (req, res) => {
   if (status) filtered = filtered.filter((inv) => inv.status === status);
   if (customerId) filtered = filtered.filter((inv) => inv.customerId === customerId);
 
-  const pagination = parsePagination(req);
-  const sliced = filtered.slice(pagination.offset, pagination.offset + pagination.limit);
-  res.json({
-    data: sliced,
-    total: filtered.length,
-    page: pagination.page,
-    limit: pagination.limit,
-    hasMore: pagination.offset + pagination.limit < filtered.length,
-  });
-}));
-
-router.get("/:id", asyncHandler(async (req, res) => {
-  const inv = await invoiceRepo.findById(null as any, req.params.id);
-  if (!inv) return notFound(res, "Invoice");
-
-  const customer = await customerRepo.findById(null as any, inv.customerId);
-  res.json({
-    ...inv,
-    customerName: customer?.name ?? inv.customerId,
-    customerEmail: customer?.email ?? "",
-  });
+  res.json(filtered);
 }));
 
 router.post("/", asyncHandler(async (req, res) => {
@@ -229,6 +209,20 @@ router.get("/revenue", asyncHandler(async (req, res) => {
     monthly: Object.entries(monthly).map(([month, amount]) => ({ month, amount })),
     total: Object.values(monthly).reduce((s, v) => s + v, 0),
     byCustomer: byCustomerList,
+  });
+}));
+
+/** Get a single invoice (registered last so fixed paths like
+ *  /stats and /revenue are matched before this :id route) */
+router.get("/:id", asyncHandler(async (req, res) => {
+  const inv = await invoiceRepo.findById(null as any, req.params.id);
+  if (!inv) return notFound(res, "Invoice");
+
+  const customer = await customerRepo.findById(null as any, inv.customerId);
+  res.json({
+    ...inv,
+    customerName: customer?.name ?? inv.customerId,
+    customerEmail: customer?.email ?? "",
   });
 }));
 

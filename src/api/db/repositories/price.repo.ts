@@ -61,6 +61,26 @@ export async function findByPlan(
   return rows.map(rowToPrice);
 }
 
+export async function findAll(
+  _client: pg.PoolClient | null,
+  filters: { productId?: string; type?: string; activeOnly?: boolean } = {},
+): Promise<Price[]> {
+  const conditions: string[] = [];
+  const params: any[] = [];
+  let idx = 1;
+
+  if (filters.productId) { conditions.push(`plan_id = $${idx++}`); params.push(filters.productId); }
+  if (filters.type) { conditions.push(`type = $${idx++}`); params.push(filters.type); }
+  if (filters.activeOnly) conditions.push("is_active = true");
+
+  const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+  const { rows } = await query<PriceRow>(
+    `SELECT id, plan_id, name, type, billing_period, currency, base_fee, seat_price, included_seats, meter_id, included_usage, overage_unit_price, tiers, volume_pricing, package_size, package_price, version, is_active, is_archived, created_at FROM prices ${where} ORDER BY created_at DESC`,
+    params,
+  );
+  return rows.map(rowToPrice);
+}
+
 export async function findById(id: string): Promise<Price | null> {
   const { rows } = await query<PriceRow>(
     "SELECT id, plan_id, name, type, billing_period, currency, base_fee, seat_price, included_seats, meter_id, included_usage, overage_unit_price, tiers, volume_pricing, package_size, package_price, version, is_active, is_archived, created_at FROM prices WHERE id = $1",
@@ -99,6 +119,7 @@ export async function softDelete(client: pg.PoolClient | null, id: string): Prom
 
 export const priceRepo = {
   findByPlan,
+  findAll,
   findById,
   create,
   deactivateByPlan,

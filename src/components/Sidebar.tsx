@@ -39,7 +39,7 @@ export type SidebarTab =
   | "developers"
   | "settings"
   | "docs"
-  | "waitlist";
+  | "sign-in";
 
 interface SidebarProps {
   activeTab: SidebarTab;
@@ -90,9 +90,9 @@ export default function Sidebar({
       className={`w-64 border-r dp-border dp-surface flex flex-col justify-between h-screen fixed left-0 top-0 z-50 transition-transform duration-300 md:translate-x-0 ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
       <div className="flex flex-col flex-1 py-5 px-4 overflow-y-auto">
-        {/* Branding Title */}
+        {/* Branding Title — clickable to dashboard */}
         <div className="flex items-center justify-between px-2 mb-6">
-          <div className="flex items-center gap-3">
+          <button onClick={() => handleTabClick("dashboard")} className="flex items-center gap-3 cursor-pointer text-left">
             <div className="rounded-lg dp-surface-alt p-1.5">
               <img src="/aorahq-logo.png" alt="AoraHQ" className="h-8 w-auto" />
             </div>
@@ -104,7 +104,7 @@ export default function Sidebar({
                 Operating System
               </p>
             </div>
-          </div>
+          </button>
           {onCloseMobile && (
             <button
               onClick={onCloseMobile}
@@ -147,7 +147,7 @@ export default function Sidebar({
         {/* Platform documentation fallback link */}
         <div className="mt-6 pt-4 border-t dp-divider space-y-1">
           <button
-            onClick={() => handleTabClick("docs")}
+            onClick={() => window.open("/docs", "_blank", "noopener,noreferrer")}
             className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-medium transition-all duration-150 cursor-pointer ${
               activeTab === "docs"
                 ? "dp-card dp-text shadow-sm border dp-border"

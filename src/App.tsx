@@ -21,8 +21,9 @@ import SettingsView from "./components/SettingsView";
 import AccountDetailsView from "./components/AccountDetailsView";
 import SecurityAccessView from "./components/SecurityAccessView";
 import DocumentationView from "./components/DocumentationView";
-import WaitlistView from "./components/WaitlistView";
+import AuthPage from "./components/AuthPage";
 import AIAssistantWidget from "./components/AIAssistantWidget";
+import { DashboardThemeProvider } from "./components/DashboardTheme";
 import {
   Plan,
   Customer,
@@ -258,12 +259,8 @@ export default function App() {
             workspaceName={workspace}
           />
         );
-      case "waitlist":
-        return (
-          <WaitlistView
-            onNavigateTab={(tab) => setActiveTab(tab as SidebarTab)}
-          />
-        );
+      case "sign-in":
+        return <AuthPage onNavigateTab={(tab) => setActiveTab(tab as SidebarTab)} />;
       default:
         return (
           <DashboardView
@@ -291,19 +288,29 @@ export default function App() {
     }
   };
 
-  const isDashboard = activeTab !== "landing" && activeTab !== "docs" && activeTab !== "waitlist";
+  const isDocs = activeTab === "docs";
+  const isLandingOrAuth = activeTab === "landing" || activeTab === "sign-in";
+  const isDashboard = !isLandingOrAuth && !isDocs;
 
   return (
     <div className="min-h-screen font-sans antialiased selection:bg-neutral-100 selection:text-black">
-      {/* Landing / Waitlist / Docs — each has its own theme provider */}
-      {!isDashboard && (
+      {/* Landing page — standalone, no dashboard chrome */}
+      {isLandingOrAuth && (
         <div
-          className={`${activeTab === "landing" || activeTab === "docs" || activeTab === "waitlist" ? "" : ""} min-h-screen flex flex-col transition-all duration-300`}
+          className="min-h-screen flex flex-col transition-all duration-300"
         >
           <main className="flex-1 w-full max-w-none">
             {renderActiveView()}
           </main>
         </div>
+      )}
+
+      {/* Platform docs — standalone full page, no dashboard chrome */}
+      {isDocs && (
+        <DocumentationView
+          onBackToDashboard={() => setActiveTab("dashboard")}
+          workspaceName={workspace}
+        />
       )}
 
       {/* Dashboard pages — scoped dark mode */}
@@ -333,7 +340,7 @@ export default function App() {
                 globalSearch={globalSearch}
                 setGlobalSearch={setGlobalSearch}
                 onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                onNavigateDocs={() => setActiveTab("docs")}
+                onNavigateDocs={() => window.open("/docs", "_blank", "noopener,noreferrer")}
                 onOpenProfileSettings={() => {
                   setProfileSection("settings");
                   setActiveTab("settings");

@@ -51,7 +51,7 @@ export async function resolveWorkspace(
   const { rows } = await query<WorkspaceRow>(
     `SELECT id, organization_id, name, environment, api_keys, profile, settings, created_at
      FROM workspaces
-     WHERE id = $1 OR LOWER(name) = LOWER($1)`,
+     WHERE id::text = $1 OR LOWER(name) = LOWER($1)`,
     [identifier],
   );
   if (rows.length === 0) return null;

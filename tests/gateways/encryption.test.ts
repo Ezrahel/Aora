@@ -2,11 +2,11 @@
 // Gateway Encryption Tests
 // ============================================================
 
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, vi } from "vitest";
 import { encrypt, decrypt, previewKey } from "../../src/gateways/encryption.ts";
 
 // Set a fixed encryption key for tests
-process.env.GATEWAY_ENCRYPTION_KEY = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
+process.env.AORAHQ_MASTER_ENCRYPTION_KEY = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
 
 describe("encryption", () => {
   it("should encrypt and decrypt a key correctly", () => {
@@ -38,13 +38,18 @@ describe("encryption", () => {
     expect(() => decrypt(tampered)).toThrow();
   });
 
-  it("should fail to decrypt with a different key", () => {
+  it("should fail to decrypt with a different key", async () => {
     const original = "sk_test_xxxxxxxxxxxxxxxxxxxx";
     const encrypted = encrypt(original);
-    process.env.GATEWAY_ENCRYPTION_KEY = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-    expect(() => decrypt(encrypted)).toThrow();
+
+    // Swap to a different key and reload the module so the singleton
+    // master key is re-derived from the new env value.
+    process.env.AORAHQ_MASTER_ENCRYPTION_KEY = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+    vi.resetModules();
+    const differentModule = await import("../../src/gateways/encryption.ts");
+    expect(() => differentModule.decrypt(encrypted)).toThrow();
     // Reset key for other tests
-    process.env.GATEWAY_ENCRYPTION_KEY = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
+    process.env.AORAHQ_MASTER_ENCRYPTION_KEY = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
   });
 });
 

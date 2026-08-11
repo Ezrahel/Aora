@@ -1,9 +1,24 @@
+# AoraHQ — Billing Orchestration Engine
 
-**Prerequisites:** 
+Developer-first, cloud-based billing orchestration and usage-based metering. Customers bring their own Stripe/Paystack/Flutterwave keys (BYOK); AoraHQ handles the billing logic. Zero asset custody.
 
+## Quick Start
 
-1. Install dependencies:
-   `npm install`
-2. Set env
-3. Run the app:
-   `npm run dev`
+```bash
+npm install
+# Copy .env.example → .env and set DATABASE_URL, etc.
+npm run dev
+```
+
+## Documentation
+
+- **[Backend Features Guide](./BACKEND_FEATURES_GUIDE.md)** — Detailed walkthrough of proration, ingress metering, deduplication, batch ingestion, sandbox playground, zero-trust encryption, webhook dispatcher, and dunning state machine
+- **[Product Roadmap](./ROADMAP.md)** — Vision, what's built, and upcoming phases
+
+## Stack
+
+- **Frontend:** React, TypeScript, Tailwind, Vite
+- **Backend:** Express, TypeScript
+- **Database:** CockroachDB (PostgreSQL-compatible)
+- **Cache:** Redis (in-memory fallback)
+- **Payments:** Non-custodial gateway adapter interface (Stripe, Sandbox)

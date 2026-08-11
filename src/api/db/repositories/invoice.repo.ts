@@ -172,8 +172,25 @@ export async function patchStatus(
   return rows[0] ?? null;
 }
 
+export async function findByCustomerIds(
+  customerIds: string[],
+): Promise<InvoiceRow[]> {
+  if (customerIds.length === 0) return [];
+  const placeholders = customerIds.map((_, i) => `$${i + 1}`).join(", ");
+  const { rows } = await query<InvoiceRow>(
+    `SELECT id, workspace_id, customer_id, subscription_id, amount, currency, status,
+       usage_units, period_start, period_end, issued_at, finalized_at, paid_at,
+       voided_at, line_items, metadata, created_at
+     FROM invoices WHERE customer_id IN (${placeholders})
+     ORDER BY created_at DESC`,
+    customerIds,
+  );
+  return rows;
+}
+
 export const invoiceRepo = {
   findByWorkspace,
+  findByCustomerIds,
   findById,
   create,
   update,

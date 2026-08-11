@@ -63,8 +63,8 @@ export default function UsageMeteringView({
     setLoadingLedger(true);
     try {
       const [qRes, cRes] = await Promise.all([
-        fetch("/api/quotas"),
-        fetch("/api/credits/ledger")
+        fetch("/api/usage/quotas"),
+        fetch("/api/usage/credits")
       ]);
       if (qRes.ok) {
         const qData = await qRes.json();

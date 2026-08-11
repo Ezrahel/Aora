@@ -7,6 +7,13 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+// Prevent unhandled promise rejections from crashing the dev server.
+// Better Auth's dash plugin makes outgoing HTTP requests that may
+// fail or timeout in local/tunnel environments.
+process.on("unhandledRejection", (reason) => {
+  console.warn("[server] Unhandled rejection (non-fatal):", reason);
+});
+
 import app, { initializeDatabase, dbAvailable } from "./src/app.ts";
 import express from "express";
 import path from "path";

@@ -24,10 +24,7 @@ const MIGRATIONS: Migration[] = [
 -- Version: 001
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS aora_billing;
-USE aora_billing;
-
-CREATE TABLE organizations (
+CREATE TABLE IF NOT EXISTS organizations (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name        STRING(255) NOT NULL,
     status      STRING(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'suspended')),
@@ -35,7 +32,7 @@ CREATE TABLE organizations (
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 ) LOCALITY GLOBAL;
 
-CREATE TABLE workspaces (
+CREATE TABLE IF NOT EXISTS workspaces (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
     name            STRING(255) NOT NULL,
@@ -47,7 +44,7 @@ CREATE TABLE workspaces (
     UNIQUE INDEX idx_workspaces_name_env (organization_id, name, environment)
 ) LOCALITY GLOBAL;
 
-CREATE TABLE members (
+CREATE TABLE IF NOT EXISTS members (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
     email        STRING(320) NOT NULL,
@@ -57,7 +54,7 @@ CREATE TABLE members (
     UNIQUE INDEX idx_members_ws_email (workspace_id, email)
 ) LOCALITY GLOBAL;
 
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
     name         STRING(255) NOT NULL,
@@ -67,7 +64,7 @@ CREATE TABLE products (
     INDEX idx_products_workspace (workspace_id) STORING (name, is_archived)
 ) LOCALITY GLOBAL;
 
-CREATE TABLE features (
+CREATE TABLE IF NOT EXISTS features (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
     slug         STRING(255) NOT NULL,
@@ -79,7 +76,7 @@ CREATE TABLE features (
     UNIQUE INDEX idx_features_ws_slug (workspace_id, slug)
 ) LOCALITY GLOBAL;
 
-CREATE TABLE plans (
+CREATE TABLE IF NOT EXISTS plans (
     id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     product_id        UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     name              STRING(255) NOT NULL,
@@ -98,7 +95,7 @@ CREATE TABLE plans (
     INDEX idx_plans_product (product_id) STORING (name, price, billing_period, is_archived)
 ) LOCALITY GLOBAL;
 
-CREATE TABLE entitlements (
+CREATE TABLE IF NOT EXISTS entitlements (
     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     plan_id    UUID NOT NULL REFERENCES plans(id) ON DELETE CASCADE,
     feature_id UUID NOT NULL REFERENCES features(id) ON DELETE CASCADE,
@@ -108,7 +105,7 @@ CREATE TABLE entitlements (
     UNIQUE INDEX idx_entitlements_plan_feature (plan_id, feature_id)
 ) LOCALITY GLOBAL;
 
-CREATE TABLE meter_definitions (
+CREATE TABLE IF NOT EXISTS meter_definitions (
     id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name             STRING(255) NOT NULL,
     description      STRING(1000) NOT NULL DEFAULT '',
@@ -120,7 +117,7 @@ CREATE TABLE meter_definitions (
     status           STRING(20) NOT NULL DEFAULT 'active' CHECK (status IN ('draft','active','archived'))
 ) LOCALITY GLOBAL;
 
-CREATE TABLE prices (
+CREATE TABLE IF NOT EXISTS prices (
     id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     plan_id            UUID NOT NULL REFERENCES plans(id) ON DELETE CASCADE,
     name               STRING(255) NOT NULL,
@@ -144,7 +141,7 @@ CREATE TABLE prices (
     INDEX idx_prices_plan_active (plan_id, is_active) STORING (type, base_fee, version)
 ) LOCALITY GLOBAL;
 
-CREATE TABLE rate_cards (
+CREATE TABLE IF NOT EXISTS rate_cards (
     id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name           STRING(255) NOT NULL,
     description    STRING(1000) NOT NULL DEFAULT '',
@@ -158,7 +155,7 @@ CREATE TABLE rate_cards (
     created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 ) LOCALITY GLOBAL;
 
-CREATE TABLE discounts (
+CREATE TABLE IF NOT EXISTS discounts (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name            STRING(255) NOT NULL,
     type            STRING(20) NOT NULL CHECK (type IN ('percentage', 'fixed')),
@@ -170,7 +167,7 @@ CREATE TABLE discounts (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 ) LOCALITY GLOBAL;
 
-CREATE TABLE coupons (
+CREATE TABLE IF NOT EXISTS coupons (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name            STRING(255) NOT NULL,
     discount_id     UUID NOT NULL REFERENCES discounts(id) ON DELETE CASCADE,
@@ -183,7 +180,7 @@ CREATE TABLE coupons (
     UNIQUE INDEX idx_coupons_code (code)
 ) LOCALITY GLOBAL;
 
-CREATE TABLE customers (
+CREATE TABLE IF NOT EXISTS customers (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     workspace_id    UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
     name            STRING(255) NOT NULL,
@@ -206,7 +203,7 @@ CREATE TABLE customers (
     UNIQUE INDEX idx_customers_ws_email (workspace_id, email) WHERE NOT is_deleted
 ) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION;
 
-CREATE TABLE subscriptions (
+CREATE TABLE IF NOT EXISTS subscriptions (
     id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id          UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
     plan_id              UUID NOT NULL REFERENCES plans(id),
@@ -227,7 +224,7 @@ CREATE TABLE subscriptions (
     INDEX idx_subscriptions_period_end (current_period_end) WHERE status IN ('active', 'trial')
 ) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION;
 
-CREATE TABLE invoices (
+CREATE TABLE IF NOT EXISTS invoices (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     workspace_id    UUID NOT NULL REFERENCES workspaces(id),
     customer_id     UUID NOT NULL REFERENCES customers(id),
@@ -250,7 +247,7 @@ CREATE TABLE invoices (
     INDEX idx_invoices_due (status, created_at) WHERE status = 'open' OR status = 'past_due'
 ) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION;
 
-CREATE TABLE usage_events (
+CREATE TABLE IF NOT EXISTS usage_events (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id UUID NOT NULL REFERENCES customers(id),
     meter_id    UUID NOT NULL REFERENCES meter_definitions(id),
@@ -261,7 +258,7 @@ CREATE TABLE usage_events (
     INDEX idx_usage_time (meter_id, timestamp DESC)
 ) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION;
 
-CREATE TABLE usage_aggregates (
+CREATE TABLE IF NOT EXISTS usage_aggregates (
     customer_id UUID NOT NULL,
     meter_id    UUID NOT NULL,
     period      STRING(10) NOT NULL,
@@ -272,7 +269,7 @@ CREATE TABLE usage_aggregates (
     FAMILY f_main (total_value, updated_at)
 );
 
-CREATE TABLE quotas (
+CREATE TABLE IF NOT EXISTS quotas (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id UUID NOT NULL REFERENCES customers(id),
     meter_id    UUID NOT NULL REFERENCES meter_definitions(id),
@@ -283,7 +280,7 @@ CREATE TABLE quotas (
     UNIQUE INDEX idx_quotas_customer_meter (customer_id, meter_id, period)
 );
 
-CREATE TABLE credit_ledger (
+CREATE TABLE IF NOT EXISTS credit_ledger (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id UUID NOT NULL REFERENCES customers(id),
     amount      DECIMAL(18,4) NOT NULL,
@@ -294,13 +291,13 @@ CREATE TABLE credit_ledger (
     INDEX idx_credit_customer (customer_id, created_at DESC)
 );
 
-CREATE TABLE credit_balances (
+CREATE TABLE IF NOT EXISTS credit_balances (
     customer_id UUID PRIMARY KEY REFERENCES customers(id),
     balance     DECIMAL(18,4) NOT NULL DEFAULT 0,
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE custom_contracts (
+CREATE TABLE IF NOT EXISTS custom_contracts (
     id                             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id                    UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
     name                           STRING(255) NOT NULL,
@@ -315,7 +312,7 @@ CREATE TABLE custom_contracts (
     INDEX idx_contracts_customer (customer_id) WHERE NOT is_deleted
 ) LOCALITY GLOBAL;
 
-CREATE TABLE audit_logs (
+CREATE TABLE IF NOT EXISTS audit_logs (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     workspace_id UUID NOT NULL REFERENCES workspaces(id),
     actor        STRING(255) NOT NULL DEFAULT 'System',
@@ -329,7 +326,7 @@ CREATE TABLE audit_logs (
     INDEX idx_audit_entity (entity_type, entity_id, created_at DESC)
 ) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION;
 
-CREATE TABLE webhook_endpoints (
+CREATE TABLE IF NOT EXISTS webhook_endpoints (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     workspace_id UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
     url          STRING(2048) NOT NULL,
@@ -341,7 +338,7 @@ CREATE TABLE webhook_endpoints (
     INDEX idx_webhook_ws (workspace_id)
 ) LOCALITY GLOBAL;
 
-CREATE TABLE webhook_deliveries (
+CREATE TABLE IF NOT EXISTS webhook_deliveries (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     webhook_id      UUID NOT NULL REFERENCES webhook_endpoints(id) ON DELETE CASCADE,
     event           STRING(50) NOT NULL,
@@ -355,7 +352,7 @@ CREATE TABLE webhook_deliveries (
     INDEX idx_delivery_pending (status, created_at) WHERE status = 'pending'
 ) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION;
 
-CREATE TABLE schema_migrations (
+CREATE TABLE IF NOT EXISTS schema_migrations (
     version     INT PRIMARY KEY,
     description STRING(500) NOT NULL,
     applied_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -438,6 +435,389 @@ CREATE TABLE IF NOT EXISTS processed_idempotency_keys (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 ) LOCALITY GLOBAL;`,
   },
+  {
+    version: 5,
+    description: "proration_support",
+    sql: `CREATE TABLE IF NOT EXISTS seat_adjustments (
+    id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    subscription_id   UUID NOT NULL REFERENCES subscriptions(id) ON DELETE CASCADE,
+    previous_seat_count INT NOT NULL,
+    new_seat_count    INT NOT NULL,
+    adjustment_cents  DECIMAL(18,4) NOT NULL,
+    is_charge         BOOL NOT NULL,
+    transaction_ref   STRING(255),
+    created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+    INDEX idx_seat_adj_sub (subscription_id, created_at DESC),
+    INDEX idx_seat_adj_charge (is_charge, created_at DESC)
+) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION;
+
+ALTER TABLE credit_ledger DROP CONSTRAINT IF EXISTS credit_ledger_type_check;
+ALTER TABLE credit_ledger ADD CONSTRAINT credit_ledger_type_check
+    CHECK (type IN (
+        'credit_issued',
+        'credit_consumed',
+        'credit_expired',
+        'credit_reversed',
+        'proration_credit',
+        'proration_charge'
+    ));`,
+  },
+  {
+    version: 6,
+    description: "ingress_ledger",
+    sql: `CREATE TABLE IF NOT EXISTS ingress_ledger (
+    tenant_id      UUID NOT NULL,
+    hour_bucket    TIMESTAMPTZ NOT NULL,
+    event_count    BIGINT NOT NULL DEFAULT 0,
+    billable_units BIGINT NOT NULL DEFAULT 0,
+    batch_count    BIGINT NOT NULL DEFAULT 0,
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (tenant_id, hour_bucket)
+) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION;
+
+CREATE INDEX IF NOT EXISTS idx_ingress_ledger_time
+    ON ingress_ledger (tenant_id, hour_bucket DESC);`,
+  },
+  {
+    version: 7,
+    description: "event_dedup",
+    sql: `CREATE TABLE IF NOT EXISTS processed_events (
+    dedup_key    STRING(512) PRIMARY KEY,
+    tenant_id    UUID NOT NULL,
+    event_id     STRING(255) NOT NULL,
+    expires_at   TIMESTAMPTZ NOT NULL,
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+) LOCALITY GLOBAL;
+
+CREATE INDEX IF NOT EXISTS idx_processed_events_expires
+    ON processed_events (expires_at);`,
+  },
+  {
+    version: 8,
+    description: "batch_ingestion_charged_units",
+    sql: `ALTER TABLE ingress_ledger ADD COLUMN IF NOT EXISTS charged_units DECIMAL(18,4) NOT NULL DEFAULT 0;`,
+  },
+  {
+    version: 9,
+    description: "sandbox_isolation",
+    sql: `-- ============================================================
+-- Aora Billing OS — Sandbox Isolation
+-- Version: 009
+-- ============================================================
+-- Adds is_test columns to core tables so sandbox (sk_test_*) and
+-- live (sk_live_*) data can coexist in the same database schema
+-- without mixing billing/invoicing logic.
+--
+-- Partial indexes: most production queries can filter WHERE is_test = false
+-- for optimal performance when scanning live-only data.
+-- ============================================================
+
+ALTER TABLE customers ADD COLUMN IF NOT EXISTS is_test BOOL NOT NULL DEFAULT false;
+ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS is_test BOOL NOT NULL DEFAULT false;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS is_test BOOL NOT NULL DEFAULT false;
+ALTER TABLE usage_events ADD COLUMN IF NOT EXISTS is_test BOOL NOT NULL DEFAULT false;
+ALTER TABLE ingress_ledger ADD COLUMN IF NOT EXISTS is_test BOOL NOT NULL DEFAULT false;
+ALTER TABLE processed_events ADD COLUMN IF NOT EXISTS is_test BOOL NOT NULL DEFAULT false;
+
+-- Partial indexes: live-only queries skip sandbox rows
+CREATE INDEX IF NOT EXISTS idx_customers_live
+    ON customers (workspace_id, email, status)
+    WHERE NOT is_deleted AND NOT is_test;
+CREATE INDEX IF NOT EXISTS idx_subscriptions_live
+    ON subscriptions (customer_id, status)
+    WHERE NOT is_test;
+CREATE INDEX IF NOT EXISTS idx_invoices_live
+    ON invoices (customer_id, status, created_at DESC)
+    WHERE NOT is_test;
+CREATE INDEX IF NOT EXISTS idx_ingress_ledger_live
+    ON ingress_ledger (tenant_id, hour_bucket DESC)
+    WHERE NOT is_test;`,
+  },
+  {
+    version: 10,
+    description: "zero_trust_credential_encryption",
+    sql: `-- ============================================================
+-- Aora Billing OS — Zero-Trust Credential Encryption
+-- Version: 010
+--
+-- Instead of storing gateway keys in a single BYTES blob, this
+-- table stores the three AES-256-GCM primitives in separate
+-- columns so each can be validated and audited independently.
+--
+--   encrypted_secret_key  — the ciphertext (base64)
+--   encryption_iv         — the 12-byte random IV (base64)
+--   encryption_tag        — the 16-byte GCM auth tag (base64)
+--
+-- The master key lives in AORAHQ_MASTER_ENCRYPTION_KEY (env).
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS tenant_gateways (
+    id                        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    workspace_id              UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    gateway                   STRING(20) NOT NULL CHECK (gateway IN ('stripe', 'paystack', 'flutterwave', 'sandbox')),
+    mode                      STRING(10) NOT NULL DEFAULT 'test' CHECK (mode IN ('live', 'test')),
+
+    -- AES-256-GCM cryptographic primitives (base64-encoded)
+    encrypted_secret_key      STRING(512) NOT NULL,
+    encryption_iv             STRING(32) NOT NULL,
+    encryption_tag            STRING(32) NOT NULL,
+
+    -- Optional webhook secret (same encryption scheme)
+    encrypted_webhook_secret  STRING(512),
+    webhook_iv                STRING(32),
+    webhook_tag               STRING(32),
+
+    -- Gateway account metadata
+    gateway_account_id        STRING(255),
+    gateway_account_name      STRING(255),
+    gateway_account_email     STRING(320),
+
+    -- Connection status
+    is_verified               BOOL NOT NULL DEFAULT false,
+    last_verified_at          TIMESTAMPTZ,
+
+    -- Safe display preview (last 4 chars only)
+    key_preview               STRING(20) NOT NULL,
+
+    metadata                  JSONB DEFAULT '{}'::JSONB,
+    created_at                TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at                TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    UNIQUE INDEX idx_tgw_ws_gateway_mode (workspace_id, gateway, mode),
+    INDEX idx_tgw_ws (workspace_id, created_at DESC)
+) LOCALITY GLOBAL;`,
+  },
+  {
+    version: 11,
+    description: "webhook_transactional_outbox",
+    sql: `-- ============================================================
+-- Aora Billing OS — Transactional Webhook Outbox
+-- Version: 011
+--
+-- Implements the Transactional Outbox Pattern: webhook events
+-- are written to the outbox table *within the same database
+-- transaction* as the state change that triggered them.
+-- A background worker polls the outbox, signs the payload
+-- with HMAC-SHA256, and dispatches to the merchant's endpoint.
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS webhook_outbox (
+    id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id        UUID NOT NULL,
+    workspace_id     UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    webhook_id       UUID NOT NULL REFERENCES webhook_endpoints(id) ON DELETE CASCADE,
+    event_type       STRING(100) NOT NULL,
+    payload          JSONB NOT NULL,
+    status           STRING(20) NOT NULL DEFAULT 'pending'
+                     CHECK (status IN ('pending','processing','delivered','failed','cancelled')),
+    retry_count      INT NOT NULL DEFAULT 0,
+    max_retries      INT NOT NULL DEFAULT 48,
+    next_attempt_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    last_error       STRING(2000),
+    created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    INDEX idx_outbox_pending (status, next_attempt_at) WHERE status = 'pending',
+    INDEX idx_outbox_tenant (tenant_id, created_at DESC),
+    INDEX idx_outbox_webhook (webhook_id, created_at DESC)
+) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION;
+
+CREATE TABLE IF NOT EXISTS webhook_delivery_logs (
+    id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    outbox_id        UUID NOT NULL REFERENCES webhook_outbox(id) ON DELETE CASCADE,
+    webhook_id       UUID NOT NULL REFERENCES webhook_endpoints(id) ON DELETE CASCADE,
+    attempt_number   INT NOT NULL DEFAULT 1,
+    status           STRING(20) NOT NULL CHECK (status IN ('success','failed')),
+    http_status      INT,
+    response_body    STRING(5000),
+    response_headers JSONB,
+    duration_ms      INT NOT NULL DEFAULT 0,
+    error_message    STRING(1000),
+    created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    INDEX idx_dlv_outbox (outbox_id, attempt_number),
+    INDEX idx_dlv_webhook (webhook_id, created_at DESC)
+) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION;`,
+  },
+  {
+    version: 12,
+    description: "dunning_state_machine",
+    sql: `-- ============================================================
+-- Aora Billing OS — Dunning & Automated Retry State Machine
+-- Version: 012
+--
+-- Extends subscriptions with dunning fields and creates a
+-- retry log table so we can track every automated payment
+-- attempt during the dunning lifecycle.
+--
+-- Dunning Lifecycle:
+--   Step 0: No failure (active billing)
+--   Step 1: First failure → schedule retry in 3 days
+--   Step 2: Second failure → schedule final retry in 4 days
+--   Step 3+: Max retries reached → cancel
+-- ============================================================
+
+-- Extend subscription status to include dunning states
+ALTER TABLE subscriptions DROP CONSTRAINT IF EXISTS subscriptions_status_check;
+ALTER TABLE subscriptions ADD CONSTRAINT subscriptions_status_check
+    CHECK (status IN ('active', 'trial', 'past_due', 'canceled', 'unpaid', 'paused'));
+
+-- Add dunning columns
+ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS dunning_step INT NOT NULL DEFAULT 0;
+ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS next_retry_at TIMESTAMPTZ;
+ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS last_payment_attempt_at TIMESTAMPTZ;
+
+CREATE INDEX IF NOT EXISTS idx_subscriptions_dunning
+    ON subscriptions (next_retry_at)
+    WHERE next_retry_at IS NOT NULL AND status IN ('active', 'past_due');
+
+-- Retry log: one row per automated payment attempt during dunning
+CREATE TABLE IF NOT EXISTS dunning_retry_log (
+    id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    subscription_id   UUID NOT NULL REFERENCES subscriptions(id) ON DELETE CASCADE,
+    attempt_number    INT NOT NULL,
+    dunning_step      INT NOT NULL,
+    amount_cents      DECIMAL(18,4) NOT NULL,
+    status            STRING(20) NOT NULL CHECK (status IN ('success', 'failed')),
+    error_message     STRING(1000),
+    gateway_response  JSONB,
+    attempted_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    INDEX idx_drl_subscription (subscription_id, attempt_number DESC),
+    INDEX idx_drl_pending (subscription_id, status) WHERE status = 'failed'
+) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION;`,
+  },
+  {
+    version: 13,
+    description: "better_auth_and_api_keys",
+    sql: `-- ============================================================
+-- AoraHQ — Better Auth Core Tables + Custom API Key Store
+-- Version: 013
+--
+-- Tables:
+--   user, session, account, verification  (Better Auth core)
+--   organization, member, invitation       (Better Auth org plugin)
+--   api_key                                (custom, server-to-server auth)
+-- ============================================================
+
+-- ── Better Auth Core ────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS "user" (
+    id            TEXT PRIMARY KEY,
+    name          TEXT NOT NULL,
+    email         TEXT NOT NULL UNIQUE,
+    email_verified BOOLEAN NOT NULL DEFAULT false,
+    image         TEXT,
+    role          TEXT DEFAULT 'member',
+    banned        BOOLEAN DEFAULT false,
+    ban_reason    TEXT,
+    ban_expires   TIMESTAMPTZ,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS "session" (
+    id                    TEXT PRIMARY KEY,
+    expires_at            TIMESTAMPTZ NOT NULL,
+    ip_address            TEXT,
+    user_agent            TEXT,
+    user_id               TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    impersonated_by       TEXT,
+    active_organization_id TEXT,
+    created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at            TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_session_user ON "session"(user_id);
+
+CREATE TABLE IF NOT EXISTS "account" (
+    id                      TEXT PRIMARY KEY,
+    account_id              TEXT NOT NULL,
+    provider_id             TEXT NOT NULL,
+    user_id                 TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    access_token            TEXT,
+    refresh_token           TEXT,
+    id_token                TEXT,
+    access_token_expires_at TIMESTAMPTZ,
+    refresh_token_expires_at TIMESTAMPTZ,
+    scope                   TEXT,
+    password                TEXT,
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at              TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_account_user ON "account"(user_id);
+CREATE INDEX IF NOT EXISTS idx_account_provider ON "account"(provider_id, account_id);
+
+CREATE TABLE IF NOT EXISTS "verification" (
+    id         TEXT PRIMARY KEY,
+    identifier TEXT NOT NULL,
+    value      TEXT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_verification_identifier ON "verification"(identifier);
+
+-- ── Organization Plugin ─────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS "organization" (
+    id         TEXT PRIMARY KEY,
+    name       TEXT NOT NULL,
+    slug       TEXT UNIQUE,
+    logo       TEXT,
+    metadata   JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS "member" (
+    id              TEXT PRIMARY KEY,
+    organization_id TEXT NOT NULL REFERENCES "organization"(id) ON DELETE CASCADE,
+    user_id         TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    role            TEXT NOT NULL DEFAULT 'member',
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_member_org ON "member"(organization_id);
+CREATE INDEX IF NOT EXISTS idx_member_user ON "member"(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_member_org_user ON "member"(organization_id, user_id);
+
+CREATE TABLE IF NOT EXISTS "invitation" (
+    id              TEXT PRIMARY KEY,
+    organization_id TEXT NOT NULL REFERENCES "organization"(id) ON DELETE CASCADE,
+    email           TEXT NOT NULL,
+    role            TEXT NOT NULL,
+    status          TEXT NOT NULL DEFAULT 'pending',
+    expires_at      TIMESTAMPTZ NOT NULL,
+    inviter_id      TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_invitation_org ON "invitation"(organization_id);
+CREATE INDEX IF NOT EXISTS idx_invitation_email ON "invitation"(email);
+
+-- ── Custom: API Keys for Server-to-Server Auth ──────────
+
+CREATE TABLE IF NOT EXISTS "api_key" (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    prefix          TEXT NOT NULL,
+    key_hash        TEXT NOT NULL UNIQUE,
+    label           TEXT NOT NULL DEFAULT '',
+    organization_id TEXT NOT NULL REFERENCES "organization"(id) ON DELETE CASCADE,
+    created_by      TEXT NOT NULL REFERENCES "user"(id),
+    expires_at      TIMESTAMPTZ,
+    last_used_at    TIMESTAMPTZ,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_api_key_hash ON "api_key"(key_hash);
+CREATE INDEX IF NOT EXISTS idx_api_key_org ON "api_key"(organization_id);`,
+  },
 ];
 
 // ── Migration Runner ───────────────────────────────────────
@@ -461,7 +841,9 @@ async function getAppliedVersions(): Promise<Set<number>> {
   const { rows } = await pool.query<{ version: number }>(
     "SELECT version FROM schema_migrations ORDER BY version",
   );
-  return new Set(rows.map((r) => r.version));
+  // pg decodes CockroachDB INT columns as strings; normalize to numbers
+  // so `applied.has(migration.version)` works with the numeric constants below.
+  return new Set(rows.map((r) => Number(r.version)));
 }
 
 export async function runMigrations(): Promise<void> {
@@ -475,10 +857,16 @@ export async function runMigrations(): Promise<void> {
     const checksum = computeChecksum(migration.sql);
 
     await withTransaction(async (client) => {
+      // Strip full-line comment headers first, then split on ";".
+      // This prevents a `-- comment` block at the top of a migration
+      // from swallowing the following CREATE TABLE into the filtered chunk.
       const statements = migration.sql
+        .split("\n")
+        .filter((line) => !line.trim().startsWith("--"))
+        .join("\n")
         .split(";")
         .map((s) => s.trim())
-        .filter((s) => s.length > 0 && !s.startsWith("--"));
+        .filter((s) => s.length > 0);
 
       for (const stmt of statements) {
         await client.query(stmt);
