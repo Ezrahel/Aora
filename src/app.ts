@@ -19,6 +19,46 @@ import { verifyApiKey } from "./api/auth/api-key-verifier.ts";
 const app = express();
 app.use(express.json({ limit: "10mb" }));
 
+// ── CORS (cross-origin API consumers) ──────────────────────
+// Browser clients calling the API from other origins need these
+// headers; server-to-server calls with sk_live_... keys ignore them.
+// CORS_ORIGINS: comma-separated allow-list, credentials enabled for
+// those origins. Unset: any origin may call, without credentials.
+const corsOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean)
+  : null;
+
+app.use("/api", (req, res, next) => {
+  const origin = req.headers.origin;
+  if (corsOrigins) {
+    if (origin && corsOrigins.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+    }
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  }
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Authorization,Content-Type");
+  res.setHeader("Access-Control-Max-Age", "86400");
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
+
+// ── API Subdomain Guard ─────────────────────────────────────
+// Requests arriving at the API hostname only get /api/* — the SPA
+// and every other path return a JSON 404. Set API_HOST="" to disable.
+const apiHost = process.env.API_HOST ?? "api.aorahq.com";
+if (apiHost) {
+  app.use((req, res, next) => {
+    if (req.hostname === apiHost && !req.path.startsWith("/api")) {
+      return res.status(404).json({ error: "Not found.", code: "NOT_FOUND" });
+    }
+    next();
+  });
+}
+
 // ── Lazy-Loaded Gemini Client ──────────────────────────────
 let aiClient: GoogleGenAI | null = null;
 function getAI() {
