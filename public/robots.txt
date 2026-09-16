@@ -23,7 +23,10 @@ Allow: /pricing
 Sitemap: https://aorahq.com/sitemap-index.xml
 Sitemap: https://aorahq.com/sitemap.xml
 Sitemap: https://aorahq.com/sitemap-docs.xml
-Sitemap: https://aorahq.com/sitemap-blog.xml
+
+# AI-agent discovery (llms.txt convention)
+# Full markdown summary for LLMs, RAG ingest, and answer engines:
+# https://aorahq.com/llms.txt
 
 # Host preference
 Host: https://aorahq.com

@@ -25,15 +25,16 @@ export interface SEOProps {
 
 const SITE_URL = "https://aorahq.com";
 const SITE_NAME = "AoraHQ";
-const DEFAULT_IMAGE = `${SITE_URL}/og-default.png`;
-const TWITTER_HANDLE = "@AoraHQ";
+const DEFAULT_IMAGE = `${SITE_URL}/aorahq-512x512.png`;
+const LOGO_IMAGE = `${SITE_URL}/aorahq-logo.png`;
+const TWITTER_HANDLE = "@aorahq";
 
-function escapeHtml(text) {
+function escapeHtml(text: string) {
   return text
-    .replace(/&/g, "&")
-    .replace(/</g, "<")
-    .replace(/>/g, ">")
-    .replace(/"/g, "\"")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
 
@@ -45,8 +46,11 @@ function buildWebsiteSchema(seo: SEOProps): string {
   return buildJsonLd({
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${SITE_URL}#website`,
     name: SITE_NAME,
+    alternateName: "Aora Billing OS",
     url: SITE_URL,
+    inLanguage: "en",
     potentialAction: {
       "@type": "SearchAction",
       target: {
@@ -60,19 +64,21 @@ function buildWebsiteSchema(seo: SEOProps): string {
       name: SITE_NAME,
       logo: {
         "@type": "ImageObject",
-        url: `${SITE_URL}/logo.png`,
+        url: LOGO_IMAGE,
       },
     },
   });
 }
 
 function buildWebPageSchema(seo: SEOProps): string {
-  const base = {
+  const base: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "WebPage",
+    "@id": `${SITE_URL}${seo.path}#webpage`,
     name: seo.title,
     description: seo.description,
     url: `${SITE_URL}${seo.path}`,
+    inLanguage: "en",
     isPartOf: {
       "@id": `${SITE_URL}#website`,
     },
@@ -84,6 +90,10 @@ function buildWebPageSchema(seo: SEOProps): string {
       "@type": "Thing",
       name: seo.title,
       description: seo.description,
+    },
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: ["h1", "h2", ".seo-summary"],
     },
   };
 
@@ -159,6 +169,7 @@ function buildArticleSchema(seo: SEOProps): string {
     headline: seo.title,
     description: seo.description,
     image: seo.image || DEFAULT_IMAGE,
+    inLanguage: "en",
     author: seo.authors?.map((name) => ({
       "@type": "Person",
       name,
@@ -168,7 +179,7 @@ function buildArticleSchema(seo: SEOProps): string {
       name: SITE_NAME,
       logo: {
         "@type": "ImageObject",
-        url: `${SITE_URL}/logo.png`,
+        url: LOGO_IMAGE,
       },
     },
     datePublished: seo.publishedTime,
@@ -223,18 +234,18 @@ function buildOrganizationSchema(): string {
   return buildJsonLd({
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": `${SITE_URL}#organization`,
     name: SITE_NAME,
     alternateName: "Aora Billing OS",
     url: SITE_URL,
-    logo: `${SITE_URL}/logo.png`,
+    logo: LOGO_IMAGE,
     sameAs: [
-      "https://twitter.com/AoraHQ",
-      "https://github.com/AoraHQ",
+      "https://x.com/aorahq",
+      "https://github.com/aorahq",
       "https://linkedin.com/company/aorahq",
     ],
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+234-1-000-0000",
       contactType: "customer service",
       availableLanguage: ["English"],
     },
@@ -362,6 +373,58 @@ export function updateMetaTags(seo: SEOProps | undefined) {
     document.head.appendChild(canonical);
   }
   canonical.setAttribute("href", url);
+
+  // Inject/update JSON-LD for crawlers + AI agents (FAQ, Breadcrumb, WebPage).
+  // SPA route changes otherwise leave stale structured data behind.
+  try {
+    const existing = document.querySelectorAll('script[data-seo-jsonld="true"]');
+    existing.forEach((n) => n.remove());
+    const jsonLd = generateJsonLd(seo);
+    // generateJsonLd returns newline-joined JSON blobs — wrap each in its own tag.
+    const blobs = splitJsonBlobs(jsonLd);
+    for (const blob of blobs) {
+      const s = document.createElement("script");
+      s.setAttribute("type", "application/ld+json");
+      s.setAttribute("data-seo-jsonld", "true");
+      s.textContent = blob;
+      document.head.appendChild(s);
+    }
+  } catch {
+    /* non-fatal — meta tags already updated */
+  }
+}
+
+function splitJsonBlobs(joined: string): string[] {
+  // Blobs are pretty-printed JSON objects separated by newlines.
+  // Split on lines that are exactly "}" followed by "{" on next non-empty line.
+  const out: string[] = [];
+  let depth = 0;
+  let current = "";
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < joined.length; i++) {
+    const ch = joined[i];
+    current += ch;
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') inString = false;
+    } else {
+      if (ch === '"') inString = true;
+      else if (ch === "{") depth++;
+      else if (ch === "}") {
+        depth--;
+        if (depth === 0) {
+          out.push(current.trim());
+          current = "";
+          // skip trailing whitespace/newlines before next blob
+          while (i + 1 < joined.length && /\s/.test(joined[i + 1])) i++;
+        }
+      }
+    }
+  }
+  if (current.trim()) out.push(current.trim());
+  return out.filter(Boolean);
 }
 
 export const pageSEO = {
@@ -370,7 +433,7 @@ export const pageSEO = {
     description: "Multi-gateway billing orchestration, usage metering, entitlements, invoicing, and AI-powered revenue analytics. Connect Stripe, Paystack, Flutterwave in minutes.",
     path: "/",
     type: "website" as const,
-    image: `${SITE_URL}/og-home.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     faqs: [
       { question: "What gateways does AoraHQ support?", answer: "Stripe, Paystack, and Flutterwave are live. Monnify and SeerBit are in development." },
       { question: "Do I need to migrate existing subscriptions?", answer: "No. Keep current billing running while you configure AoraHQ. Flip the switch when ready." },
@@ -384,7 +447,7 @@ export const pageSEO = {
     description: "Join 340+ founders building on AoraHQ. Get early access, dedicated onboarding call, and 3 months free on any tier — locked in for life.",
     path: "/waitlist",
     type: "website" as const,
-    image: `${SITE_URL}/og-waitlist.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Waitlist", url: "/waitlist" }],
   },
   docs: {
@@ -392,7 +455,7 @@ export const pageSEO = {
     description: "Complete documentation for AoraHQ billing infrastructure. Quickstart guides, API reference, webhook documentation, gateway setup, entitlements, usage metering, and invoicing.",
     path: "/docs",
     type: "website" as const,
-    image: `${SITE_URL}/og-docs.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Documentation", url: "/docs" }],
   },
   pricing: {
@@ -400,7 +463,7 @@ export const pageSEO = {
     description: "Simple, predictable pricing. ₦0 for the first ₦1M MRR processed. No hidden fees. Scale with confidence using our hybrid pricing engine.",
     path: "/pricing",
     type: "website" as const,
-    image: `${SITE_URL}/og-pricing.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Pricing", url: "/pricing" }],
   },
   dashboard: {
@@ -408,7 +471,7 @@ export const pageSEO = {
     description: "Real-time MRR, ARR, churn, trial conversion, and revenue analytics. Manage customers, plans, subscriptions, and usage from one place.",
     path: "/dashboard",
     type: "website" as const,
-    image: `${SITE_URL}/og-dashboard.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Dashboard", url: "/dashboard" }],
   },
   catalog: {
@@ -416,7 +479,7 @@ export const pageSEO = {
     description: "Create and manage products, plans, features, and pricing. Visual pricing builder with flat, usage-based, hybrid, tiered, and volume models.",
     path: "/catalog",
     type: "website" as const,
-    image: `${SITE_URL}/og-catalog.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Catalog", url: "/catalog" }],
   },
   customers: {
@@ -424,7 +487,7 @@ export const pageSEO = {
     description: "View and manage all customers. Track subscription status, usage metrics, payment history, and entitlements in real time.",
     path: "/customers",
     type: "website" as const,
-    image: `${SITE_URL}/og-customers.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Customers", url: "/customers" }],
   },
   subscriptions: {
@@ -432,7 +495,7 @@ export const pageSEO = {
     description: "Full subscription lifecycle: trials, upgrades, downgrades, pauses, cancellations, and proration. Automated invoice generation and payment collection.",
     path: "/subscriptions",
     type: "website" as const,
-    image: `${SITE_URL}/og-subscriptions.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Subscriptions", url: "/subscriptions" }],
   },
   usage: {
@@ -440,7 +503,7 @@ export const pageSEO = {
     description: "Ingest usage events at scale. Define meters, set quotas, grant credits, and track consumption in real time with our high-throughput ingestion API.",
     path: "/usage",
     type: "website" as const,
-    image: `${SITE_URL}/og-usage.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Usage Metering", url: "/usage" }],
   },
   entitlements: {
@@ -448,7 +511,7 @@ export const pageSEO = {
     description: "Map features to plans. Real-time access checks with can-access API. Gate features behind plan tiers without redeploying code.",
     path: "/entitlements",
     type: "website" as const,
-    image: `${SITE_URL}/og-entitlements.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Entitlements", url: "/entitlements" }],
   },
   invoices: {
@@ -456,7 +519,7 @@ export const pageSEO = {
     description: "Generate, send, and track invoices automatically. Support for usage-based line items, proration, credits, and dunning workflows.",
     path: "/invoices",
     type: "website" as const,
-    image: `${SITE_URL}/og-invoices.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Invoices", url: "/invoices" }],
   },
   analytics: {
@@ -464,7 +527,7 @@ export const pageSEO = {
     description: "Real-time financial intelligence. Track MRR/ARR, net revenue retention, churn by cohort, trial conversion, and plan performance.",
     path: "/analytics",
     type: "website" as const,
-    image: `${SITE_URL}/og-analytics.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Analytics", url: "/analytics" }],
   },
   integrations: {
@@ -472,7 +535,7 @@ export const pageSEO = {
     description: "Connect Stripe, Paystack, Flutterwave. Configure webhooks, manage gateway credentials, and monitor gateway events in real time.",
     path: "/integrations",
     type: "website" as const,
-    image: `${SITE_URL}/og-integrations.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Integrations", url: "/integrations" }],
   },
   developers: {
@@ -480,7 +543,7 @@ export const pageSEO = {
     description: "Complete API reference for ingestion, subscriptions, customers, entitlements, and webhooks. TypeScript SDK, REST API, and code examples.",
     path: "/developers",
     type: "website" as const,
-    image: `${SITE_URL}/og-developers.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Developers", url: "/developers" }],
   },
   gateways: {
@@ -488,7 +551,7 @@ export const pageSEO = {
     description: "Securely connect payment gateways (Stripe, Paystack, Flutterwave). Encrypted credential storage, webhook verification, and live account health monitoring.",
     path: "/gateways",
     type: "website" as const,
-    image: `${SITE_URL}/og-gateways.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Gateways", url: "/gateways" }],
   },
   reconciliation: {
@@ -496,7 +559,7 @@ export const pageSEO = {
     description: "Automated revenue reconciliation. Compare internal usage, invoices, and gateway payouts. Detect variances and audit discrepancies.",
     path: "/reconciliation",
     type: "website" as const,
-    image: `${SITE_URL}/og-reconciliation.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Reconciliation", url: "/reconciliation" }],
   },
   portal: {
@@ -504,7 +567,7 @@ export const pageSEO = {
     description: "White-labeled customer portal. Customers manage subscriptions, update payment methods, view invoices, and track usage.",
     path: "/portal",
     type: "website" as const,
-    image: `${SITE_URL}/og-portal.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Customer Portal", url: "/portal" }],
   },
   settings: {
@@ -512,7 +575,7 @@ export const pageSEO = {
     description: "Manage workspace settings, team members, audit logs, API keys, and billing preferences.",
     path: "/settings",
     type: "website" as const,
-    image: `${SITE_URL}/og-settings.png`,
+    image: `${SITE_URL}/aorahq-512x512.png`,
     breadcrumbs: [{ name: "Home", url: "/" }, { name: "Settings", url: "/settings" }],
   },
 };

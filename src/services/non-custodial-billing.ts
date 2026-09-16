@@ -14,7 +14,9 @@ import {
 import { stripeNonCustodialGateway } from "../gateways/stripe/non-custodial.ts";
 import { paystackNonCustodialGateway } from "../gateways/paystack/non-custodial.ts";
 import { flutterwaveNonCustodialGateway } from "../gateways/flutterwave/non-custodial.ts";
-import { registerNonCustodialGateway } from "../gateways/non-custodial-adapter.ts";
+import { registerNonCustodialGateway } from "../gateways/non-custodial-registry.ts";
+import { encryptedGatewayRepository } from "../gateways/encrypted-gateway-repository.ts";
+import { decrypt as decryptLegacy } from "../gateways/encryption.ts";
 
 registerNonCustodialGateway(stripeNonCustodialGateway);
 registerNonCustodialGateway(paystackNonCustodialGateway);
@@ -60,15 +62,14 @@ export interface PlanDetails {
 }
 
 /**
- * Tenant gateway details
+ * Tenant gateway details (key material is NEVER selected in bulk —
+ * it is decrypted on demand via EncryptedGatewayRepository).
  */
 export interface TenantGatewayDetails {
   id: string;
   tenantId: string;
   gateway: string;          // 'stripe' | 'paystack' | 'flutterwave'
   mode: 'live' | 'test';
-  encryptedApiKey: Uint8Array;
-  encryptedWebhookSecret: Uint8Array | null;
   isActive: boolean;
 }
 
@@ -120,12 +121,36 @@ export function calculateNextPeriodEnd(
 }
 
 /**
- * Decrypt API key for gateway operations
- * In production, this would use a proper KMS/encryption service
+ * Decrypt API key for gateway operations via zero-trust repository.
+ * Returns the plaintext + a wipe callback that MUST run after use.
+ * Falls back to legacy gateway_connections decryption for old rows.
  */
-async function decryptApiKey(encryptedKey: Uint8Array): Promise<string> {
-  // Placeholder - implement with your encryption service
-  return new TextDecoder().decode(encryptedKey);
+async function decryptApiKeyForGateway(
+  gatewayId: string,
+  fallbackEncrypted?: unknown,
+): Promise<{ secretKey: string; wipe: () => void }> {
+  try {
+    const credential = await encryptedGatewayRepository.getDecryptedKey(gatewayId);
+    return {
+      secretKey: credential.secretKey,
+      wipe: () => {
+        credential.secretKeyBuffer.wipe();
+        credential.webhookBuffer?.wipe();
+      },
+    };
+  } catch {
+    // Legacy fallback: gateway_connections.encrypted_api_key ("iv:tag:cipher" hex)
+    if (typeof fallbackEncrypted === "string" && fallbackEncrypted.includes(":")) {
+      return { secretKey: decryptLegacy(fallbackEncrypted), wipe: () => {} };
+    }
+    if (fallbackEncrypted instanceof Uint8Array || Buffer.isBuffer(fallbackEncrypted)) {
+      const asString = Buffer.from(fallbackEncrypted as Uint8Array).toString("utf-8");
+      if (asString.includes(":")) {
+        return { secretKey: decryptLegacy(asString), wipe: () => {} };
+      }
+    }
+    throw new Error(`Failed to decrypt gateway API key for ${gatewayId}`);
+  }
 }
 
 /**
@@ -168,19 +193,16 @@ export async function fetchSubscriptionForRenewal(
       p.interval as plan_interval,
       p.interval_count as plan_interval_count,
       tg.id as gateway_id,
-      tg.tenant_id as gateway_tenant_id,
+      tg.workspace_id as gateway_tenant_id,
       tg.gateway,
       tg.mode,
-      tg.encrypted_api_key,
-      tg.encrypted_webhook_secret,
-      tg.is_active
+      tg.is_verified as gateway_is_verified
     FROM subscriptions s
     JOIN plans p ON s.plan_id = p.id
     JOIN tenant_gateways tg ON s.tenant_gateway_id = tg.id
     WHERE s.id = $1
       AND s.status IN ('active', 'trial', 'past_due')
       AND p.is_archived = false
-      AND tg.is_active = true
   `;
 
   const { rows } = await query(sql, [subscriptionId]);
@@ -225,9 +247,7 @@ export async function fetchSubscriptionForRenewal(
       tenantId: row.gateway_tenant_id,
       gateway: row.gateway,
       mode: row.mode,
-      encryptedApiKey: row.encrypted_api_key,
-      encryptedWebhookSecret: row.encrypted_webhook_secret,
-      isActive: row.is_active,
+      isActive: row.gateway_is_verified ?? true,
     },
   };
 }
@@ -377,10 +397,10 @@ export async function executeSubscriptionRenewal(
     };
   }
 
-  // 3. Decrypt the gateway API key
-  let secretKey: string;
+  // 3. Decrypt the gateway API key (zero-trust, wiped after use)
+  let cred: { secretKey: string; wipe: () => void };
   try {
-    secretKey = await decryptApiKey(gateway.encryptedApiKey);
+    cred = await decryptApiKeyForGateway(gateway.id);
   } catch (err) {
     return {
       subscriptionId,
@@ -392,12 +412,13 @@ export async function executeSubscriptionRenewal(
       },
     };
   }
+  const secretKey = cred.secretKey;
 
   // 4. Get the non-custodial gateway adapter
-  let gatewayAdapter: NonCustodialPaymentGateway;
-  try {
-    gatewayAdapter = getNonCustodialGateway(gateway.gateway);
-  } catch (err) {
+  let gatewayAdapter: NonCustodialPaymentGateway | undefined;
+  gatewayAdapter = getNonCustodialGateway(gateway.gateway);
+  if (!gatewayAdapter) {
+    cred.wipe();
     return {
       subscriptionId,
       success: false,
@@ -433,8 +454,9 @@ export async function executeSubscriptionRenewal(
     };
 
     const chargeResult = await gatewayAdapter.chargeToken(chargeParams);
+    cred.wipe();
 
-    if (chargeResult.status !== 'succeeded' && chargeResult.status !== 'processing') {
+    if (chargeResult.status !== 'succeeded' && chargeResult.status !== 'processing' && chargeResult.status !== 'requires_capture') {
       throw new Error(`Charge failed with status: ${chargeResult.status}`);
     }
 
@@ -477,6 +499,7 @@ export async function executeSubscriptionRenewal(
       };
     });
   } catch (err) {
+    try { cred.wipe(); } catch { /* already wiped */ }
     // 8. Handle charge failure
     const billingError = err instanceof NonCustodialBillingError
       ? err

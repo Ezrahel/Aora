@@ -350,13 +350,31 @@ router.post("/session/:sessionId/confirm", asyncHandler(async (req, res) => {
   }
   
   // Calculate total amount
-  const totalAmount = plan.amount; // Already in lowest denomination (cents/kobo)
+  const totalAmount = BigInt(plan.amount); // Already in lowest denomination (cents/kobo)
   
   try {
+    // Resolve gateway customer first — live charges require a real customer ID.
+    // Reuse session's stored gateway customer when present, else find/create by email.
+    let gatewayCustomerId: string | null =
+      session.gateway_customer_id || session.gateway_customer_token || null;
+    if (!gatewayCustomerId) {
+      const custodial = getAdapter(gateway.gateway);
+      const existing = await custodial.findCustomer(secretKey, customerEmail).catch(() => null);
+      if (existing) {
+        gatewayCustomerId = existing.gatewayId;
+      } else {
+        const created = await custodial.createCustomer(secretKey, {
+          name: customerName || customerEmail,
+          email: customerEmail,
+          metadata: { checkoutSessionId: sessionId, tenantId: session.tenant_id },
+        });
+        gatewayCustomerId = created.gatewayId;
+      }
+    }
     // Charge the saved payment token
     const chargeParams = {
       secretKey,
-      customerToken: '', // We'll need to create/get gateway customer
+      customerToken: gatewayCustomerId!,
       paymentToken: req.body.paymentToken,
       amount: totalAmount,
       currency: plan.currency.toLowerCase(),
@@ -370,7 +388,7 @@ router.post("/session/:sessionId/confirm", asyncHandler(async (req, res) => {
 
     const chargeResult = await gatewayAdapter.chargeToken(chargeParams);
     
-    if (chargeResult.status !== 'succeeded' && chargeResult.status !== 'processing') {
+    if (chargeResult.status !== 'succeeded' && chargeResult.status !== 'processing' && (chargeResult.status as string) !== 'requires_capture') {
       throw new Error(`Charge failed with status: ${chargeResult.status}`);
     }
     
@@ -396,7 +414,7 @@ router.post("/session/:sessionId/confirm", asyncHandler(async (req, res) => {
           break;
       }
       
-      // Create subscription
+      // Create subscription (single ID reused everywhere)
       const subId = "sub_" + genId();
       await client.query(
         `INSERT INTO subscriptions (
@@ -414,16 +432,16 @@ router.post("/session/:sessionId/confirm", asyncHandler(async (req, res) => {
           session.customer_id || null,
           plan.id,
           session.tenant_gateway_id,
-          '', // gateway_customer_token - will be populated after customer creation
+          gatewayCustomerId,
           req.body.paymentToken,
           'active',
           new Date().toISOString(),
           periodEndCalc.toISOString(),
           1, // seatQuantity
           1, // quantity
-          JSON.stringify({}),
+          JSON.stringify({ checkoutSessionId: sessionId }),
           chargeResult.transactionId,
-          '', // gateway_customer_id - will be filled after customer creation
+          gatewayCustomerId,
         ]
       );
       
@@ -441,10 +459,10 @@ router.post("/session/:sessionId/confirm", asyncHandler(async (req, res) => {
              completed_at = now(),
              updated_at = now()
          WHERE id = $1`,
-        [sessionId, chargeResult.transactionId, '', req.body.paymentToken, '', chargeResult.transactionId, req.body.customerName || null, subId]
+        [sessionId, chargeResult.transactionId, gatewayCustomerId, req.body.paymentToken, gatewayCustomerId, chargeResult.transactionId, req.body.customerName || null, subId]
       );
       
-      // Create invoice
+      // Create invoice linked to the same subscription
       await client.query(
         `INSERT INTO invoices (
           tenant_id, customer_id, subscription_id, plan_id,
@@ -456,7 +474,7 @@ router.post("/session/:sessionId/confirm", asyncHandler(async (req, res) => {
         [
           session.tenant_id,
           session.customer_id || null,
-          "sub_" + genId(), // subscription ID
+          subId,
           plan.id,
           plan.amount,
           plan.currency,
@@ -475,22 +493,14 @@ router.post("/session/:sessionId/confirm", asyncHandler(async (req, res) => {
             amount: plan.amount.toString(),
             type: 'base_fee',
           }]),
-          JSON.stringify({}),
+          JSON.stringify({ checkoutSessionId: sessionId, gatewayCustomerId }),
         ]
       );
       
-      // Update session as completed
-      await client.query(
-        `UPDATE checkout_sessions 
-         SET status = 'completed', completed_at = now(), subscription_id = $2, updated_at = now()
-         WHERE id = $1`,
-        [sessionId, "sub_" + genId()]
-      );
-      
-      // Return success with redirect
+      // Return success with redirect (single subId)
       return res.json({
         success: true,
-        subscriptionId: "sub_" + genId(),
+        subscriptionId: subId,
         redirectUrl: session.success_url || "/dashboard",
       });
     });

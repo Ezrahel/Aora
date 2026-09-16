@@ -180,7 +180,8 @@ async function handleIncomingWebhook(req, res, gatewayName: string) {
     || req.headers["x-webhook-signature"]
     || "") as string;
 
-  const rawBody = JSON.stringify(req.body);
+  // Use exact raw bytes when available — re-serialization breaks Stripe HMAC.
+  const rawBody: string = (req as any).rawBody ?? JSON.stringify(req.body);
   const adapter = getAdapter(gatewayName);
 
   // We need to figure out which workspace this webhook is for.
@@ -194,12 +195,14 @@ async function handleIncomingWebhook(req, res, gatewayName: string) {
 
   let matchedWs: string | null = null;
   let matchedConnId: string | null = null;
+  let hasAnySecret = false;
 
   for (const conn of connections) {
     if (conn.encrypted_webhook_secret) {
+      hasAnySecret = true;
       try {
         const secret = decrypt(conn.encrypted_webhook_secret);
-        if (adapter.verifyWebhookSignature(rawBody, signatureHeader, secret)) {
+        if (signatureHeader && adapter.verifyWebhookSignature(rawBody, signatureHeader, secret)) {
           matchedWs = conn.workspace_id;
           matchedConnId = conn.id;
           break;
@@ -211,13 +214,16 @@ async function handleIncomingWebhook(req, res, gatewayName: string) {
   }
 
   if (!matchedWs) {
-    // If no workspace matched, store the event anyway with the first available workspace
-    // so it can be investigated later
-    matchedWs = connections[0]?.workspace_id;
-  }
-
-  if (!matchedWs) {
-    return res.status(200).json({ received: true, skipped: true, reason: "No gateway connection found" });
+    // Test-mode convenience: no webhook secrets configured anywhere and no
+    // signature sent — accept under the single connection for local testing.
+    if (!hasAnySecret && !signatureHeader && connections[0]?.workspace_id) {
+      matchedWs = connections[0].workspace_id;
+      console.warn(`[webhook] ${gatewayName}: no secrets configured, accepting unsigned test event.`);
+    } else {
+      // LIVE safety: never attribute an unverified webhook to another workspace.
+      console.warn(`[webhook] Unverified ${gatewayName} signature — no matching workspace. Returning 401.`);
+      return res.status(401).json({ received: false, error: "Invalid webhook signature", code: "INVALID_SIGNATURE" });
+    }
   }
 
   // Map the webhook event
@@ -388,6 +394,7 @@ router.get("/gateways/reconciliation", asyncHandler(async (req, res) => {
 
 import { encryptedGatewayRepository, previewKey as encPreviewKey } from "../../gateways/encrypted-gateway-repository.ts";
 import { encryptionService } from "../../gateways/encryption-service.ts";
+import { getNonCustodialGateway } from "../../gateways/non-custodial-registry.ts";
 
 /**
  * POST /gateways/v2/connect
@@ -520,9 +527,13 @@ router.post("/gateways/v2/:id/charge", asyncHandler(async (req, res) => {
   }
 
   try {
-    // 2. Use the decrypted key for the gateway call
-    const adapter = getAdapter(credential.row.gateway);
-    const result = await adapter.chargeToken({
+    // 2. Use the decrypted key for the gateway call via the non-custodial registry
+    // (custodial PaymentGatewayAdapter has no chargeToken — live charges go here)
+    const ncGateway = getNonCustodialGateway(credential.row.gateway);
+    if (!ncGateway) {
+      return badRequest(res, `No non-custodial adapter for gateway: ${credential.row.gateway}`);
+    }
+    const result = await ncGateway.chargeToken({
       secretKey: credential.secretKey,
       customerToken,
       paymentToken,

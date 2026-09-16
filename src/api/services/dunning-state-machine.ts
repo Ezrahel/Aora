@@ -19,6 +19,7 @@ import {
 } from "./webhook-outbox-repository.ts";
 import type { NonCustodialPaymentGateway } from "../../gateways/non-custodial-adapter.ts";
 import { getNonCustodialGateway } from "../../gateways/non-custodial-registry.ts";
+import { encryptedGatewayRepository } from "../../gateways/encrypted-gateway-repository.ts";
 
 // ── Constants ──────────────────────────────────────────────
 
@@ -226,9 +227,38 @@ export class DunningStateMachine {
         return this.handleChargeFailure(client, sub, attemptNumber, "No gateway configured for workspace", null);
       }
 
-      // Decrypt the gateway secret key
-      // (In production, use EncryptedGatewayRepository.getDecryptedKey here)
-      const secretKey = process.env[`GATEWAY_SECRET_${sub.workspace_id}`] ?? "";
+      // Decrypt the gateway secret key via zero-trust repository.
+      // Subscription rows carry tenant_gateway_id; fall back to workspace lookup.
+      let secretKey = "";
+      let wipeCred: (() => void) | null = null;
+      try {
+        const gatewayId: string | null =
+          (sub as any).tenant_gateway_id ?? (sub as any).tenantGatewayId ?? null;
+        if (gatewayId) {
+          const credential = await encryptedGatewayRepository.getDecryptedKey(gatewayId);
+          secretKey = credential.secretKey;
+          wipeCred = () => {
+            credential.secretKeyBuffer.wipe();
+            credential.webhookBuffer?.wipe();
+          };
+        } else {
+          // Fallback: most recent verified gateway for this workspace
+          const conns = await encryptedGatewayRepository.findByWorkspace(
+            (sub as any).workspace_id ?? workspaceId,
+          );
+          const verified = conns.find((c) => c.isVerified) ?? conns[0];
+          if (verified) {
+            const credential = await encryptedGatewayRepository.getDecryptedKey(verified.id);
+            secretKey = credential.secretKey;
+            wipeCred = () => {
+              credential.secretKeyBuffer.wipe();
+              credential.webhookBuffer?.wipe();
+            };
+          }
+        }
+      } catch (decErr) {
+        return this.handleChargeFailure(client, sub, attemptNumber, `Gateway key decryption failed: ${(decErr as Error).message}`, null);
+      }
 
       try {
         const chargeResult = await gateway.chargeToken({
@@ -239,6 +269,7 @@ export class DunningStateMachine {
           currency: sub.plan_currency || "usd",
           description: `Subscription renewal (attempt ${attemptNumber})`,
         });
+        wipeCred?.();
 
         // 3. Charge succeeded — reset dunning state
         const now = new Date();
@@ -293,6 +324,7 @@ export class DunningStateMachine {
           newPeriodEnd: periodEnd.toISOString(),
         };
       } catch (err) {
+        try { wipeCred?.(); } catch { /* already wiped */ }
         const error = (err as Error).message;
         return this.handleChargeFailure(
           client,

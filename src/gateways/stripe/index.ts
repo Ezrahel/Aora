@@ -73,6 +73,41 @@ async function stripeFetch(path: string, apiKey: string, body?: Record<string, a
   return data;
 }
 
+async function stripeFetchRaw(path: string, apiKey: string, formParams?: URLSearchParams): Promise<any> {
+  const url = path.startsWith('http') ? path : `${BASE_URL}${path}`;
+  const formBody = formParams?.toString();
+
+  const response = await fetch(url, {
+    method: formBody ? 'POST' : 'GET',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Stripe-Version': STRIPE_API_VERSION,
+      ...(formBody ? { 'Content-Type': 'application/x-www-form-urlencoded' } : {}),
+    },
+    body: formBody,
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    const msg = data.error?.message || data.error?.code || `HTTP ${response.status}`;
+    throw new Error(`Stripe API error: ${msg}`);
+  }
+
+  return data;
+}
+
+function mapInterval(interval: string): string {
+  switch (interval) {
+    case 'weekly': return 'week';
+    case 'monthly': return 'month';
+    case 'yearly': return 'year';
+    case 'quarterly': return 'month';
+    case 'day': case 'week': case 'month': case 'year': return interval;
+    default: return 'month';
+  }
+}
+
 export class StripeAdapter implements PaymentGatewayAdapter {
   name = 'stripe';
 
@@ -139,21 +174,25 @@ export class StripeAdapter implements PaymentGatewayAdapter {
   }
 
   async createSubscription(apiKey: string, data: CreateSubscriptionParams): Promise<GatewaySubscription> {
-    const body: Record<string, any> = {
-      customer: data.customerGatewayId,
-      items: JSON.stringify([{
-        price_data: {
-          currency: data.currency || 'usd',
-          product: 'prod_placeholder',
-          unit_amount: Math.round((data.priceAmount || 0) * 100),
-          recurring: { interval: data.interval || 'monthly' },
-        },
-      }]),
-    };
-    if (data.metadata) body.metadata = data.metadata;
-    if (data.trialDays && data.trialDays > 0) body.trial_period_days = data.trialDays;
+    const interval = mapInterval(data.interval || 'monthly');
+    const productName =
+      (data.metadata as any)?.planName || (data.metadata as any)?.name || 'AoraHQ Plan';
+    // Stripe inline price creation uses product_data (not a placeholder product ID).
+    // Flattened manually because generic toFormBody cannot encode arrays of objects.
+    const params = new URLSearchParams();
+    params.append('customer', data.customerGatewayId);
+    params.append('items[0][price_data][currency]', (data.currency || 'usd').toLowerCase());
+    params.append('items[0][price_data][product_data][name]', productName);
+    params.append('items[0][price_data][unit_amount]', String(Math.round((data.priceAmount || 0) * 100)));
+    params.append('items[0][price_data][recurring][interval]', interval);
+    if (data.metadata) {
+      for (const [k, v] of Object.entries(data.metadata)) {
+        params.append(`metadata[${k}]`, String(v));
+      }
+    }
+    if (data.trialDays && data.trialDays > 0) params.append('trial_period_days', String(data.trialDays));
 
-    const sub = await stripeFetch('/subscriptions', apiKey, body);
+    const sub = await stripeFetchRaw('/subscriptions', apiKey, params);
     return this._mapSubscription(sub);
   }
 
@@ -166,19 +205,24 @@ export class StripeAdapter implements PaymentGatewayAdapter {
   }
 
   async updateSubscription(apiKey: string, id: string, data: UpdateSubscriptionParams): Promise<GatewaySubscription> {
-    const body: Record<string, any> = {};
-    if (data.priceAmount !== undefined) {
-      body.items = JSON.stringify([{
-        price_data: {
-          currency: data.currency || 'usd',
-          product: 'prod_placeholder',
-          unit_amount: Math.round(data.priceAmount * 100),
-          recurring: { interval: data.interval || 'monthly' },
-        },
-      }]);
+    if (data.priceAmount === undefined) {
+      const sub = await stripeFetch(`/subscriptions/${id}`, apiKey, data.metadata ? { metadata: data.metadata } : undefined);
+      return this._mapSubscription(sub);
     }
-    if (data.metadata) body.metadata = data.metadata;
-    const sub = await stripeFetch(`/subscriptions/${id}`, apiKey, body);
+    const interval = mapInterval(data.interval || 'monthly');
+    const productName =
+      (data.metadata as any)?.planName || (data.metadata as any)?.name || 'AoraHQ Plan';
+    const params = new URLSearchParams();
+    params.append('items[0][price_data][currency]', (data.currency || 'usd').toLowerCase());
+    params.append('items[0][price_data][product_data][name]', productName);
+    params.append('items[0][price_data][unit_amount]', String(Math.round(data.priceAmount * 100)));
+    params.append('items[0][price_data][recurring][interval]', interval);
+    if (data.metadata) {
+      for (const [k, v] of Object.entries(data.metadata)) {
+        params.append(`metadata[${k}]`, String(v));
+      }
+    }
+    const sub = await stripeFetchRaw(`/subscriptions/${id}`, apiKey, params);
     return this._mapSubscription(sub);
   }
 

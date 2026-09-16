@@ -7,6 +7,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
+import helmet from "helmet";
+import fs from "node:fs";
+import path from "node:path";
 import { GoogleGenAI } from "@google/genai";
 import { runMigrations, pool, query, customerRepo, planRepo, featureRepo, entitlementRepo, priceRepo, discountRepo, couponRepo, rateCardRepo, contractRepo, subscriptionRepo, invoiceRepo, meterRepo, usageRepo, quotaRepo, creditRepo, organizationRepo, workspaceRepo, memberRepo, productRepo, auditRepo, webhookRepo, addChatMessage, getChatMessages, genId, toNum, resolveWorkspace } from "./api/db.ts";
 import { asyncHandler, badRequest, notFound } from "./api/middleware.ts";
@@ -17,7 +20,19 @@ import { verifyApiKey } from "./api/auth/api-key-verifier.ts";
 
 // ── Express App ─────────────────────────────────────────────
 const app = express();
-app.use(express.json({ limit: "10mb" }));
+// Security headers (CSP disabled — SPA inline scripts; HSTS + noSniff on)
+app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
+// Preserve raw body for gateway webhook HMAC verification.
+// Stripe/Paystack/Flutterwave sign the exact raw bytes —
+// JSON.stringify(req.body) would break signature checks.
+app.use(express.json({
+  limit: "10mb",
+  verify: (req: any, _res, buf) => {
+    if (req.path?.includes("/gateways/webhooks/")) {
+      req.rawBody = buf.toString("utf-8");
+    }
+  },
+}));
 
 // ── CORS (cross-origin API consumers) ──────────────────────
 // Browser clients calling the API from other origins need these
@@ -102,6 +117,48 @@ function requireDb() {
   }
 }
 
+// ── AI/crawler static fallbacks (dev + serverless safety) ─
+// Vite copies public/* → dist/* on build, but dot-dirs (/.well-known)
+// and plain-text LLM files must resolve even when static hosting
+// misses them — serve from dist first, then public/.
+function serveStaticFile(candidates: string[], contentType: string) {
+  return (_req: any, res: any) => {
+    for (const file of candidates) {
+      try {
+        if (fs.existsSync(file)) {
+          res.setHeader("Content-Type", contentType);
+          // LLM/crawler files change rarely — cache briefly, revalidate.
+          res.setHeader("Cache-Control", "public, max-age=3600");
+          return res.send(fs.readFileSync(file, "utf-8"));
+        }
+      } catch { /* try next */ }
+    }
+    return res.status(404).json({ error: "Not found.", code: "NOT_FOUND" });
+  };
+}
+const distDir = path.join(process.cwd(), "dist");
+const publicDir = path.join(process.cwd(), "public");
+app.get("/llms.txt", serveStaticFile(
+  [path.join(distDir, "llms.txt"), path.join(publicDir, "llms.txt")],
+  "text/plain; charset=utf-8",
+));
+app.get("/ai.txt", serveStaticFile(
+  [path.join(distDir, "ai.txt"), path.join(publicDir, "ai.txt")],
+  "text/plain; charset=utf-8",
+));
+app.get("/humans.txt", serveStaticFile(
+  [path.join(distDir, "humans.txt"), path.join(publicDir, "humans.txt")],
+  "text/plain; charset=utf-8",
+));
+app.get("/openapi.json", serveStaticFile(
+  [path.join(distDir, "openapi.json"), path.join(publicDir, "openapi.json")],
+  "application/json; charset=utf-8",
+));
+app.get("/.well-known/ai-plugin.json", serveStaticFile(
+  [path.join(distDir, ".well-known", "ai-plugin.json"), path.join(publicDir, ".well-known", "ai-plugin.json")],
+  "application/json; charset=utf-8",
+));
+
 // ── Better Auth Handler ────────────────────────────────────
 // Mounts Better Auth's /api/auth/* endpoints (sign-in, sign-up,
 // sessions, organizations, invitations, 2FA, etc.)
@@ -113,6 +170,52 @@ app.use(verifyApiKey);
 
 // ── Mount API Routes (via master router) ───────────────────
 app.use("/api", apiRouter);
+
+// ── AI-agent machine summary (no DB required) ───────────────
+// Stable JSON grounding for ChatGPT / Claude / Perplexity / RAG.
+// Mirrors public/llms.txt so agents get identical facts via API.
+app.get("/api/ai-summary", (_req: any, res: any) => {
+  res.json({
+    name: "AoraHQ",
+    tagline: "Billing orchestration engine — bring your own gateway keys.",
+    url: "https://aorahq.com",
+    llms_txt: "https://aorahq.com/llms.txt",
+    docs: "https://aorahq.com/docs",
+    sitemap: "https://aorahq.com/sitemap-index.xml",
+    ai_manifest: "https://aorahq.com/.well-known/ai-plugin.json",
+    gateways: ["stripe", "paystack", "flutterwave", "sandbox"],
+    custody: "non-custodial (BYOK — AoraHQ never holds funds)",
+    encryption: "AES-256-GCM, per-key IV, in-memory wipe after use",
+    pricing_models: ["flat", "per-seat", "usage", "hybrid", "tiered", "volume", "package"],
+    key_endpoints: [
+      "GET /api/health",
+      "GET /api/ai-summary",
+      "POST /api/gateways/connect",
+      "POST /api/gateways/v2/connect",
+      "POST /api/gateways/webhooks/{stripe,paystack,flutterwave}",
+      "POST /api/usage-events",
+      "POST /api/events/bulk",
+      "GET /api/can-access?customerId=&featureSlug=",
+      "GET /api/can-consume",
+      "POST /api/checkout/session/:id/confirm",
+      "GET /api/invoices",
+      "GET /api/gateways/reconciliation",
+    ],
+    faq: [
+      { q: "What gateways are supported?", a: "Stripe, Paystack, Flutterwave (live) + sandbox for tests." },
+      { q: "Does AoraHQ touch money?", a: "No — non-custodial charges run on the merchant's own gateway account." },
+      { q: "How are keys stored?", a: "AES-256-GCM encrypted, decrypted only in memory then wiped." },
+      { q: "Stripe Billing vs AoraHQ?", a: "One gateway-agnostic layer for Stripe + Paystack + Flutterwave with metering, entitlements, dunning, reconciliation." },
+    ],
+  });
+});
+
+// Unknown /api/* → JSON 404 (must sit after routers, before error handler)
+app.use("/api", (_req: any, res: any) => {
+  if (!res.headersSent) {
+    res.status(404).json({ error: "Not found.", code: "NOT_FOUND" });
+  }
+});
 
 // ── Global JSON Error Handler ──────────────────────────────
 // Express's default error handler returns HTML; this ensures

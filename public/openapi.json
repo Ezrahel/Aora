@@ -1,0 +1,40 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AoraHQ Billing API",
+    "version": "0.1.0",
+    "description": "Gateway-agnostic billing orchestration (BYOK Stripe/Paystack/Flutterwave). Full reference: https://aorahq.com/docs. Machine summary: https://aorahq.com/api/ai-summary.",
+    "contact": { "email": "hello@aorahq.com", "url": "https://aorahq.com" }
+  },
+  "servers": [{ "url": "https://aorahq.com" }],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Health + DB + gateway backlog",
+        "responses": { "200": { "description": "ok|degraded" } }
+      }
+    },
+    "/api/ai-summary": {
+      "get": {
+        "summary": "Machine-readable site summary for AI agents",
+        "responses": { "200": { "description": "JSON summary" } }
+      }
+    },
+    "/api/usage-events": {
+      "post": {
+        "summary": "Ingest usage event",
+        "responses": { "200": { "description": "ingested" } }
+      }
+    },
+    "/api/can-access": {
+      "get": {
+        "summary": "Entitlement access check",
+        "parameters": [
+          { "name": "customerId", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "featureSlug", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "allow/deny" } }
+      }
+    }
+  }
+}

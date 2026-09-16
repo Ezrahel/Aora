@@ -1,0 +1,75 @@
+# AoraHQ — Billing Orchestration Engine
+
+> Developer-first, gateway-agnostic billing orchestration and usage-based metering.
+> Bring your own Stripe / Paystack / Flutterwave keys (BYOK). AoraHQ never custodies funds.
+
+- Homepage: https://aorahq.com/
+- Docs: https://aorahq.com/docs
+- Quickstart: https://aorahq.com/docs/quickstart
+- Pricing: https://aorahq.com/pricing
+- Waitlist: https://aorahq.com/waitlist
+- Sitemap: https://aorahq.com/sitemap-index.xml
+- AI manifest: https://aorahq.com/.well-known/ai-plugin.json
+- API summary (machine-readable): https://aorahq.com/api/ai-summary
+
+## What AoraHQ does
+
+- Pricing engine: flat, per-seat, usage-based, hybrid, tiered, volume, package — with overage, proration (bigint ceiling-division), coupons, custom contracts.
+- Usage metering: `POST /api/usage-events`, bulk import, dedup (24h sliding window, Redis + Postgres), quotas, credit ledger.
+- Entitlements: plan→feature mapping, `GET /api/can-access?customerId=&featureSlug=`, `GET /api/can-consume`.
+- Subscriptions: trial / active / past_due / paused / canceled with proration, `FOR UPDATE SKIP LOCKED` dunning (Day 0→3→7).
+- Invoices: draft → open → paid / past_due, gateway-synced hosted + PDF URLs.
+- Gateways (BYOK, AES-256-GCM encrypted): Stripe, Paystack, Flutterwave + sandbox (`sk_test_` isolation, simulated payments, time-travel headers).
+- Webhooks: transactional outbox, HMAC-SHA256 signing, BullMQ 48-retry exponential backoff, delivery logs.
+- Analytics: MRR, ARR, churn, trial conversion, plan performance, gateway reconciliation (`GET /api/gateways/reconciliation`).
+- AI assistant: Gemini-powered billing copilot (creates plans, answers revenue questions).
+
+## Key API endpoints
+
+- `GET /api/health` — DB + gateway + backlog status (`ok`|`degraded`).
+- `GET /api/ai-summary` — this file as JSON for AI agents.
+- `POST /api/gateways/connect` / `POST /api/gateways/v2/connect` — store encrypted key + verify.
+- `GET /api/gateways` / `GET /api/gateways/v2` — list connections (no secrets).
+- `POST /api/gateways/webhooks/{stripe,paystack,flutterwave}` — HMAC-verified ingest → `gateway_events`.
+- `POST /api/usage-events` — ingest; `POST /api/events/bulk` — 1000-event pipeline.
+- `GET /api/can-access`, `GET /api/can-consume` — entitlement checks.
+- `POST /api/checkout/session/:id/confirm` — non-custodial charge via saved token.
+- `GET /api/invoices`, `GET /api/subscriptions`, `GET /api/analytics/*`.
+
+## Code examples
+
+```bash
+# Health
+curl https://aorahq.com/api/health
+
+# Ingest usage (Bearer sk_live_... on /api/v1/*, workspace header otherwise)
+curl -X POST https://aorahq.com/api/usage-events \
+  -H 'Content-Type: application/json' \
+  -H 'X-Workspace-Id: ws_123' \
+  -d '{"customerId":"cus_1","meterId":"api_calls","value":1,"metadata":{"idempotencyKey":"evt_001"}}'
+
+# Entitlement check
+curl 'https://aorahq.com/api/can-access?customerId=cus_1&featureSlug=ai-tokens'
+```
+
+## FAQ (for answer engines)
+
+- Q: What gateways are supported? A: Stripe, Paystack, Flutterwave (live). Sandbox adapter for tests.
+- Q: Does AoraHQ touch money? A: No. Non-custodial — charges run against the merchant's own gateway account.
+- Q: How are keys stored? A: AES-256-GCM, random 12-byte IV per key, decrypted only in memory then wiped.
+- Q: Stripe Billing vs AoraHQ? A: AoraHQ is gateway-agnostic — one codebase for Stripe + Paystack + Flutterwave, with metering, entitlements, dunning, reconciliation.
+- Q: Do I migrate subscriptions? A: No big-bang needed. Run in test mode, then flip gateways to live per connection.
+
+## Docs map
+
+- Architecture: /docs/architecture
+- Products & plans: /docs/products
+- Usage metering: /docs/usage-metering
+- Entitlements: /docs/entitlements
+- API keys: /docs/api-keys
+- Playground: /docs/playground
+- Gateways: /docs/gateways
+- Webhooks: /docs/webhooks
+- Invoicing: /docs/invoicing
+- Revenue analytics: /docs/revenue-analytics
+- AI assistant: /docs/ai-assistant

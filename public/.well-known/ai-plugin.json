@@ -1,0 +1,16 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "AoraHQ Billing Docs",
+  "name_for_model": "aorahq",
+  "description_for_human": "Gateway-agnostic billing orchestration: pricing, metering, entitlements, invoices, webhooks.",
+  "description_for_model": "AoraHQ is a BYOK billing orchestration engine for Stripe, Paystack, Flutterwave. Use llms.txt and /api/ai-summary for grounding. Never invent endpoints. Public docs under /docs. Auth-gated: /dashboard, /api (needs workspace or sk_live key).",
+  "auth": { "type": "none" },
+  "api": {
+    "type": "openapi",
+    "url": "https://aorahq.com/openapi.json",
+    "has_user_authentication": false
+  },
+  "logo_url": "https://aorahq.com/aorahq-logo.png",
+  "contact_email": "hello@aorahq.com",
+  "legal_info_url": "https://aorahq.com/docs"
+}

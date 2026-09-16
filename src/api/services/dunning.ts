@@ -5,6 +5,7 @@
 
 import { dunningRepo, invoiceRepo, gatewayRepo, query } from "../db.ts";
 import { getAdapter, decrypt } from "../../gateways/index.ts";
+import { sendEmail, dunningEmailTemplate } from "./email.ts";
 
 const DUNNING_INTERVALS = [1, 3, 7, 14]; // days after failure
 const MAX_ATTEMPTS = 5;
@@ -38,9 +39,29 @@ export async function processScheduledDunning(): Promise<{ processed: number; su
     processed++;
 
     if (attempt.action === "email_reminder") {
-      // Email integration placeholder
-      // In production, send via SendGrid / SES / Resend
-      console.log(`[Dunning] Email reminder ${attempt.attempt_number} for invoice ${attempt.invoice_id}`);
+      // Send real reminder via SendByte; fall back to log when unconfigured.
+      try {
+        const { rows: detailRows } = await query(
+          `SELECT i.amount, i.currency, i.customer_id, c.email as customer_email, c.name as customer_name
+           FROM invoices i LEFT JOIN customers c ON c.id = i.customer_id WHERE i.id = $1`,
+          [attempt.invoice_id],
+        );
+        const detail = detailRows[0];
+        if (detail?.customer_email) {
+          const tpl = dunningEmailTemplate({
+            customerName: detail.customer_name || "there",
+            invoiceId: attempt.invoice_id,
+            amount: String(detail.amount ?? ""),
+            currency: String(detail.currency ?? "USD").toUpperCase(),
+            attemptNumber: attempt.attempt_number,
+          });
+          await sendEmail({ to: detail.customer_email, subject: tpl.subject, html: tpl.html });
+        } else {
+          console.log(`[Dunning] Email reminder ${attempt.attempt_number} for invoice ${attempt.invoice_id} (no customer email)`);
+        }
+      } catch (emailErr) {
+        console.error("[Dunning] email reminder failed:", (emailErr as Error).message);
+      }
       await dunningRepo.updateStatus(null, attempt.id, "success");
       succeeded++;
       continue;

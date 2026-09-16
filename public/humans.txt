@@ -1,0 +1,15 @@
+/* TEAM */
+Founder: Ditech (AoraHQ)
+Contact: hello@aorahq.com
+Site: https://aorahq.com
+Location: Lagos, NG
+
+/* STACK */
+Frontend: React 19, TypeScript, Tailwind 4, Vite 8
+Backend: Express 4, TypeScript, CockroachDB, Redis/BullMQ
+Gateways: Stripe, Paystack, Flutterwave (BYOK, AES-256-GCM)
+
+/* AI */
+llms.txt: https://aorahq.com/llms.txt
+AI manifest: https://aorahq.com/.well-known/ai-plugin.json
+AI summary API: https://aorahq.com/api/ai-summary

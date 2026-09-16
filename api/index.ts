@@ -9,6 +9,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import type { Request, Response } from "express";
+// NOTE: ../src/app.js resolves to ../src/app.ts via Vercel/TS.
+// Background workers (BullMQ/dunning polling in server.ts) do NOT run
+// on serverless — Fly (Dockerfile) is the recommended LIVE target.
 import app, { initializeDatabase } from "../src/app.js";
 
 // Module-level memoization — runs migrations exactly once

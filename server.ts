@@ -19,6 +19,9 @@ import express from "express";
 import path from "path";
 import fs from "node:fs";
 import { startEventProcessor } from "./src/api/services/gateway-event-processor.ts";
+import { startWebhookWorker, stopWebhookWorker } from "./src/api/services/webhook-dispatcher-worker.ts";
+import { processScheduledDunning } from "./src/api/services/dunning.ts";
+import { processDueDunningRetries } from "./src/api/services/dunning-state-machine.ts";
 
 const PORT = parseInt(process.env.PORT || "3000", 10);
 
@@ -53,10 +56,42 @@ async function startServer() {
     console.log(`AoraHQ Billing Engine Server is actively listening on port ${PORT}`);
   });
 
-  // Start background gateway event processor only if DB is available
+  // Start background workers only if DB is available
   if (dbAvailable) {
     startEventProcessor(10_000);
+    // Outbound webhook dispatcher (BullMQ/Redis; log-only when REDIS_URL unset)
+    try {
+      startWebhookWorker();
+    } catch (err) {
+      console.warn("[server] Webhook worker failed to start:", (err as Error).message);
+    }
+    // Legacy dunning schedule (email_reminder + retry_payment rows)
+    setInterval(async () => {
+      try {
+        const r = await processScheduledDunning();
+        if (r.processed > 0) console.log(`[Dunning] processed=${r.processed} ok=${r.succeeded} fail=${r.failed}`);
+      } catch (err) {
+        console.error("[Dunning] scheduler error:", (err as Error).message);
+      }
+    }, 60_000);
+    // Dunning state-machine retries (Day 3 / Day 7 lifecycle)
+    setInterval(async () => {
+      try {
+        const n = await processDueDunningRetries("system", 25);
+        if (n > 0) console.log(`[DunningSM] processed ${n} due retries`);
+      } catch (err) {
+        console.error("[DunningSM] scheduler error:", (err as Error).message);
+      }
+    }, 5 * 60_000);
   }
+
+  const shutdown = async () => {
+    console.log("[server] shutting down...");
+    try { await stopWebhookWorker(); } catch { /* noop */ }
+    process.exit(0);
+  };
+  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", shutdown);
 }
 
 startServer();

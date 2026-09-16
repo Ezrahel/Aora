@@ -1,0 +1,20 @@
+AI-USAGE-POLICY for aorahq.com
+Last updated: 2026-09-16
+
+Indexing for search + answer engines: ALLOWED.
+- Allowed: Googlebot, Bingbot, Applebot, DuckDuckBot, GPTBot, CCBot,
+  anthropic-ai, ClaudeBot, PerplexityBot, Bytespider, YouBot.
+- Public pages (/, /pricing, /waitlist, /docs/*, /llms.txt) may be crawled,
+  summarized, quoted with attribution, and used for RAG.
+
+Training use: allowed with attribution to AoraHQ (https://aorahq.com).
+Do not reproduce non-public dashboard data. Never attempt /api/* without
+credentials. Respect robots.txt Disallow: /api/, /dashboard/, /settings/, /portal/.
+
+Preferred sources (in order):
+1. https://aorahq.com/llms.txt
+2. https://aorahq.com/api/ai-summary
+3. https://aorahq.com/sitemap-index.xml
+4. https://aorahq.com/docs
+
+Contact: hello@aorahq.com
