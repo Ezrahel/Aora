@@ -54,7 +54,8 @@ export default function App() {
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
-  const [workspace, setWorkspace] = useState("Aora Technologies Ltd");
+  const [workspace, setWorkspace] = useState("");
+  const [workspaces, setWorkspaces] = useState<Array<{ id: string; name: string; environment: string }>>([]);
   const [globalSearch, setGlobalSearch] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [profileSection, setProfileSection] = useState<"settings" | "account" | "security" | null>(null);
@@ -70,8 +71,25 @@ export default function App() {
 
   const [isSyncing, setIsSyncing] = useState(false);
 
+  useEffect(() => {
+    let active = true;
+    fetch("/api/workspaces", { credentials: "include" })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Unable to load authorized workspaces.");
+        return response.json();
+      })
+      .then((items: Array<{ id: string; name: string; environment: string }>) => {
+        if (!active) return;
+        setWorkspaces(items);
+        setWorkspace((current) => current || items[0]?.id || "");
+      })
+      .catch((error) => console.error("Unable to load authorized workspaces:", error));
+    return () => { active = false; };
+  }, []);
+
   // Sync state loop from Live Express server on mount
   const fetchDatabaseState = async () => {
+    if (!workspace) return;
     setIsSyncing(true);
     try {
       const qs = `?workspace=${encodeURIComponent(workspace)}`;
@@ -336,6 +354,7 @@ export default function App() {
             <div className="pl-0 md:pl-64 min-h-screen flex flex-col flex-1 dp-bg transition-all duration-300">
               <TopNav
                 currentWorkspace={workspace}
+                workspaces={workspaces}
                 setWorkspace={setWorkspace}
                 globalSearch={globalSearch}
                 setGlobalSearch={setGlobalSearch}

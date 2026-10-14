@@ -10,6 +10,16 @@ npm install
 npm run dev
 ```
 
+## Verification and operations
+
+```bash
+npm run lint
+npm test
+npm run build
+```
+
+See [OPERATIONS.md](./OPERATIONS.md) for production configuration, health checks, backups, and incident response. CI runs these checks for pull requests and pushes to `main`.
+
 ## Documentation
 
 - **[Backend Features Guide](./BACKEND_FEATURES_GUIDE.md)** — Detailed walkthrough of proration, ingress metering, deduplication, batch ingestion, sandbox playground, zero-trust encryption, webhook dispatcher, and dunning state machine
@@ -21,4 +31,4 @@ npm run dev
 - **Backend:** Express, TypeScript
 - **Database:** CockroachDB (PostgreSQL-compatible)
 - **Cache:** Redis (in-memory fallback)
-- **Payments:** Non-custodial gateway adapter interface (Stripe, Sandbox)
+- **Payments:** Non-custodial gateway adapter interface (Stripe, Paystack, Flutterwave, Sandbox)

@@ -8,7 +8,7 @@ A developer-first, cloud-based billing orchestration and usage-based metering en
 
 - **Full billing dashboard** — 21 React components covering plans, pricing, entitlements, usage metering, customer portal, invoices, revenue ops, analytics, webhooks, settings
 - **Express REST API** — 14 route modules with full CRUD for all billing entities
-- **CockroachDB persistence** — 22 repository modules, serializable transactions, migration system (v1–12), connection pooling with retry logic
+- **CockroachDB persistence** — repository modules, serializable transactions, migration system (v1–13) with checksum validation, and connection pooling with retry logic
 - **Pricing engine** — flat, per-seat, usage, hybrid, tiered, volume, and package pricing with overage calculation
 - **Usage metering** — event ingestion, bulk import, aggregates, quotas, credit ledger with grant/deduct
 - **Entitlement engine** — plan-to-feature mapping with real-time access checks
@@ -27,6 +27,7 @@ A developer-first, cloud-based billing orchestration and usage-based metering en
 - **Zero-trust encryption** — AES-256-GCM encrypt/decrypt for gateway secrets at rest
 - **Transactional outbox webhook dispatcher** — BullMQ-backed delivery with HMAC-SHA256 signing, 48-retry exponential backoff, and delivery audit logs
 - **Dunning state machine** — 3-step automated retry lifecycle (Day 0→3→7) with `FOR UPDATE SKIP LOCKED` concurrency safety
+- **Access boundaries** — dashboard APIs require a Better Auth session; workspace resolution is tenant-scoped and machine keys are limited to ingestion
 
 ---
 

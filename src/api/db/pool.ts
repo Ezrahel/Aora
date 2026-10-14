@@ -75,10 +75,16 @@ export async function query<T extends pg.QueryResultRow = any>(
   return p.query<T>(text, params);
 }
 
+/** Read pool metrics without opening a new connection. */
+export function getPoolStats() {
+  return { totalCount: pool?.totalCount ?? 0, idleCount: pool?.idleCount ?? 0 };
+}
+
 const proxy: Omit<typeof import("./pool.ts"), "default"> & { default: pg.Pool } = {
   withTransaction,
   retryable,
   query,
+  getPoolStats,
 } as any;
 
 export default proxy as unknown as pg.Pool;

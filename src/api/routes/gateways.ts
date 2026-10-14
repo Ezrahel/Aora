@@ -1,10 +1,9 @@
-// @ts-nocheck
-
 // ============================================================
 // Gateway Routes
 // Connect/manage payment gateway connections and receive webhooks.
 // ============================================================
 
+// @ts-nocheck -- repository contract migration pending; tracked separately.
 import { Router } from "express";
 import {
   resolveWorkspace,
@@ -22,6 +21,9 @@ import { asyncHandler, badRequest, notFound, parsePagination } from "../middlewa
 import { getAdapter, listAdapters, encrypt, decrypt, previewKey, validateKeyFormat } from "../../gateways/index.ts";
 
 export const router = Router();
+// Provider deliveries are mounted before dashboard session auth.  Keep this
+// router restricted to signed inbound webhook endpoints only.
+export const providerWebhookRouter = Router();
 
 // ─────────────────────────────────────────────────────────────
 // Connection Management
@@ -256,15 +258,15 @@ async function handleIncomingWebhook(req, res, gatewayName: string) {
   res.status(200).json({ received: true, eventId: evt.id });
 }
 
-router.post("/gateways/webhooks/stripe", asyncHandler(async (req, res) => {
+providerWebhookRouter.post("/gateways/webhooks/stripe", asyncHandler(async (req, res) => {
   await handleIncomingWebhook(req, res, "stripe");
 }));
 
-router.post("/gateways/webhooks/paystack", asyncHandler(async (req, res) => {
+providerWebhookRouter.post("/gateways/webhooks/paystack", asyncHandler(async (req, res) => {
   await handleIncomingWebhook(req, res, "paystack");
 }));
 
-router.post("/gateways/webhooks/flutterwave", asyncHandler(async (req, res) => {
+providerWebhookRouter.post("/gateways/webhooks/flutterwave", asyncHandler(async (req, res) => {
   await handleIncomingWebhook(req, res, "flutterwave");
 }));
 

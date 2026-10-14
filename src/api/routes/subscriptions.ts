@@ -1,5 +1,4 @@
-// @ts-nocheck
-
+// @ts-nocheck -- repository contract migration pending; tracked separately.
 import { Router } from "express";
 import {
   resolveWorkspace,

@@ -1,5 +1,4 @@
-// @ts-nocheck
-
+// @ts-nocheck -- repository contract migration pending; tracked separately.
 import { Router } from "express";
 import {
   resolveWorkspace,
@@ -16,8 +15,10 @@ import type { Member } from "../types.ts";
 
 export const router = Router();
 
-router.get("/workspaces", asyncHandler(async (_req, res) => {
-  const workspaces = await workspaceRepo.findAll();
+router.get("/workspaces", asyncHandler(async (req, res) => {
+  const organizationId = (req as any).authUser?.activeOrganizationId;
+  if (!organizationId) return res.status(401).json({ error: "Authentication required.", code: "NOT_AUTHENTICATED" });
+  const workspaces = await workspaceRepo.findByOrganizationId(organizationId);
   res.json(workspaces);
 }));
 
@@ -38,15 +39,15 @@ router.get("/workspace-info", asyncHandler(async (req, res) => {
 }));
 
 router.get("/workspaces/:id", asyncHandler(async (req, res) => {
-  const wss = await workspaceRepo.findAll();
-  const ws = wss.find((w) => w.id === req.params.id);
+  const ws = await resolveWorkspace(req);
+  if (ws?.id !== req.params.id) return notFound(res, "Workspace");
   if (!ws) return notFound(res, "Workspace");
   res.json(ws);
 }));
 
 router.put("/workspaces/:id", asyncHandler(async (req, res) => {
-  const wss = await workspaceRepo.findAll();
-  const ws = wss.find((w) => w.id === req.params.id);
+  const ws = await resolveWorkspace(req);
+  if (ws?.id !== req.params.id) return notFound(res, "Workspace");
   if (!ws) return notFound(res, "Workspace");
 
   const { name, environment, profile, settings } = req.body as {
@@ -71,8 +72,8 @@ router.put("/workspaces/:id", asyncHandler(async (req, res) => {
 }));
 
 router.post("/workspaces/:id/rotate-key", asyncHandler(async (req, res) => {
-  const wss = await workspaceRepo.findAll();
-  const ws = wss.find((w) => w.id === req.params.id);
+  const ws = await resolveWorkspace(req);
+  if (ws?.id !== req.params.id) return notFound(res, "Workspace");
   if (!ws) return notFound(res, "Workspace");
 
   const prefix = ws.environment === "production" ? "sk_live_" : "sk_test_";

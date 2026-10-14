@@ -10,6 +10,7 @@ import type { AuditLog } from "./types.ts";
 import {
   pool,
   query,
+  getPoolStats,
   withTransaction,
   retryable,
   runMigrations,
@@ -72,14 +73,34 @@ export function addChatMessage(role: "user" | "model" | "system", text: string, 
 // ── Workspace Resolution ───────────────────────────────────
 
 export async function resolveWorkspace(req: Request) {
-  const wsQuery = (req.query.workspace as string) ||
-                 (req.headers["x-workspace-id"] as string);
-  if (wsQuery) {
-    const matched = await workspaceRepo.resolveWorkspace(wsQuery);
-    if (matched) return matched;
+  // Machine requests are authenticated by the workspace API-key middleware,
+  // which resolves and attaches this exact workspace.
+  const machineWorkspace = (req as any).context?.workspace;
+  if (machineWorkspace?.id && machineWorkspace.id !== "dev") {
+    return workspaceRepo.findById(null, machineWorkspace.id);
   }
-  const all = await workspaceRepo.findAll();
-  return all[0] ?? null;
+
+  // Dashboard requests are authorized by Better Auth.  A requested workspace
+  // may select an environment within the active organization, but can never
+  // cross its organization boundary.
+  const organizationId = (req as any).authUser?.activeOrganizationId;
+  if (!organizationId) {
+    const err: any = new Error("Authenticated organization context is required.");
+    err.statusCode = 401;
+    err.code = "NOT_AUTHENTICATED";
+    throw err;
+  }
+
+  const requested = (req.query.workspace as string) ||
+    (req.headers["x-workspace-id"] as string | undefined);
+  const workspace = await workspaceRepo.resolveWorkspaceForOrganization(organizationId, requested);
+  if (!workspace) {
+    const err: any = new Error("No workspace is available for the active organization.");
+    err.statusCode = 404;
+    err.code = "WORKSPACE_NOT_FOUND";
+    throw err;
+  }
+  return workspace;
 }
 
 // ── Audit Logging ──────────────────────────────────────────
@@ -139,7 +160,7 @@ export function toNum(val: any, fallback: number): number {
 
 // ── Re-export all repository functions ─────────────────────
 
-export { pool, withTransaction, retryable, query };
+export { pool, withTransaction, retryable, query, getPoolStats };
 
 export {
   runMigrations,

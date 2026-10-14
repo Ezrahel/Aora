@@ -1,5 +1,3 @@
-import fs from "fs";
-import path from "path";
 import { createHash } from "crypto";
 import pool, { withTransaction } from "./pool.ts";
 
@@ -837,36 +835,104 @@ function computeChecksum(sql: string): string {
   return createHash("sha256").update(sql).digest("hex");
 }
 
-async function getAppliedVersions(): Promise<Set<number>> {
-  const { rows } = await pool.query<{ version: number }>(
-    "SELECT version FROM schema_migrations ORDER BY version",
+interface AppliedMigration {
+  version: number;
+  description: string;
+  checksum: string | null;
+}
+
+async function getAppliedMigrations(): Promise<Map<number, AppliedMigration>> {
+  const { rows } = await pool.query<AppliedMigration>(
+    "SELECT version, description, checksum FROM schema_migrations ORDER BY version",
   );
-  // pg decodes CockroachDB INT columns as strings; normalize to numbers
-  // so `applied.has(migration.version)` works with the numeric constants below.
-  return new Set(rows.map((r) => Number(r.version)));
+  // pg decodes CockroachDB INT columns as strings; normalize to numbers.
+  return new Map(rows.map((row) => [Number(row.version), { ...row, version: Number(row.version) }]));
+}
+
+/** Validate the immutable migration catalogue before touching the database. */
+export function validateMigrationDefinitions(): void {
+  const versions = new Set<number>();
+  for (const migration of MIGRATIONS) {
+    if (!Number.isInteger(migration.version) || migration.version <= 0) {
+      throw new Error(`Invalid migration version: ${migration.version}`);
+    }
+    if (versions.has(migration.version)) {
+      throw new Error(`Duplicate migration version: ${migration.version}`);
+    }
+    if (!migration.description.trim() || !migration.sql.trim()) {
+      throw new Error(`Migration ${migration.version} requires a description and SQL.`);
+    }
+    versions.add(migration.version);
+  }
+}
+
+/** Split SQL without corrupting semicolons inside quotes or dollar blocks. */
+export function splitSqlStatements(sql: string): string[] {
+  const statements: string[] = [];
+  let start = 0;
+  let quote: "'" | '"' | null = null;
+  let dollarTag: string | null = null;
+
+  for (let i = 0; i < sql.length; i += 1) {
+    const char = sql[i];
+    if (dollarTag) {
+      if (sql.startsWith(dollarTag, i)) {
+        i += dollarTag.length - 1;
+        dollarTag = null;
+      }
+      continue;
+    }
+    if (quote) {
+      if (char === quote) {
+        if (quote === "'" && sql[i + 1] === "'") i += 1;
+        else quote = null;
+      }
+      continue;
+    }
+    if (char === "'" || char === '"') {
+      quote = char;
+      continue;
+    }
+    if (char === "$") {
+      const match = sql.slice(i).match(/^\$[A-Za-z_][A-Za-z0-9_]*\$|^\$\$/);
+      if (match) {
+        dollarTag = match[0];
+        i += dollarTag.length - 1;
+        continue;
+      }
+    }
+    if (char === ";") {
+      const statement = sql.slice(start, i).trim();
+      if (statement) statements.push(statement);
+      start = i + 1;
+    }
+  }
+  const finalStatement = sql.slice(start).trim();
+  if (finalStatement) statements.push(finalStatement);
+  return statements;
 }
 
 export async function runMigrations(): Promise<void> {
+  validateMigrationDefinitions();
   await ensureMigrationsTable();
 
-  const applied = await getAppliedVersions();
+  const applied = await getAppliedMigrations();
 
   for (const migration of MIGRATIONS) {
-    if (applied.has(migration.version)) continue;
-
     const checksum = computeChecksum(migration.sql);
+    const existing = applied.get(migration.version);
+    if (existing) {
+      if (existing.checksum && existing.checksum !== checksum) {
+        throw new Error(
+          `Migration checksum mismatch for v${migration.version} (${migration.description}). ` +
+          "Applied migrations are immutable; create a new migration instead.",
+        );
+      }
+      continue;
+    }
 
     await withTransaction(async (client) => {
-      // Strip full-line comment headers first, then split on ";".
-      // This prevents a `-- comment` block at the top of a migration
-      // from swallowing the following CREATE TABLE into the filtered chunk.
-      const statements = migration.sql
-        .split("\n")
-        .filter((line) => !line.trim().startsWith("--"))
-        .join("\n")
-        .split(";")
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0);
+      const statements = splitSqlStatements(migration.sql);
 
       for (const stmt of statements) {
         await client.query(stmt);

@@ -13,7 +13,8 @@ import path from "node:path";
 import { GoogleGenAI } from "@google/genai";
 import { runMigrations, pool, query, customerRepo, planRepo, featureRepo, entitlementRepo, priceRepo, discountRepo, couponRepo, rateCardRepo, contractRepo, subscriptionRepo, invoiceRepo, meterRepo, usageRepo, quotaRepo, creditRepo, organizationRepo, workspaceRepo, memberRepo, productRepo, auditRepo, webhookRepo, addChatMessage, getChatMessages, genId, toNum, resolveWorkspace } from "./api/db.ts";
 import { asyncHandler, badRequest, notFound } from "./api/middleware.ts";
-import apiRouter from "./api/router.ts";
+import apiRouter, { machineRouter } from "./api/router.ts";
+import { providerWebhookRouter } from "./api/routes/gateways.ts";
 import { getAuth } from "./api/auth/auth-service.ts";
 import { webHandler } from "./api/auth/express-adapter.ts";
 import { verifyApiKey } from "./api/auth/api-key-verifier.ts";
@@ -162,13 +163,41 @@ app.get("/.well-known/ai-plugin.json", serveStaticFile(
 // ── Better Auth Handler ────────────────────────────────────
 // Mounts Better Auth's /api/auth/* endpoints (sign-in, sign-up,
 // sessions, organizations, invitations, 2FA, etc.)
-app.use("/api/auth", webHandler(getAuth().handler));
+// Instantiate Better Auth only when an auth endpoint is actually requested.
+// This keeps health/discovery endpoints independent of the auth database and
+// avoids blocking startup probes on optional auth infrastructure.
+app.use("/api/auth", (req, res) => webHandler(getAuth().handler)(req, res));
+
+// ── Provider Webhooks ──────────────────────────────────────
+// These are intentionally public: each handler verifies its provider's HMAC
+// signature before processing. They must be mounted before dashboard auth.
+app.use("/api", providerWebhookRouter);
 
 // ── API Key Verification ───────────────────────────────────
-// Validates Bearer tokens (sk_live_aora_...) on /api/v1/* routes
+// Legacy /api/v1 clients may use Aora API keys. Dashboard resources are
+// session-protected by apiRouter; this verifier never grants broad access.
 app.use(verifyApiKey);
 
 // ── Mount API Routes (via master router) ───────────────────
+app.use("/api", machineRouter);
+// This public discovery document must be registered before the dashboard
+// router's authenticated catch-all and JSON 404 handler.
+app.get("/api/ai-summary", (_req: any, res: any) => {
+  res.json({
+    name: "AoraHQ",
+    tagline: "Billing orchestration engine — bring your own gateway keys.",
+    url: "https://aorahq.com",
+    llms_txt: "https://aorahq.com/llms.txt",
+    docs: "https://aorahq.com/docs",
+    sitemap: "https://aorahq.com/sitemap-index.xml",
+    ai_manifest: "https://aorahq.com/.well-known/ai-plugin.json",
+    gateways: ["stripe", "paystack", "flutterwave", "sandbox"],
+    custody: "non-custodial (BYOK — AoraHQ never holds funds)",
+    encryption: "AES-256-GCM, per-key IV, in-memory wipe after use",
+    pricing_models: ["flat", "per-seat", "usage", "hybrid", "tiered", "volume", "package"],
+    key_endpoints: ["GET /api/health", "GET /api/ai-summary", "POST /api/ingress"],
+  });
+});
 app.use("/api", apiRouter);
 
 // ── AI-agent machine summary (no DB required) ───────────────

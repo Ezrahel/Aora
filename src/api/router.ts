@@ -7,6 +7,7 @@
 import { Router } from "express";
 import { rateLimit } from "./middleware.ts";
 import { sandboxIsolationMiddleware } from "./middleware/sandbox.ts";
+import { requireSession } from "./auth/session-guard.ts";
 
 import healthRouter        from "./routes/health.ts";
 import workspacesRouter    from "./routes/workspaces.ts";
@@ -28,16 +29,31 @@ import checkoutRouter      from "./routes/checkout.ts";
 import ingressRouter       from "./routes/ingress.ts";
 
 const apiRouter = Router();
+export const machineRouter = Router();
 
 // Apply rate limiting to all API routes
 apiRouter.use(rateLimit);
 
-// Sandbox isolation middleware — detects sk_test_ / sk_live_ API keys,
-// injects req.context with isTest, paymentAdapter, and time-travel offset.
-apiRouter.use(sandboxIsolationMiddleware);
+// Machine API: only the explicitly external ingestion surface is reachable
+// with a workspace key. It is mounted before the dashboard router in app.ts.
+machineRouter.use(rateLimit);
+machineRouter.use((req, res, next) => {
+  if (req.path !== "/ingress" && !req.path.startsWith("/ingress/")) return next();
+  return sandboxIsolationMiddleware(req, res, next);
+});
+machineRouter.use(ingressRouter);
+
+// Public operational endpoints.  Everything else below requires an active
+// dashboard session.  Gateway webhooks are mounted separately in app.ts so
+// their provider signatures can be verified without a browser session.
+apiRouter.use(healthRouter);          // GET /health
+apiRouter.use(waitlistRouter);        // POST /waitlist
+
+// Dashboard API: session authentication also attaches the active organization
+// that resolveWorkspace uses to enforce tenant isolation.
+apiRouter.use(requireSession());
 
 // ── Resource Routes ────────────────────────────────────────────
-apiRouter.use(healthRouter);          // GET /health
 apiRouter.use(workspacesRouter);      // /workspaces, /workspace-info, /members, /audit-logs
 apiRouter.use(plansRouter);           // /plans
 apiRouter.use(productsRouter);        // /products, /features
@@ -49,11 +65,9 @@ apiRouter.use(entitlementsRouter);    // /entitlements, /can-access
 apiRouter.use("/invoices", invoicesRouter);        // /invoices, /invoices/:id
 apiRouter.use(pricingRouter);         // /prices, /rate-cards, /discounts, /coupons, /contracts, /pricing-calculate
 apiRouter.use(analyticsRouter);       // /revenue-metrics, /analytics/*
-apiRouter.use(webhooksRouter);        // /webhooks
+apiRouter.use(webhooksRouter);        // /webhooks (outbound endpoint management)
 apiRouter.use(chatRouter);            // /chat, /chat-history
 apiRouter.use(gatewaysRouter);        // /gateways/*
-apiRouter.use(waitlistRouter);        // POST /waitlist
 apiRouter.use("/checkout", checkoutRouter);        // /checkout/*
-apiRouter.use(ingressRouter);                      // /ingress, /ingress/usage, /ingress/flush
 
 export default apiRouter;

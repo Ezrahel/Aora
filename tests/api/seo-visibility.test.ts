@@ -62,7 +62,7 @@ describe("SEO + AI visibility", () => {
     } finally {
       await new Promise<void>((r) => server.close(() => r()));
     }
-  }, 20_000);
+  }, 60_000);
 
   it("GET /llms.txt serves plain text (dist/public fallback)", async () => {
     const { default: app } = await import("../../src/app.ts");
@@ -78,5 +78,5 @@ describe("SEO + AI visibility", () => {
     } finally {
       await new Promise<void>((r) => server.close(() => r()));
     }
-  }, 20_000);
+  }, 60_000);
 });

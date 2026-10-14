@@ -1,4 +1,4 @@
-export { default as pool, withTransaction, retryable, query } from "./pool.ts";
+export { default as pool, withTransaction, retryable, query, getPoolStats } from "./pool.ts";
 export { runMigrations, migrateDown } from "./migrate.ts";
 export { organizationRepo } from "./repositories/organization.repo.ts";
 export { workspaceRepo } from "./repositories/workspace.repo.ts";

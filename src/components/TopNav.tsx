@@ -16,6 +16,7 @@ import { useDashboardTheme } from "./DashboardTheme";
 
 interface TopNavProps {
   currentWorkspace: string;
+  workspaces: Array<{ id: string; name: string; environment: string }>;
   setWorkspace: (ws: string) => void;
   globalSearch: string;
   setGlobalSearch: (q: string) => void;
@@ -28,6 +29,7 @@ interface TopNavProps {
 
 export default function TopNav({
   currentWorkspace,
+  workspaces,
   setWorkspace,
   globalSearch,
   setGlobalSearch,
@@ -39,6 +41,7 @@ export default function TopNav({
 }: TopNavProps) {
   const { theme, toggle } = useDashboardTheme();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const currentWorkspaceName = workspaces.find((workspace) => workspace.id === currentWorkspace)?.name ?? "Select workspace";
 
   const handleOpenProfileSettings = () => {
     setIsProfileMenuOpen(false);
@@ -74,7 +77,7 @@ export default function TopNav({
         </div>
         <div className="relative flex items-center gap-1.5 cursor-pointer group shrink-0">
           <span className="text-xs md:text-sm font-medium dp-text tracking-tight truncate max-w-[110px] sm:max-w-[200px]">
-            {currentWorkspace}
+            {currentWorkspaceName}
           </span>
           <ChevronDown className="h-3.5 w-3.5 dp-secondary transition-transform group-hover:translate-y-0.5" />
           <select
@@ -83,11 +86,11 @@ export default function TopNav({
             className="absolute inset-0 opacity-0 cursor-pointer"
             id="workspace-select"
           >
-            <option value="Aora Technologies Ltd">Aora Technologies Ltd</option>
-            <option value="Acme Corporation Workspace">
-              Acme Corporation Workspace
-            </option>
-            <option value="Demo Environment">Sandbox Environment</option>
+            {workspaces.map((workspace) => (
+              <option key={workspace.id} value={workspace.id}>
+                {workspace.name} ({workspace.environment})
+              </option>
+            ))}
           </select>
         </div>
         <div className="hidden lg:flex items-center gap-1.5 rounded-full dp-surface-alt px-2.5 py-1 text-[11px] font-medium dp-secondary shrink-0">

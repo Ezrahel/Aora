@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { Router } from "express";
 import {
   resolveWorkspace,

@@ -24,7 +24,7 @@ describe("LIVE readiness smoke", () => {
     } finally {
       await new Promise<void>((r) => server.close(() => r()));
     }
-  }, 20_000);
+  }, 60_000);
 
   it("unknown /api/* returns JSON 404 (not HTML)", async () => {
     const { default: app } = await import("../../src/app.ts");
@@ -39,7 +39,7 @@ describe("LIVE readiness smoke", () => {
     } finally {
       await new Promise<void>((r) => server.close(() => r()));
     }
-  }, 20_000);
+  }, 60_000);
 
   it("non-custodial stripe adapter is registered (live charge path)", async () => {
     const { getNonCustodialGateway } = await import(

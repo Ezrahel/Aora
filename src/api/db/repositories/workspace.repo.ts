@@ -34,6 +34,15 @@ export async function findAll(): Promise<Workspace[]> {
   return rows.map(rowToWs);
 }
 
+export async function findByOrganizationId(organizationId: string): Promise<Workspace[]> {
+  const { rows } = await query<WorkspaceRow>(
+    `SELECT id, organization_id, name, environment, api_keys, profile, settings, created_at
+     FROM workspaces WHERE organization_id::text = $1 ORDER BY name`,
+    [organizationId],
+  );
+  return rows.map(rowToWs);
+}
+
 export async function findById(
   client: pg.PoolClient | null,
   id: string,
@@ -56,6 +65,30 @@ export async function resolveWorkspace(
   );
   if (rows.length === 0) return null;
   return rowToWs(rows[0]);
+}
+
+/**
+ * Resolve a workspace only within an organization.  Never use the caller's
+ * workspace identifier as an authorization boundary on its own.
+ */
+export async function resolveWorkspaceForOrganization(
+  organizationId: string,
+  identifier?: string,
+): Promise<Workspace | null> {
+  const params: string[] = [organizationId];
+  let where = "organization_id::text = $1";
+
+  if (identifier) {
+    params.push(identifier);
+    where += " AND (id::text = $2 OR LOWER(name) = LOWER($2))";
+  }
+
+  const { rows } = await query<WorkspaceRow>(
+    `SELECT id, organization_id, name, environment, api_keys, profile, settings, created_at
+     FROM workspaces WHERE ${where} ORDER BY name LIMIT 1`,
+    params,
+  );
+  return rows[0] ? rowToWs(rows[0]) : null;
 }
 
 export async function update(
@@ -94,8 +127,10 @@ export async function rotateKey(
 
 export const workspaceRepo = {
   findAll,
+  findByOrganizationId,
   findById,
   resolveWorkspace,
+  resolveWorkspaceForOrganization,
   update,
   rotateKey,
 };
