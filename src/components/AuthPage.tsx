@@ -1,6 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { authClient } from "../lib/auth-client.ts";
-import { LandingThemeProvider } from "./landing/LandingTheme.tsx";
+import { LandingThemeProvider, useLandingTheme } from "./landing/LandingTheme.tsx";
+import SceneLayer from "./landing/scene/SceneLayer.tsx";
+import { POSES, sceneStore } from "./landing/scene/store.ts";
+
+function AuthScene() {
+  const { theme } = useLandingTheme();
+  useEffect(() => {
+    sceneStore.heldPose = POSES.auth;
+    return () => {
+      sceneStore.heldPose = null;
+    };
+  }, []);
+  return <SceneLayer theme={theme} className="lp-scene-panel" />;
+}
 
 type AuthView = "sign-in" | "sign-up" | "forgot-password";
 
@@ -43,125 +56,113 @@ export default function AuthPage({ onNavigateTab }: AuthPageProps) {
     }
   };
 
+  const title = view === "sign-in" ? "Welcome back" : view === "sign-up" ? "Create your account" : "Reset password";
+  const submitLabel = view === "sign-in" ? "Sign in" : view === "sign-up" ? "Create account" : "Send reset link";
+  const hasSocial = !!(import.meta.env.VITE_GITHUB_CLIENT_ID || import.meta.env.VITE_GOOGLE_CLIENT_ID);
+
   return (
     <LandingThemeProvider>
-      <div className="min-h-screen flex items-center justify-center bg-[var(--lp-bg)] px-4">
-        <div className="w-full max-w-sm">
-          <div className="text-center mb-8">
-            <button onClick={() => onNavigateTab("landing")} className="cursor-pointer">
-              <div className="rounded-lg p-1.5 inline-block" style={{ backgroundColor: "#F5F5F7" }}>
-                <img src="/aorahq-logo.png" alt="AoraHQ" className="h-8 w-auto" />
-              </div>
-            </button>
-          </div>
+      <div className="min-h-svh grid grid-cols-1 lg:grid-cols-2">
+        <section className="relative z-10 flex flex-col px-6 lg:px-14 py-8">
+          <button onClick={() => onNavigateTab("landing")} className="self-start cursor-pointer" aria-label="Back to AoraHQ home">
+            <img src="/aorahq-logo.png" alt="" className="lp-logo" />
+          </button>
 
-          <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 p-8">
-            <h1 className="text-xl font-bold text-center mb-6 text-neutral-900 dark:text-white">
-              {view === "sign-in" ? "Welcome back" : view === "sign-up" ? "Create account" : "Reset password"}
-            </h1>
+          <div className="flex-1 flex items-center">
+            <div className="w-full max-w-sm mx-auto lg:mx-0 py-10">
+              <p className="lp-label">{view === "sign-up" ? "Start billing" : "AoraHQ console"}</p>
+              <h1 className="lp-h2 !text-[2.5rem] mt-3">{title}</h1>
 
-            {error && (
-              <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs">
-                {error}
-              </div>
-            )}
+              {error && (
+                <p role="alert" className="mt-6 p-3 border border-[var(--lp-tick)] lp-data lp-text">
+                  {error}
+                </p>
+              )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {view === "sign-up" && (
+              <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+                {view === "sign-up" && (
+                  <div>
+                    <label htmlFor="auth-name" className="lp-label block mb-2">Name</label>
+                    <input id="auth-name" type="text" value={name} onChange={(e) => setName(e.target.value)} className="lp-input" placeholder="Your name" autoComplete="name" required />
+                  </div>
+                )}
+
                 <div>
-                  <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1">Name</label>
+                  <label htmlFor="auth-email" className="lp-label block mb-2">Email</label>
+                  <input id="auth-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="lp-input" placeholder="you@example.com" autoComplete="email" required />
+                </div>
+
+                <div>
+                  <label htmlFor="auth-password" className="lp-label block mb-2">Password</label>
                   <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-sm text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-neutral-400"
-                    placeholder="Your name"
+                    id="auth-password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="lp-input"
+                    placeholder="At least 10 characters"
+                    autoComplete={view === "sign-up" ? "new-password" : "current-password"}
                     required
+                    minLength={10}
                   />
                 </div>
-              )}
 
-              <div>
-                <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-sm text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-neutral-400"
-                  placeholder="you@example.com"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1">Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-sm text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-neutral-400"
-                  placeholder="••••••••"
-                  required
-                  minLength={10}
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-2.5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold text-xs rounded-xl transition-all hover:opacity-90 disabled:opacity-50 cursor-pointer"
-              >
-                {loading ? "Please wait…" : view === "sign-in" ? "Sign In" : view === "sign-up" ? "Create Account" : "Send Reset Link"}
-              </button>
-            </form>
-
-            <div className="mt-6 space-y-2 text-center text-xs text-neutral-500">
-              {view === "sign-in" ? (
-                <>
-                  <button onClick={() => setView("sign-up")} className="hover:text-neutral-900 dark:hover:text-neutral-300 cursor-pointer">
-                    Don't have an account? Sign up
-                  </button>
-                  <br />
-                  <button onClick={() => setView("forgot-password")} className="hover:text-neutral-900 dark:hover:text-neutral-300 cursor-pointer">
-                    Forgot password?
-                  </button>
-                </>
-              ) : view === "sign-up" ? (
-                <button onClick={() => setView("sign-in")} className="hover:text-neutral-900 dark:hover:text-neutral-300 cursor-pointer">
-                  Already have an account? Sign in
+                <button type="submit" disabled={loading} className="lp-btn w-full disabled:opacity-50">
+                  {loading ? "Please wait..." : submitLabel}
                 </button>
-              ) : (
-                <button onClick={() => setView("sign-in")} className="hover:text-neutral-900 dark:hover:text-neutral-300 cursor-pointer">
-                  Back to sign in
-                </button>
-              )}
-            </div>
+              </form>
 
-            <div className="mt-6 pt-6 border-t border-neutral-200 dark:border-neutral-800">
-              <div className="text-xs text-neutral-400 text-center mb-3">Or continue with</div>
-              <div className="flex gap-3">
-                {import.meta.env.VITE_GITHUB_CLIENT_ID && (
-                  <button
-                    type="button"
-                    onClick={() => authClient.signIn.social({ provider: "github" })}
-                    className="flex-1 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
-                  >
-                    GitHub
+              <div className="mt-6 space-y-2 lp-data">
+                {view === "sign-in" ? (
+                  <>
+                    <button onClick={() => setView("sign-up")} className="block lp-secondary hover:text-[var(--lp-text)] cursor-pointer">
+                      Don't have an account? Sign up
+                    </button>
+                    <button onClick={() => setView("forgot-password")} className="block lp-secondary hover:text-[var(--lp-text)] cursor-pointer">
+                      Forgot password?
+                    </button>
+                  </>
+                ) : view === "sign-up" ? (
+                  <button onClick={() => setView("sign-in")} className="block lp-secondary hover:text-[var(--lp-text)] cursor-pointer">
+                    Already have an account? Sign in
                   </button>
-                )}
-                {import.meta.env.VITE_GOOGLE_CLIENT_ID && (
-                  <button
-                    type="button"
-                    onClick={() => authClient.signIn.social({ provider: "google" })}
-                    className="flex-1 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
-                  >
-                    Google
+                ) : (
+                  <button onClick={() => setView("sign-in")} className="block lp-secondary hover:text-[var(--lp-text)] cursor-pointer">
+                    Back to sign in
                   </button>
                 )}
               </div>
+
+              {hasSocial && (
+                <div className="mt-6 pt-6 border-t lp-divider">
+                  <p className="lp-label mb-3">Or continue with</p>
+                  <div className="flex gap-3">
+                    {import.meta.env.VITE_GITHUB_CLIENT_ID && (
+                      <button type="button" onClick={() => authClient.signIn.social({ provider: "github" })} className="lp-btn lp-btn-ghost flex-1">
+                        GitHub
+                      </button>
+                    )}
+                    {import.meta.env.VITE_GOOGLE_CLIENT_ID && (
+                      <button type="button" onClick={() => authClient.signIn.social({ provider: "google" })} className="lp-btn lp-btn-ghost flex-1">
+                        Google
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        </div>
+
+          <p className="lp-data lp-muted">AES-256-GCM encrypted keys. Zero asset custody.</p>
+        </section>
+
+        <aside className="hidden lg:block relative border-l lp-divider overflow-hidden" aria-hidden="true">
+          <AuthScene />
+          <div className="absolute inset-x-0 bottom-0 px-8 pb-7 pt-16 flex justify-between lp-data bg-gradient-to-t from-[var(--lp-bg)] to-transparent">
+            <span className="lp-secondary">fig.01 the ledger helix</span>
+            <span className="lp-muted">usage + payments, reconciled</span>
+          </div>
+        </aside>
       </div>
     </LandingThemeProvider>
   );

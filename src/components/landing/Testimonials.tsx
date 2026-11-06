@@ -1,26 +1,34 @@
 import { motion } from "motion/react";
+import { Panel, SectionHead } from "./ui/primitives";
 
-const testimonials = [
-  { quote: "We switched from hardcoded Stripe billing to AoraHQ in two days. The pricing engine alone saved us weeks of development.", role: "CTO", company: "B2B SaaS Company" },
-  { quote: "AoraHQ let us offer Paystack for our Nigerian customers and Stripe for our US customers from one dashboard. Our billing team stopped maintaining two codebases.", role: "Head of Engineering", company: "Pan-African SaaS" },
-  { quote: "The AI assistant is dangerously useful. I built a new enterprise tier in under a minute without touching code.", role: "Founder", company: "Developer Tools Startup" },
+const QUOTES = [
+  { quote: "We switched from hardcoded Stripe billing to AoraHQ in two days. The pricing engine alone saved us weeks of development.", role: "CTO", company: "B2B SaaS Company", tilt: -5 },
+  { quote: "AoraHQ let us offer Paystack for our Nigerian customers and Stripe for our US customers from one dashboard. Our billing team stopped maintaining two codebases.", role: "Head of Engineering", company: "Pan-African SaaS", tilt: 0 },
+  { quote: "The AI assistant is dangerously useful. I built a new enterprise tier in under a minute without touching code.", role: "Founder", company: "Developer Tools Startup", tilt: 5 },
 ];
 
 export default function Testimonials() {
   return (
-    <section className="py-24 relative lp-bg">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center space-y-4 mb-6">
-          <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">Trusted by builders</span>
-          <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">What teams are saying</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
-          {testimonials.map((t, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }} className="lp-glass border lp-border-glass rounded-2xl p-6 space-y-4">
-              <svg className="h-5 w-5 lp-muted" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" /></svg>
-              <p className="text-base lp-secondary font-medium leading-relaxed">{t.quote}</p>
-              <div><div className="text-sm font-bold lp-text">{t.role}</div><div className="text-xs lp-muted">{t.company}</div></div>
-            </motion.div>
+    <section data-scene="compare" className="lp-section lp-rule overflow-hidden">
+      <div className="lp-wrap">
+        <SectionHead index="09" label="Trusted by builders" align="center" title="What teams are saying." />
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-3" style={{ perspective: 1600 }}>
+          {QUOTES.map((item, i) => (
+            <motion.figure
+              key={item.role}
+              initial={{ opacity: 0, y: 50, rotateY: item.tilt * 3 }}
+              whileInView={{ opacity: 1, y: i === 1 ? -14 : 0, rotateY: item.tilt }}
+              whileHover={{ rotateY: 0, y: -18, transition: { duration: 0.25 } }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.8, delay: i * 0.1, ease: [0.2, 0.7, 0.2, 1] }}
+            >
+              <Panel className="lp-panel-solid h-full p-6 flex flex-col justify-between gap-8">
+                <blockquote className="text-[17px] leading-snug tracking-[-0.01em] lp-text">{item.quote}</blockquote>
+                <figcaption className="lp-data">
+                  <span className="lp-text">{item.role}</span> <span className="lp-muted">{item.company}</span>
+                </figcaption>
+              </Panel>
+            </motion.figure>
           ))}
         </div>
       </div>

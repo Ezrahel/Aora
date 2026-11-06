@@ -207,7 +207,7 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
           {/* Main API credentials card */}
           <div className="dp-card border dp-border p-5 rounded-2xl space-y-4 shadow-sm text-left">
             <h3 className="text-xs font-bold dp-text flex items-center gap-2">
-              <Key className="h-4.5 w-4.5 text-[#0071E3] rotate-45" />
+              <Key className="h-4.5 w-4.5 text-[var(--dp-accent)] rotate-45" />
               API Authentication Keys
             </h3>
             <p className="text-[10px] dp-secondary font-medium leading-relaxed">
@@ -229,7 +229,7 @@ export default function DeveloperExperienceView({ workspace }: DeveloperExperien
               <span className="text-[10px] dp-secondary font-mono">Tenant Context: {wsInfo?.tenantId || "Production Mode"}</span>
               <button
                 onClick={handleGenerateKey}
-                className="text-[11px] text-[#0071E3] hover:underline font-bold"
+                className="text-[11px] text-[var(--dp-accent)] hover:underline font-bold"
                 id="generate-new-key-link"
               >
                 Issue new API key

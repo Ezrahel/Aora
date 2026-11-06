@@ -485,7 +485,7 @@ export default function SettingsView({ workspace, onWorkspaceConfigUpdated }: Se
             <div className="rounded-3xl border dp-border dp-card p-5 shadow-sm">
               <div className="flex items-center justify-between">
                 <h3 className="text-[11px] font-bold uppercase tracking-wider dp-text flex items-center gap-2">
-                  <Key className="h-4 w-4 text-[#0071E3]" />
+                  <Key className="h-4 w-4 text-[var(--dp-accent)]" />
                   API & keys
                 </h3>
                 <ExternalLink className="h-4 w-4 dp-muted" />
@@ -501,7 +501,7 @@ export default function SettingsView({ workspace, onWorkspaceConfigUpdated }: Se
 
             <div className="rounded-3xl border dp-border dp-card p-5 shadow-sm">
               <h3 className="text-[11px] font-bold uppercase tracking-wider dp-text flex items-center gap-2">
-                <Users className="h-4 w-4 text-[#0071E3]" />
+                <Users className="h-4 w-4 text-[var(--dp-accent)]" />
                 Team access
               </h3>
               <div className="mt-3 space-y-2.5">

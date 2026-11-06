@@ -1,215 +1,143 @@
-import { useState, useEffect, useRef } from "react";
-import { ArrowRight, CheckCircle2, Activity, Sparkles, Shield } from "lucide-react";
-import { motion } from "motion/react";
-import { type Variants } from "framer-motion";
-
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from "recharts";
+import { useEffect, useState } from "react";
+import { ArrowRight } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { PRESETS, PRICE_TYPES, type PriceType } from "./pricing-model";
+import { setScenePlan } from "./scene/store";
+import { useOnScreen } from "./ui/primitives";
 
 interface HeroProps {
   onNavigateTab: (tab: string) => void;
 }
 
-const chartData = [
-  { month: "Jan", mrr: 15400, usage: 102000 },
-  { month: "Feb", mrr: 18200, usage: 154000 },
-  { month: "Mar", mrr: 21000, usage: 198000 },
-  { month: "Apr", mrr: 24500, usage: 220000 },
-  { month: "May", mrr: 29000, usage: 310000 },
-  { month: "Jun", mrr: 36000, usage: 420000 },
-];
+const HOLD_MS = 3400;
+const DEFAULT_PHRASE = "your business model.";
 
-function useCountUp(end: number, duration: number, started: boolean) {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!started) return;
-    let startTime: number | null = null;
-    const animate = (now: number) => {
-      if (!startTime) startTime = now;
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      setCount(Math.floor(progress * end));
-      if (progress < 1) requestAnimationFrame(animate);
-    };
-    requestAnimationFrame(animate);
-  }, [end, duration, started]);
-  return count;
-}
-
-function StatCard({ label, value, suffix }: { label: string; value: number; suffix: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [started, setStarted] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setStarted(true); observer.disconnect(); } },
-      { threshold: 0.3 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  const count = useCountUp(value, 2000, started);
-
-  return (
-    <div ref={ref} className="p-4 rounded-2xl border lp-border-glass lp-surface">
-      <div className="text-[9px] font-bold lp-secondary uppercase tracking-widest">{label}</div>
-      <div className="text-xl font-bold font-mono lp-text mt-1">
-        {count.toLocaleString()}{suffix}
-      </div>
-    </div>
-  );
-}
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.12 },
-  },
+const CUES: Record<PriceType, string> = {
+  flat: "constant radius, one committed fee",
+  seat: "discrete groups, one per seat block",
+  usage: "opens continuously with consumption",
+  hybrid: "steady base, flares past the allowance",
+  tiered: "a visible step at every tier boundary",
+  volume: "whole sections shift bracket together",
+  package: "fused blocks, sold whole",
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: "easeOut" as const,
-    },
-  },
-} satisfies Variants;
+const FACTS = [
+  ["7", "pricing models"],
+  ["3 + sandbox", "gateways"],
+  ["AES-256-GCM", "keys at rest"],
+  ["24h", "dedup window"],
+];
 
 export default function Hero({ onNavigateTab }: HeroProps) {
+  const reduced = useReducedMotion();
+  const [active, setActive] = useState<PriceType | null>(null);
+  const [pinned, setPinned] = useState(false);
+  const [ref, visible] = useOnScreen<HTMLElement>();
+
+  // Walks the models while the hero is on screen, until the visitor picks one.
+  useEffect(() => {
+    if (pinned || reduced || !visible) return;
+    const timer = setInterval(() => {
+      setActive((current) => {
+        const index = current ? PRICE_TYPES.findIndex((type) => type.id === current) : 2;
+        return PRICE_TYPES[(index + 1) % PRICE_TYPES.length].id;
+      });
+    }, HOLD_MS);
+    return () => clearInterval(timer);
+  }, [pinned, reduced, visible]);
+
+  useEffect(() => {
+    if (active) setScenePlan(PRESETS[active]);
+  }, [active]);
+
+  const select = (id: PriceType) => {
+    setPinned(true);
+    setActive(id);
+  };
+
+  const phrase = active ? `${PRICE_TYPES.find((type) => type.id === active)?.phrase}.` : DEFAULT_PHRASE;
+  const shown = active ?? "hybrid";
+
   return (
-    <section id="hero" className="relative min-h-[80vh] pt-27 pb-14 overflow-hidden lp-bg">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[600px] lg:w-[800px] h-[300px] sm:h-[450px] lg:h-[600px] rounded-full blur-[80px] sm:blur-[100px] lg:blur-[120px] pointer-events-none" style={{ backgroundColor: "var(--lp-glow)" }} />
-      <div className="absolute bottom-0 right-0 w-[300px] sm:w-[450px] lg:w-[600px] h-[200px] sm:h-[300px] lg:h-[400px] rounded-full blur-[60px] sm:blur-[80px] lg:blur-[100px] pointer-events-none" style={{ backgroundColor: "var(--lp-glow)" }} />
+    <section ref={ref} id="hero" data-scene="hero" className="relative z-10 min-h-svh flex flex-col">
+      <div className="lp-wrap flex-1 flex flex-col justify-center pt-28 pb-10">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.2, 0.7, 0.2, 1] }}
+          className="max-w-[52rem]"
+        >
+          <p className="lp-label">Billing orchestration // bring your own keys</p>
 
-      <motion.div
-        className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.div className="lg:col-span-5 space-y-6" variants={itemVariants}>
-        
-
-          <h1 className="text-4xl sm:text-5xl lg:text-[56px] lg:leading-[1.08] font-black tracking-tight lp-text">
-            Billing infrastructure that
-            <span className="block mt-2 lp-accent">
-              bends to your business model.
+          <h1 className="lp-display mt-6">
+            <span className="sr-only">Billing infrastructure that bends to your business model.</span>
+            <span aria-hidden="true">
+              Billing infrastructure
+              <br />
+              that bends to
+              <br />
+              <span className="relative block h-[1.08em] overflow-visible whitespace-nowrap">
+                <AnimatePresence initial={false}>
+                  <motion.span
+                    key={phrase}
+                    className="absolute left-0 top-0"
+                    initial={{ opacity: 0, filter: "blur(14px)", y: "0.18em" }}
+                    animate={{ opacity: 1, filter: "blur(0px)", y: 0, transitionEnd: { filter: "none" } }}
+                    exit={{ opacity: 0, filter: "blur(14px)", y: "-0.18em" }}
+                    transition={{ duration: 0.38, ease: "easeOut" }}
+                  >
+                    {phrase}
+                  </motion.span>
+                </AnimatePresence>
+              </span>
             </span>
           </h1>
 
-          <p className="text-lg sm:text-xl lp-secondary font-medium leading-relaxed max-w-lg">
-            A developer-first billing orchestration engine. Bring your Stripe, Paystack, or Flutterwave keys. 
-            We handle pricing, metering, entitlements, and revenue analytics in one unified platform.
+          <p className="lp-lede mt-7 max-w-[34rem]">
+            Bring your Stripe, Paystack, or Flutterwave keys. AoraHQ handles pricing, metering, entitlements, and revenue
+            analytics in one engine, and never touches the money.
           </p>
 
-          <div className="flex flex-wrap items-center gap-4 pt-2">
-            <button
-              onClick={() => onNavigateTab("dashboard")}
-              className="px-7 py-3.5 rounded-xl transition-all cursor-pointer flex items-center gap-2 group"
-              style={{ backgroundColor: "var(--lp-btn-bg)", color: "var(--lp-btn-text)" }}
-            >
-              Connect Your Gateway
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          <div className="flex flex-wrap items-center gap-3 mt-8">
+            <button onClick={() => onNavigateTab("dashboard")} className="lp-btn group">
+              Connect your gateway
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </button>
             <button
-              onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
-              className="px-7 py-3.5 lp-surface border lp-border-glass lp-secondary font-semibold text-sm rounded-xl transition-all cursor-pointer hover:opacity-80"
+              onClick={() => document.getElementById("pipeline")?.scrollIntoView({ behavior: "smooth" })}
+              className="lp-btn lp-btn-ghost"
             >
-              See How It Works
+              See how it works
             </button>
           </div>
+        </motion.div>
+      </div>
 
-          <div className="flex flex-wrap gap-6 pt-4">
-            {[
-              { icon: Shield, text: "AES-256-GCM encrypted" },
-              { icon: CheckCircle2, text: "Multi-gateway support" },
-              { icon: Sparkles, text: "AI-powered billing" },
-            ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-2 text-sm lp-secondary">
-                <Icon className="h-3.5 w-3.5 lp-muted" />
-                {text}
-              </div>
+      <div className="border-t lp-divider bg-[var(--lp-scrim)] backdrop-blur-xl">
+        <div className="lp-wrap py-3.5 flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-8">
+          <div className="flex items-center gap-2 overflow-x-auto -mx-6 px-6 lg:mx-0 lg:px-0 [scrollbar-width:none]" role="group" aria-label="Bend the helix to a pricing model">
+            {PRICE_TYPES.map((type) => (
+              <button key={type.id} className="lp-chip" aria-pressed={active === type.id} onClick={() => select(type.id)}>
+                {type.label}
+              </button>
             ))}
           </div>
-        </motion.div>
-
-        <motion.div className="lg:col-span-7" variants={itemVariants}>
-          <div className="relative">
-            <div className="lp-glass border lp-border-glass rounded-3xl p-6 shadow-2xl space-y-6">
-              <div className="flex items-center justify-between border-b lp-divider pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-1.5">
-                    <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
-                    <span className="h-2.5 w-2.5 rounded-full lp-muted" style={{ backgroundColor: "var(--lp-muted)" }} />
-                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/70" />
-                  </div>
-                  <span className="text-[10px] font-mono lp-secondary">AoraHQ Ledger — Live</span>
-                </div>
-                <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold uppercase">
-                  System Online
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <StatCard label="Monthly Recurring Revenue" value={36000} suffix="" />
-                <StatCard label="Active Subscriptions" value={1248} suffix="" />
-                <StatCard label="Events Ingested (30d)" value={2410250} suffix="" />
-              </div>
-
-              <div className="h-24 sm:h-28 md:h-36 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData}>
-                    <defs>
-                      <linearGradient id="heroMrr" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="var(--lp-accent)" stopOpacity={0.3} />
-                        <stop offset="100%" stopColor="var(--lp-accent)" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--lp-chart-grid)" />
-                    <XAxis dataKey="month" stroke="var(--lp-chart-axis)" fontSize={9} tickLine={false} />
-                    <YAxis stroke="var(--lp-chart-axis)" fontSize={9} tickLine={false} tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`} />
-                    <Tooltip
-                      contentStyle={{
-                        background: "var(--lp-tooltip-bg)",
-                        border: "1px solid var(--lp-tooltip-border)",
-                        borderRadius: "8px",
-                        fontSize: "10px",
-                      }}
-                      formatter={(val: number) => [`$${val.toLocaleString()}`, "MRR"]}
-                    />
-                    <Area type="monotone" dataKey="mrr" stroke="var(--lp-accent)" strokeWidth={2} fillOpacity={1} fill="url(#heroMrr)" name="MRR (USD)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-
-              <div className="flex items-center justify-between text-[10px] lp-secondary pt-2 border-t lp-divider">
-                <span className="flex items-center gap-1.5">
-                  <Activity className="h-3 w-3 lp-muted" />
-                  Real-time data from connected gateways
-                </span>
-                <span className="font-mono lp-muted">&lt; 50ms latency</span>
-              </div>
-            </div>
-
-            <div className="absolute -inset-4 -z-10 blur-[60px] rounded-3xl pointer-events-none" style={{ backgroundColor: "var(--lp-glow)" }} />
+          <p className="lp-data lp-secondary lg:ml-auto lg:text-right">
+            <span className="lp-muted">fig.01 </span>
+            {CUES[shown]}
+          </p>
+        </div>
+        <div className="border-t lp-divider">
+          <div className="lp-wrap py-2.5 grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-1">
+            {FACTS.map(([value, label]) => (
+              <p key={label} className="lp-data">
+                <span className="lp-text">{value}</span> <span className="lp-muted">{label}</span>
+              </p>
+            ))}
           </div>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 }

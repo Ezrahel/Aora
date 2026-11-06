@@ -454,20 +454,17 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
       <header className="sticky top-0 dp-card border-b dp-border py-3.5 px-6 z-40 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2.5 cursor-pointer" onClick={onBackToDashboard}>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#111111] shadow-sm">
-              <Sparkles className="h-4 w-4 text-white" />
-            </div>
-            <span className="font-bold text-sm text-neutral-900 leading-none">Aora Billing</span>
-            <span className="text-[10px] bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Docs</span>
+            <img src="/aorahq-logo.png" alt="AoraHQ" className="lp-logo !h-5" />
+            <span className="text-[10px] border border-[#E5E5E7] text-neutral-600 px-2 py-0.5 font-bold uppercase tracking-wider">Docs</span>
           </div>
 
           <nav className="hidden lg:flex items-center gap-5 text-xs font-semibold text-[#6E6E73]">
-            <button onClick={() => { setActivePage("intro"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer ${activePage === "intro" ? "text-[#0071E3]" : ""}`}>Documentation</button>
-            <button onClick={() => { setActivePage("playground"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer ${activePage === "playground" ? "text-[#0071E3]" : ""}`}>API Reference</button>
-            <button onClick={() => { setActivePage("sdks"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer ${activePage === "sdks" ? "text-[#0071E3]" : ""}`}>SDKs</button>
-            <button onClick={() => { setActivePage("guide-usage"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer ${activePage === "guide-usage" ? "text-[#0071E3]" : ""}`}>Guides</button>
-            <button onClick={() => { setActivePage("changelog"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer ${activePage === "changelog" ? "text-[#0071E3]" : ""}`}>Changelog</button>
-            <button onClick={() => { setActivePage("status"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer flex items-center gap-1 cursor-pointer ${activePage === "status" ? "text-[#0071E3]" : ""}`}>
+            <button onClick={() => { setActivePage("intro"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer ${activePage === "intro" ? "text-[var(--dp-accent)]" : ""}`}>Documentation</button>
+            <button onClick={() => { setActivePage("playground"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer ${activePage === "playground" ? "text-[var(--dp-accent)]" : ""}`}>API Reference</button>
+            <button onClick={() => { setActivePage("sdks"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer ${activePage === "sdks" ? "text-[var(--dp-accent)]" : ""}`}>SDKs</button>
+            <button onClick={() => { setActivePage("guide-usage"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer ${activePage === "guide-usage" ? "text-[var(--dp-accent)]" : ""}`}>Guides</button>
+            <button onClick={() => { setActivePage("changelog"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer ${activePage === "changelog" ? "text-[var(--dp-accent)]" : ""}`}>Changelog</button>
+            <button onClick={() => { setActivePage("status"); setMobileSidebarOpen(false); }} className={`hover:text-[#111111] transition-all cursor-pointer flex items-center gap-1 cursor-pointer ${activePage === "status" ? "text-[var(--dp-accent)]" : ""}`}>
               <span className="h-2 w-2 rounded-full bg-[#34C759] animate-pulse"></span>
               Status
             </button>
@@ -521,11 +518,11 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
               </button>
               {expandedSections.gettingStarted && (
                 <div className="space-y-1 pl-1">
-                  <button onClick={() => { setActivePage("intro"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "intro" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("intro"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "intro" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     <BookOpen className="h-3 w-3" />
                     Overview & Introduction
                   </button>
-                  <button onClick={() => { setActivePage("quickstart"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "quickstart" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("quickstart"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "quickstart" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     <Terminal className="h-3 w-3" />
                     Quick Start Guide
                   </button>
@@ -541,19 +538,19 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
               </button>
               {expandedSections.concepts && (
                 <div className="space-y-1 pl-1">
-                  <button onClick={() => { setActivePage("architecture"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "architecture" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("architecture"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "architecture" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     <Workflow className="h-3.5 w-3.5" />
                     System Architecture
                   </button>
-                  <button onClick={() => { setActivePage("concepts-products"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "concepts-products" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("concepts-products"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "concepts-products" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     <CreditCard className="h-3.5 w-3.5" />
                     Products & Plans Catalog
                   </button>
-                  <button onClick={() => { setActivePage("concepts-usage"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "concepts-usage" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("concepts-usage"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "concepts-usage" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     <Database className="h-3.5 w-3.5" />
                     Usage Metering
                   </button>
-                  <button onClick={() => { setActivePage("concepts-entitlements"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "concepts-entitlements" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("concepts-entitlements"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "concepts-entitlements" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     <ShieldCheck className="h-3.5 w-3.5" />
                     Entitlement Gate Engine
                   </button>
@@ -569,19 +566,19 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
               </button>
               {expandedSections.devTools && (
                 <div className="space-y-1 pl-1">
-                  <button onClick={() => { setActivePage("dev-keys"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "dev-keys" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("dev-keys"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "dev-keys" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     <Code2 className="h-3.5 w-3.5" />
                     Authentication Keys
                   </button>
-                  <button onClick={() => { setActivePage("playground"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "playground" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("playground"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "playground" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     <Play className="h-3.5 w-3.5" />
                     Interactive Sandbox API
                   </button>
-                  <button onClick={() => { setActivePage("webhooks"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "webhooks" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("webhooks"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "webhooks" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     <Globe className="h-3.5 w-3.5" />
                     Webhook Deliverer
                   </button>
-                  <button onClick={() => { setActivePage("errors"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "errors" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("errors"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "errors" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     <ShieldAlert className="h-3.5 w-3.5" />
                     Error Directory Catalog
                   </button>
@@ -597,10 +594,10 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
               </button>
               {expandedSections.guides && (
                 <div className="space-y-1 pl-1">
-                  <button onClick={() => { setActivePage("guide-seats"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "guide-seats" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("guide-seats"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "guide-seats" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     Building Seat-Based models
                   </button>
-                  <button onClick={() => { setActivePage("guide-usage"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "guide-usage" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("guide-usage"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "guide-usage" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     Usage Metering Pipeline
                   </button>
                 </div>
@@ -615,28 +612,28 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
               </button>
               {expandedSections.backend && (
                 <div className="space-y-1 pl-1">
-                  <button onClick={() => { setActivePage("backend-proration"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-proration" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("backend-proration"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-proration" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     Proration Service
                   </button>
-                  <button onClick={() => { setActivePage("backend-ingress"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-ingress" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("backend-ingress"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-ingress" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     Fair Ingress Metering
                   </button>
-                  <button onClick={() => { setActivePage("backend-dedup"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-dedup" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("backend-dedup"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-dedup" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     Deduplication Engine
                   </button>
-                  <button onClick={() => { setActivePage("backend-batch"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-batch" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("backend-batch"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-batch" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     Batch Ingestion
                   </button>
-                  <button onClick={() => { setActivePage("backend-sandbox"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-sandbox" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("backend-sandbox"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-sandbox" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     Sandbox Playground
                   </button>
-                  <button onClick={() => { setActivePage("backend-encryption"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-encryption" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("backend-encryption"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-encryption" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     Zero-Trust Encryption
                   </button>
-                  <button onClick={() => { setActivePage("backend-webhooks"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-webhooks" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("backend-webhooks"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-webhooks" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     Webhook Outbox
                   </button>
-                  <button onClick={() => { setActivePage("backend-dunning"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-dunning" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("backend-dunning"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-1.5 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "backend-dunning" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     Dunning & Retry
                   </button>
                 </div>
@@ -651,19 +648,19 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
               </button>
               {expandedSections.reference && (
                 <div className="space-y-1 pl-1">
-                  <button onClick={() => { setActivePage("sdks"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "sdks" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("sdks"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "sdks" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     <Layers className="h-3.5 w-3.5" />
                     Official Runtime SDKs
                   </button>
-                  <button onClick={() => { setActivePage("dashboard-integration"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "dashboard-integration" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("dashboard-integration"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "dashboard-integration" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     <Sparkles className="h-3.5 w-3.5" />
                     Developer Dashboard Integration
                   </button>
-                  <button onClick={() => { setActivePage("status"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "status" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("status"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "status" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     <Activity className="h-3.5 w-3.5" />
                     Master Service Status
                   </button>
-                  <button onClick={() => { setActivePage("changelog"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "changelog" ? "bg-white border border-[#E5E5E7] text-[#0071E3]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
+                  <button onClick={() => { setActivePage("changelog"); setMobileSidebarOpen(false); }} className={`flex w-full items-center gap-2 text-xs font-medium py-1.5 px-2 rounded-lg transition-colors ${activePage === "changelog" ? "bg-white border border-[#E5E5E7] text-[var(--dp-accent)]" : "text-[#6E6E73] hover:text-[#111111] hover:bg-[#F2F2F2]"}`}>
                     <History className="h-3.5 w-3.5" />
                     Product Changelog
                   </button>
@@ -681,7 +678,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
           {activePage === "intro" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Overview</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Overview</span>
                 <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#111111]">Billing Infrastructure without Billing Complexity</h1>
                 <p className="text-sm text-[#6E6E73] leading-relaxed">
                   Aora is a state-of-the-art billing developer engine constructed to implement seats, volumetric overages, allowances, credits, and pricing models in under few minutes. Manage sub-millisecond usage rating buses, enforce multi-tenant entitling policies, and emit beautiful customer portals automatically.
@@ -690,8 +687,8 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
 
               {/* Stripe style layout cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                <div onClick={() => setActivePage("quickstart")} className="bg-[#F5F5F7] border border-[#E5E5E7] hover:border-[#0071E3] hover:bg-neutral-50/70 p-5 rounded-2xl text-left cursor-pointer transition-all space-y-2 group">
-                  <Terminal className="h-6 w-6 text-[#111111] group-hover:text-[#0071E3] transition-colors" />
+                <div onClick={() => setActivePage("quickstart")} className="bg-[#F5F5F7] border border-[#E5E5E7] hover:border-[var(--dp-accent)] hover:bg-neutral-50/70 p-5 rounded-2xl text-left cursor-pointer transition-all space-y-2 group">
+                  <Terminal className="h-6 w-6 text-[#111111] group-hover:text-[var(--dp-accent)] transition-colors" />
                   <h3 className="text-sm font-bold text-[#111111] flex items-center gap-1.5">
                     Quick Start Guide
                     <ChevronRight className="h-3.5 w-3.5 text-[#86868B]" />
@@ -701,8 +698,8 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
                   </p>
                 </div>
 
-                <div onClick={() => setActivePage("playground")} className="bg-[#F5F5F7] border border-[#E5E5E7] hover:border-[#0071E3] hover:bg-neutral-50/70 p-5 rounded-2xl text-left cursor-pointer transition-all space-y-2 group">
-                  <Play className="h-6 w-6 text-[#111111] group-hover:text-[#0071E3] transition-colors" />
+                <div onClick={() => setActivePage("playground")} className="bg-[#F5F5F7] border border-[#E5E5E7] hover:border-[var(--dp-accent)] hover:bg-neutral-50/70 p-5 rounded-2xl text-left cursor-pointer transition-all space-y-2 group">
+                  <Play className="h-6 w-6 text-[#111111] group-hover:text-[var(--dp-accent)] transition-colors" />
                   <h3 className="text-sm font-bold text-[#111111] flex items-center gap-1.5">
                     Interactive Service Playground
                     <ChevronRight className="h-3.5 w-3.5 text-[#86868B]" />
@@ -749,7 +746,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
           {activePage === "quickstart" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Walkthrough</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Walkthrough</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Quick Start Guide</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Start processing sub-millisecond metering and and calculating real invoices in under three quick operations. Estimated completion time: <strong className="text-amber-600">3 minutes</strong>.
@@ -829,7 +826,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
               <div className="pt-4 text-center">
                 <button
                   onClick={() => setActivePage("playground")}
-                  className="bg-[#0071E3] hover:bg-[#0077ED] text-white text-xs font-bold leading-none py-2.5 px-5 rounded-lg transition-all cursor-pointer shadow-md inline-flex items-center gap-1.5"
+                  className="dp-btn-bg hover:opacity-90 dp-btn-text text-xs font-bold leading-none py-2.5 px-5 rounded-lg transition-all cursor-pointer shadow-md inline-flex items-center gap-1.5"
                 >
                   <Play className="h-3.5 w-3.5 fill-white shrink-0" />
                   Try live inside interactive API Playground
@@ -842,7 +839,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
           {activePage === "architecture" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">System Design</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">System Design</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Aora Platform Architecture</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Review how high-throughput events progress safely within Aora, tracking logs and syncing allocations instantly.
@@ -856,7 +853,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                   
                   {/* Step 1: SDK Clients */}
-                  <div className="bg-white border border-[#E5E5E7] p-4.5 rounded-2xl relative shadow-sm hover:border-[#0071E3] transition-all text-left">
+                  <div className="bg-white border border-[#E5E5E7] p-4.5 rounded-2xl relative shadow-sm hover:border-[var(--dp-accent)] transition-all text-left">
                     <span className="z-10 absolute -top-2.5 left-4 bg-emerald-500 text-white font-mono text-[9px] px-2 py-0.5 rounded-full font-bold">NODE 01</span>
                     <Terminal className="h-4.5 w-4.5 text-[#111111] mb-1.5" />
                     <h4 className="text-xs font-bold text-[#111111]">Client SDKs</h4>
@@ -865,11 +862,11 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
 
                   {/* Flow arrow */}
                   <div className="hidden md:flex justify-center items-center font-mono text-xs text-neutral-400">
-                    <ArrowRight className="h-5 w-5 animate-pulse text-[#0071E3]" />
+                    <ArrowRight className="h-5 w-5 animate-pulse text-[var(--dp-accent)]" />
                   </div>
 
                   {/* Step 2: Rating Bus */}
-                  <div className="bg-white border border-[#E5E5E7] p-4.5 rounded-2xl relative shadow-sm hover:border-[#0071E3] transition-all text-left">
+                  <div className="bg-white border border-[#E5E5E7] p-4.5 rounded-2xl relative shadow-sm hover:border-[var(--dp-accent)] transition-all text-left">
                     <span className="z-10 absolute -top-2.5 left-4 bg-blue-500 text-white font-mono text-[9px] px-2 py-0.5 rounded-full font-bold">NODE 02</span>
                     <Workflow className="h-4.5 w-4.5 text-[#111111] mb-1.5" />
                     <h4 className="text-xs font-bold text-[#111111]">Ingestion Stream</h4>
@@ -878,11 +875,11 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
 
                   {/* Flow arrow */}
                   <div className="hidden md:flex justify-center items-center font-mono text-xs text-neutral-400">
-                    <ArrowRight className="h-5 w-5 animate-pulse text-[#0071E3]" />
+                    <ArrowRight className="h-5 w-5 animate-pulse text-[var(--dp-accent)]" />
                   </div>
 
                   {/* Step 3: Rules rating */}
-                  <div className="bg-white border border-[#E5E5E7] p-4.5 rounded-2xl relative shadow-sm hover:border-[#0071E3] transition-all text-left">
+                  <div className="bg-white border border-[#E5E5E7] p-4.5 rounded-2xl relative shadow-sm hover:border-[var(--dp-accent)] transition-all text-left">
                     <span className="z-10 absolute -top-2.5 left-4 bg-purple-500 text-white font-mono text-[9px] px-2 py-0.5 rounded-full font-bold">NODE 03</span>
                     <Database className="h-4.5 w-4.5 text-[#111111] mb-1.5" />
                     <h4 className="text-xs font-bold text-[#111111]">Aggregate Evaluator</h4>
@@ -891,11 +888,11 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
 
                   {/* Flow arrow */}
                   <div className="hidden md:flex justify-center items-center font-mono text-xs text-neutral-400">
-                    <ArrowRight className="h-5 w-5 animate-pulse text-[#0071E3]" />
+                    <ArrowRight className="h-5 w-5 animate-pulse text-[var(--dp-accent)]" />
                   </div>
 
                   {/* Step 4: Webhook & Ledger */}
-                  <div className="bg-white border border-[#E5E5E7] p-4.5 rounded-2xl relative shadow-sm hover:border-[#0071E3] transition-all text-left">
+                  <div className="bg-white border border-[#E5E5E7] p-4.5 rounded-2xl relative shadow-sm hover:border-[var(--dp-accent)] transition-all text-left">
                     <span className="z-10 absolute -top-2.5 left-4 bg-amber-500 text-white font-mono text-[9px] px-2 py-0.5 rounded-full font-bold">NODE 04</span>
                     <Globe className="h-4.5 w-4.5 text-[#111111] mb-1.5" />
                     <h4 className="text-xs font-bold text-[#111111]">Live Ledger Out</h4>
@@ -921,7 +918,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
           {activePage === "concepts-products" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Catalog</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Catalog</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Products & Plans Catalog</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Aora structures pricing into products (what features are purchased) and plans (how much those allocations charge recursively).
@@ -969,7 +966,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
           {activePage === "concepts-usage" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Aggregation</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Aggregation</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Usage Metering</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Usage Metering translates thousands of event streams into clean, billable indices based on structural aggregation rules.
@@ -979,13 +976,13 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
               {/* Interactive preview with aggregations */}
               <div className="bg-[#F5F5F7] border border-[#E5E5E7] rounded-2xl p-5 space-y-4">
                 <h3 className="text-xs font-bold text-[#111111] flex items-center gap-1.5">
-                  <Database className="h-4.5 w-4.5 text-[#0071E3]" />
+                  <Database className="h-4.5 w-4.5 text-[var(--dp-accent)]" />
                   Active Ingestion Aggregrations supported
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-left">
                   <div className="bg-white border border-[#E5E5E7] p-3 rounded-xl">
-                    <span className="text-[9px] font-bold text-[#0071E3] block uppercase tracking-wider">COUNT</span>
+                    <span className="text-[9px] font-bold text-[var(--dp-accent)] block uppercase tracking-wider">COUNT</span>
                     <strong className="text-xs text-[#111111] mt-1 block">Sum of Events</strong>
                     <span className="text-[10px] text-[#6E6E73] mt-0.5 block font-medium">Increment totals for operations count (e.g., API triggers).</span>
                   </div>
@@ -1013,7 +1010,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
           {activePage === "concepts-entitlements" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Gateway Guards</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Gateway Guards</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Entitlement Gate Engine</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Verify features locks, quota metrics, and multi-tenant authorization instantly during live runtime transactions.
@@ -1037,7 +1034,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
           {activePage === "dev-keys" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Security</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Security</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Authentication & API Keys</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Aora authorizes client commands utilizing private Bearer tokens transmitted securely inside HTTP request header definitions.
@@ -1046,7 +1043,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
 
               <div className="bg-[#FAFAFA] border border-[#E5E5E7] p-5 rounded-2xl text-left space-y-3">
                 <h3 className="text-xs font-bold text-[#111111] flex items-center gap-1.5">
-                  <Code2 className="h-4.5 w-4.5 text-[#0071E3]" />
+                  <Code2 className="h-4.5 w-4.5 text-[var(--dp-accent)]" />
                   Secure Header Schema
                 </h3>
                 <p className="text-xs text-[#6E6E73] leading-relaxed font-medium">
@@ -1066,7 +1063,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
           {activePage === "playground" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Sandbox API</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Sandbox API</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Interactive Documentation Playground</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Submit transactions directly with the live server. Generate unique validation codes and observe immediate response parameters.
@@ -1077,13 +1074,13 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
               <div className="flex gap-2.5 border-b border-[#E5E5E7] pb-3 text-xs font-semibold text-[#6E6E73]">
                 <button
                   onClick={() => handlePlaygroundPreset("/api/usage-events")}
-                  className={`pb-1.5 focus:outline-none transition-all cursor-pointer ${playgroundPath === "/api/usage-events" ? "text-[#111111] border-b-2 border-[#0071E3]" : "hover:text-[#111111]"}`}
+                  className={`pb-1.5 focus:outline-none transition-all cursor-pointer ${playgroundPath === "/api/usage-events" ? "text-[#111111] border-b-2 border-[var(--dp-accent)]" : "hover:text-[#111111]"}`}
                 >
                   POST /api/usage-events
                 </button>
                 <button
                   onClick={() => handlePlaygroundPreset("/api/can-access")}
-                  className={`pb-1.5 focus:outline-none transition-all cursor-pointer ${playgroundPath === "/api/can-access" ? "text-[#111111] border-b-2 border-[#0071E3]" : "hover:text-[#111111]"}`}
+                  className={`pb-1.5 focus:outline-none transition-all cursor-pointer ${playgroundPath === "/api/can-access" ? "text-[#111111] border-b-2 border-[var(--dp-accent)]" : "hover:text-[#111111]"}`}
                 >
                   GET /api/can-access
                 </button>
@@ -1174,7 +1171,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
           {activePage === "webhooks" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Webhooks</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Webhooks</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Webhook Documentation</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Aora publishes transactional status hooks securely enabling downstream synchronization, notifying database nodes, or alerting sales representatives.
@@ -1235,7 +1232,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
           {activePage === "errors" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Troubleshooting</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Troubleshooting</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Error Catalog Directory</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Search common API failures and resolve security or overage check lockouts.
@@ -1280,7 +1277,7 @@ export default function DocumentationView({ onBackToDashboard, workspaceName = "
           {activePage === "guide-seats" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Guide</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Guide</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Implement Seat-Based SaaS Pricing</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Configure seat pricing alongside allowances overages. Draft prorated bills accurately when teams scale seats count month on month.
@@ -1392,7 +1389,7 @@ Authorization: Bearer sk_live_...
           {activePage === "guide-usage" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Guide</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Guide</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Usage-Based Token Billing</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Track volumetric variables like API requests processed, streaming minutes rendered, or LLM tokens generated accurately.
@@ -1556,7 +1553,7 @@ Authorization: Bearer sk_live_...
           {activePage === "sdks" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Libraries</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Libraries</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Official Runtime SDKs</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Install and instantiate Aora packages within your active codebase in seconds. We maintain reliable SDK packages across four runtime languages.
@@ -1619,7 +1616,7 @@ Authorization: Bearer sk_live_...
           {activePage === "dashboard-integration" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">My Account Context</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">My Account Context</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Deep Developer Integration</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Review live authentication credentials and metrics emitted inside workspace: <strong>{workspaceName}</strong>.
@@ -1629,7 +1626,7 @@ Authorization: Bearer sk_live_...
               {/* Display active workspace credentials cards */}
               <div className="bg-[#FAFAFA] border border-[#E5E5E7] p-5 rounded-2xl text-left space-y-4">
                 <h3 className="text-xs font-bold text-[#111111] flex items-center gap-1.5 animate-pulse">
-                  <span className="h-2 w-2 rounded-full bg-[#0071E3]"></span>
+                  <span className="h-2 w-2 rounded-full bg-[var(--dp-accent)]"></span>
                   Active Inbound Workspace Credentials
                 </h3>
 
@@ -1651,7 +1648,7 @@ Authorization: Bearer sk_live_...
           {activePage === "status" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Real-time health</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Real-time health</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Aora Grid Status Dashboard</h1>
                 <p className="text-sm text-[#6E6E73]">
                   We maintain real-time status indices across all central ingestion buses and schedule rating routers.
@@ -1691,7 +1688,7 @@ Authorization: Bearer sk_live_...
           {activePage === "changelog" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Releases</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Releases</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Product Changelog</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Review our ongoing feature developments, platform upgrades, and programmatic changes.
@@ -1702,7 +1699,7 @@ Authorization: Bearer sk_live_...
               <div className="space-y-8 text-left">
                 
                 {/* Release v1.0.4 */}
-                <div className="border-l-2 border-[#0071E3] pl-4 space-y-2.5">
+                <div className="border-l-2 border-[var(--dp-accent)] pl-4 space-y-2.5">
                   <div className="flex items-baseline gap-2">
                     <h3 className="text-sm font-bold text-[#111111]">Aora Platform v1.0.4</h3>
                     <span className="text-[10px] text-[#6E6E73] font-medium">Released today</span>
@@ -1738,7 +1735,7 @@ Authorization: Bearer sk_live_...
           {activePage === "backend-proration" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Seat Adjustments</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Seat Adjustments</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Proration Service</h1>
                 <p className="text-sm text-[#6E6E73]">
                   When customers add or remove seats mid-cycle, charge or credit the exact prorated amount for remaining time. No rounding losses. No arbitrary flat fees.
@@ -1784,7 +1781,7 @@ credit_ledger type constraint extended:
           {activePage === "backend-ingress" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Byte-Size Billing</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Byte-Size Billing</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Fair Ingress Metering</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Measure every byte passing through the ingestion API and bill in 64 KB units. Redis-backed counter buffer flushes to PostgreSQL every 60 seconds.
@@ -1838,7 +1835,7 @@ Counter: ingress:{tenantId}:{hourBucketISO}
           {activePage === "backend-dedup" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Duplicate Prevention</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Duplicate Prevention</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">24-Hour Deduplication Engine</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Prevent duplicate billing when a customer retries the same usage event. Primary layer is Redis SETNX with 24h TTL; Postgres is the durable fallback.
@@ -1890,7 +1887,7 @@ Counter: ingress:{tenantId}:{hourBucketISO}
           {activePage === "backend-batch" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Bulk Events</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Bulk Events</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Batch Ingestion</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Accept arrays of up to 1000 usage events in a single request. Each event is measured by JSON byte size, deduplicated via pipelined Redis, and aggregated with a batch discount multiplier.
@@ -1936,7 +1933,7 @@ Counter: ingress:{tenantId}:{hourBucketISO}
           {activePage === "backend-encryption" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">AES-256-GCM</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">AES-256-GCM</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Zero-Trust Credential Encryption</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Merchant gateway API keys are encrypted at rest with AES-256-GCM and only decrypted in-memory during billing operations. The decrypted buffer is wiped immediately after use.
@@ -2007,7 +2004,7 @@ Counter: ingress:{tenantId}:{hourBucketISO}
           {activePage === "backend-webhooks" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Outbox + HMAC + BullMQ</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Outbox + HMAC + BullMQ</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Secure Webhook Dispatcher</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Three guarantees: events are never lost (transactional outbox), never spoofed (HMAC-SHA256 signing), and never permanently missed (exponential backoff retries over 24h).
@@ -2088,7 +2085,7 @@ v1 = HMAC-SHA256(whsec_secret, timestamp + "." + payload)`}
           {activePage === "backend-sandbox" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Test Mode</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Test Mode</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Sandbox Playground</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Test the entire billing flow &mdash; API calls, metering, charges, refunds, subscription renewals &mdash; without touching real payment gateways. The API key prefix (<code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">sk_test_</code> vs <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">sk_live_</code>) determines the mode. Zero configuration required.
@@ -2174,7 +2171,7 @@ X-AoraHQ-Simulate-Time: +2h`}
           {activePage === "backend-dunning" && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[#0071E3] tracking-widest block font-mono">Retry Logic</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--dp-accent)] tracking-widest block font-mono">Retry Logic</span>
                 <h1 className="text-3xl font-extrabold tracking-tight text-[#111111]">Dunning &amp; Retry State Machine</h1>
                 <p className="text-sm text-[#6E6E73]">
                   Automated payment failure recovery with a 3-step lifecycle. Subscriptions transition through active (grace) &rarr; past_due &rarr; canceled unless a retry succeeds.
@@ -2205,9 +2202,9 @@ X-AoraHQ-Simulate-Time: +2h`}
               <div className="bg-white border border-[#E5E5E7] rounded-2xl p-5 space-y-3">
                 <h3 className="text-xs font-bold text-[#111111]">State Machine Design</h3>
                 <ul className="text-xs text-[#6E6E73] space-y-2 font-medium">
-                  <li className="flex gap-2"><span className="text-[#0071E3] font-bold shrink-0">&bull;</span> <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded font-bold">handleInitialPaymentFailure</code> - Called inside an existing transaction. Sets dunning_step=1, next_retry_at=+3d. Dispatches <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">invoice.payment_failed</code> via outbox.</li>
-                  <li className="flex gap-2"><span className="text-[#0071E3] font-bold shrink-0">&bull;</span> <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">handleRetryAttempt</code> - Opens its own transaction, locks the row with <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">SELECT ... FOR UPDATE SKIP LOCKED</code>, attempts the charge via the gateway adapter, and transitions state.</li>
-                  <li className="flex gap-2"><span className="text-[#0071E3] font-bold shrink-0">&bull;</span> On success: dunning resets to step 0, status &rarr; active, period extended. On failure: step increments, status transitions, next_retry_at updated, outbox event dispatched.</li>
+                  <li className="flex gap-2"><span className="text-[var(--dp-accent)] font-bold shrink-0">&bull;</span> <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded font-bold">handleInitialPaymentFailure</code> - Called inside an existing transaction. Sets dunning_step=1, next_retry_at=+3d. Dispatches <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">invoice.payment_failed</code> via outbox.</li>
+                  <li className="flex gap-2"><span className="text-[var(--dp-accent)] font-bold shrink-0">&bull;</span> <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">handleRetryAttempt</code> - Opens its own transaction, locks the row with <code className="text-[10px] bg-neutral-100 px-1 py-0.5 rounded">SELECT ... FOR UPDATE SKIP LOCKED</code>, attempts the charge via the gateway adapter, and transitions state.</li>
+                  <li className="flex gap-2"><span className="text-[var(--dp-accent)] font-bold shrink-0">&bull;</span> On success: dunning resets to step 0, status &rarr; active, period extended. On failure: step increments, status transitions, next_retry_at updated, outbox event dispatched.</li>
                 </ul>
               </div>
 
@@ -2298,7 +2295,7 @@ invoice.payment_succeeded — dispatched on successful retry`}
             
             <div className="space-y-3 flex-1 flex flex-col overflow-hidden">
               <div className="flex items-center gap-1.5 border-b border-[#E5E5E7] pb-3 shrink-0">
-                <Sparkles className="h-4.5 w-4.5 text-[#0071E3]" />
+                <Sparkles className="h-4.5 w-4.5 text-[var(--dp-accent)]" />
                 <h3 className="text-xs font-bold text-[#111111]">AI Documentation Assistant</h3>
               </div>
 
@@ -2391,11 +2388,11 @@ invoice.payment_succeeded — dispatched on successful retry`}
                     onClick={() => { setActivePage(item.id); setSearchOpen(false); }}
                     className="w-full text-left p-2.5 rounded-xl border border-transparent hover:border-[#E5E5E7] hover:bg-neutral-50 transition-all flex items-baseline gap-2 text-xs font-semibold cursor-pointer group"
                   >
-                    <span className="text-[#0071E3] shrink-0 font-mono text-[9px] bg-[#EAF2FC] px-1.5 py-0.5 rounded uppercase tracking-wider font-bold">
+                    <span className="text-[var(--dp-accent)] shrink-0 font-mono text-[9px] bg-[#EAF2FC] px-1.5 py-0.5 rounded uppercase tracking-wider font-bold">
                       {item.cat}
                     </span>
                     <div className="flex-1">
-                      <span className="text-[#111111] group-hover:text-[#0071E3] transition-colors">{item.title}</span>
+                      <span className="text-[#111111] group-hover:text-[var(--dp-accent)] transition-colors">{item.title}</span>
                       <p className="text-[10px] text-[#6E6E73] font-medium leading-normal mt-0.5">{item.desc}</p>
                     </div>
                   </button>

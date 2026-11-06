@@ -463,7 +463,7 @@ export default function UsageMeteringView({
                       <span className="text-[9px] font-mono text-neutral-500 mt-1 block">ID: {meter.id}</span>
                     </div>
 
-                    <span className="text-[9px] font-mono font-bold text-[#0071E3] bg-blue-50 px-1.5 py-0.5 rounded uppercase border border-blue-100">
+                    <span className="text-[9px] font-mono font-bold text-[var(--dp-accent)] bg-blue-50 px-1.5 py-0.5 rounded uppercase border border-blue-100">
                       {meter.aggregationType}
                     </span>
                   </div>
@@ -1065,7 +1065,7 @@ export default function UsageMeteringView({
               <div className="dp-card border dp-border p-5 rounded-2xl flex flex-col justify-between">
                 <div className="space-y-3">
                   <h4 className="text-xs font-bold dp-text flex items-center gap-1.5 uppercase tracking-wide leading-none">
-                    <Sliders className="h-4.5 w-4.5 text-[#0071E3]" />
+                    <Sliders className="h-4.5 w-4.5 text-[var(--dp-accent)]" />
                     Issue Quota Bounds
                   </h4>
                   <p className="text-[10px] dp-secondary leading-normal">
@@ -1363,7 +1363,7 @@ export default function UsageMeteringView({
                     </div>
                     <div>
                       <h3 className="font-bold text-sm text-neutral-950 mb-0.5">{selectedPortalCustomerObj.name}</h3>
-                      <span className="text-[10px] text-[#0071E3] font-semibold bg-blue-50 px-2 py-0.5 rounded">
+                      <span className="text-[10px] text-[var(--dp-accent)] font-semibold bg-blue-50 px-2 py-0.5 rounded">
                         Active Sub: {selectedPortalCustomerObj.planId.toUpperCase()}
                       </span>
                     </div>

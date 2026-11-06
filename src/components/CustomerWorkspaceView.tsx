@@ -203,7 +203,7 @@ export default function CustomerWorkspaceView({
                   <div className="h-1.5 w-full dp-surface-alt rounded-full overflow-hidden mt-1 max-w-[120px]">
                     <div
                       style={{ width: `${Math.min(100, (activeCustomer.usageUnits / (plans.find(p=>p.id===activeCustomer.planId)?.includedUsage || 1000)) * 100)}%` }}
-                      className={`h-full ${activeCustomer.usageUnits > (plans.find(p=>p.id===activeCustomer.planId)?.includedUsage || 1000) ? "bg-rose-500" : "bg-[#0071E3]"}`}
+                      className={`h-full ${activeCustomer.usageUnits > (plans.find(p=>p.id===activeCustomer.planId)?.includedUsage || 1000) ? "bg-rose-500" : "bg-[var(--dp-accent)]"}`}
                     />
                   </div>
                 </div>

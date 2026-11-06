@@ -550,7 +550,7 @@ export default function PricingBuilderView({
         <div>
           <h2 className="text-2xl font-semibold tracking-tight dp-text flex items-center gap-2">
             Pricing & Monetization Engine
-            <span className="text-[10px] bg-[#0071E3]/10 text-[#0071E3] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+            <span className="text-[10px] bg-[var(--dp-accent)]/10 text-[var(--dp-accent)] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
               Phase 3 Live
             </span>
           </h2>
@@ -835,7 +835,7 @@ export default function PricingBuilderView({
                           setSbPriceId(price.id);
                           setActiveSubTab("sandbox");
                         }}
-                        className="text-[11px] font-bold text-[#0071E3] hover:underline cursor-pointer flex items-center gap-1"
+                        className="text-[11px] font-bold text-[var(--dp-accent)] hover:underline cursor-pointer flex items-center gap-1"
                       >
                         Simulate
                         <ChevronRight className="h-3 w-3" />
@@ -1273,7 +1273,7 @@ export default function PricingBuilderView({
                     onClick={() => setBuilderCreationMode("form")}
                     className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                       builderCreationMode === "form"
-                        ? "bg-[#0071E3] text-white shadow"
+                        ? "dp-btn-bg dp-btn-text shadow"
                         : "text-neutral-400 hover:text-white"
                     }`}
                     id="tab-toggle-guided-form"
@@ -1285,7 +1285,7 @@ export default function PricingBuilderView({
                     onClick={() => setBuilderCreationMode("canvas")}
                     className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                       builderCreationMode === "canvas"
-                        ? "bg-[#0071E3] text-white shadow"
+                        ? "dp-btn-bg dp-btn-text shadow"
                         : "text-neutral-400 hover:text-white"
                     }`}
                     id="tab-toggle-visual-canvas"
@@ -1329,7 +1329,7 @@ export default function PricingBuilderView({
                                 : "Draft Plan"}
                             </span>
                           ) : (
-                            <span className="text-[10px] bg-blue-50 text-[#0071E3] px-2 py-0.5 rounded font-bold uppercase">
+                            <span className="text-[10px] bg-blue-50 text-[var(--dp-accent)] px-2 py-0.5 rounded font-bold uppercase">
                               New Plan
                             </span>
                           )}
@@ -1339,7 +1339,7 @@ export default function PricingBuilderView({
                       {/* Section 1: Basic specifications */}
                       <div className="space-y-4">
                         <div className="flex items-center gap-2 border-b border-neutral-100 pb-1.5">
-                          <Briefcase className="h-4.5 w-4.5 text-[#0071E3]" />
+                          <Briefcase className="h-4.5 w-4.5 text-[var(--dp-accent)]" />
                           <span className="text-xs font-bold text-neutral-800 uppercase tracking-wider">
                             Baseline Attributes
                           </span>
@@ -1553,7 +1553,7 @@ export default function PricingBuilderView({
                       {/* Section 2: Core Fees */}
                       <div className="space-y-4 pt-3 border-t">
                         <div className="flex items-center gap-2 border-b border-neutral-100 pb-1.5">
-                          <Coins className="h-4.5 w-4.5 text-[#0071E3]" />
+                          <Coins className="h-4.5 w-4.5 text-[var(--dp-accent)]" />
                           <span className="text-xs font-bold text-neutral-800 uppercase tracking-wider">
                             Base recurring Plan price
                           </span>
@@ -2343,7 +2343,7 @@ export default function PricingBuilderView({
                                                 <button
                                                   type="button"
                                                   onClick={handleAddTier}
-                                                  className="text-[#0071E3] hover:underline"
+                                                  className="text-[var(--dp-accent)] hover:underline"
                                                 >
                                                   + Add Bracket
                                                 </button>
@@ -2689,7 +2689,7 @@ export default function PricingBuilderView({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           <div className="lg:col-span-4 dp-card border dp-border rounded-3xl p-6 space-y-5 shadow-sm">
             <h3 className="text-xs font-bold text-neutral-900 uppercase tracking-wider border-b pb-3 flex items-center gap-2">
-              <Plus className="h-4 w-4 text-[#0071E3]" />
+              <Plus className="h-4 w-4 text-[var(--dp-accent)]" />
               New Event Rate Card
             </h3>
 
@@ -2819,7 +2819,7 @@ export default function PricingBuilderView({
                         {rc.description}
                       </p>
                     </td>
-                    <td className="py-3.5 pr-2 font-mono text-[11px] text-[#0071E3]">
+                    <td className="py-3.5 pr-2 font-mono text-[11px] text-[var(--dp-accent)]">
                       {rc.meterId}
                     </td>
                     <td className="py-3.5 pr-2 capitalize">
@@ -2846,7 +2846,7 @@ export default function PricingBuilderView({
           <div className="dp-card border dp-border rounded-3xl p-6 space-y-6 shadow-sm">
             <div>
               <h3 className="text-xs font-bold text-neutral-900 uppercase tracking-wider border-b pb-3 flex items-center gap-2">
-                <Percent className="h-4.5 w-4.5 text-[#0071E3]" />
+                <Percent className="h-4.5 w-4.5 text-[var(--dp-accent)]" />
                 1. Workspace Discount Generator
               </h3>
               <p className="text-[10px] text-neutral-500 mt-1">
@@ -3047,7 +3047,7 @@ export default function PricingBuilderView({
           <div className="lg:col-span-5 dp-card border dp-border rounded-3xl p-6 space-y-6 shadow-sm">
             <div>
               <h3 className="text-xs font-bold text-neutral-900 uppercase tracking-wider border-b pb-3 flex items-center gap-2">
-                <Briefcase className="h-4.5 w-4.5 text-[#0071E3]" />
+                <Briefcase className="h-4.5 w-4.5 text-[var(--dp-accent)]" />
                 Enterprise Agreement Generator
               </h3>
               <p className="text-[10px] text-neutral-500 mt-1">
@@ -3212,7 +3212,7 @@ export default function PricingBuilderView({
           {/* SANDBOX CONTROLS PARAMETERS PANEL */}
           <div className="lg:col-span-5 dp-card border dp-border rounded-3xl p-6 space-y-5 shadow-sm">
             <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-wider border-b pb-3 flex items-center gap-2">
-              <Sliders className="h-4.5 w-4.5 text-[#0071E3]" />
+              <Sliders className="h-4.5 w-4.5 text-[var(--dp-accent)]" />
               Simulation Studio Environment
             </h4>
 
@@ -3488,7 +3488,7 @@ export default function PricingBuilderView({
                   <span className="text-sm font-bold text-white uppercase tracking-wider">
                     Estimated Client Invoice:
                   </span>
-                  <span className="text-2xl font-extrabold text-[#0071E3] font-mono animate-pulse">
+                  <span className="text-2xl font-extrabold text-[var(--dp-accent)] font-mono animate-pulse">
                     ₦{simulationResult.total?.toLocaleString()}
                   </span>
                 </div>

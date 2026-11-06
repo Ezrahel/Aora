@@ -196,7 +196,7 @@ export default function EntitlementsView({
                         }
                       >
                         {item.isEnabled ? (
-                          <ToggleRight className="h-7 w-7 text-[#0071E3] fill-[#0071E3]/5" />
+                          <ToggleRight className="h-7 w-7 text-[var(--dp-accent)] fill-[var(--dp-accent)]/5" />
                         ) : (
                           <ToggleLeft className="h-7 w-7 text-neutral-300" />
                         )}

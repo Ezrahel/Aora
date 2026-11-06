@@ -1,55 +1,156 @@
-import { useState, useRef, useEffect } from "react";
-import { motion, type Variants } from "motion/react";
-import { ShieldCheck, Database, Activity, Layers, TrendingUp, Sparkles } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { Copy, GitBranch, History, Layers, Send, Timer } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
+import { Panel, Reveal, SectionHead, useOnScreen } from "./ui/primitives";
 
-const features = [
-  { icon: ShieldCheck, title: "BYOK — Bring Your Own Keys", desc: "Pick your payment gateway, paste your keys, and go. AES-256-GCM encrypts them before they touch disk. Decrypted in-memory per request, then forgotten." },
-  { icon: Database, title: "Pricing Engine", desc: "Flat, per-seat, usage-based, hybrid, tiered, volume, package — our engine handles them all. Change pricing in the dashboard without a deployment." },
-  { icon: Activity, title: "Usage Metering", desc: "Ingestion endpoint for usage events. Bulk import via CSV. Quota tracking. Credit ledger with grant/deduct. Aggregate usage per customer per billing period." },
-  { icon: Layers, title: "Entitlements", desc: "Map features to plans. Check access in real-time. Gate features behind plan tiers. Change entitlement rules without redeploying." },
-  { icon: TrendingUp, title: "Invoicing & Revenue Analytics", desc: "Full lifecycle — draft → open → paid/past_due. Line items per subscription. MRR, ARR, churn, trial conversion, plan performance." },
-  { icon: Sparkles, title: "AI Billing Assistant", desc: "Powered by Gemini. Ask natural language questions about revenue, create plans, inspect customers, or run pricing simulations. Real results." },
+function useBeat(active: boolean, steps: number, ms = 1100) {
+  const reduced = useReducedMotion();
+  const [beat, setBeat] = useState(0);
+  useEffect(() => {
+    if (!active || reduced) return;
+    const timer = setInterval(() => setBeat((b) => (b + 1) % steps), ms);
+    return () => clearInterval(timer);
+  }, [active, steps, ms, reduced]);
+  return beat;
+}
+
+function DedupViz({ on }: { on: boolean }) {
+  const beat = useBeat(on, 3);
+  return (
+    <div className="flex items-center gap-3 lp-data">
+      <div className="space-y-1.5 flex-1 min-w-0">
+        {[0, 1, 2].map((i) => {
+          const dropped = i > 0 && beat > 0;
+          return (
+            <motion.div key={i} animate={{ opacity: dropped ? 0.3 : 1, x: dropped ? 10 : 0 }} className={`border lp-border-glass px-2 py-1 truncate ${dropped ? "line-through lp-muted" : "lp-text"}`}>
+              ev_80b1e2
+            </motion.div>
+          );
+        })}
+      </div>
+      <div className="w-px self-stretch bg-[var(--lp-divider)]" />
+      <div className="text-right">
+        <p className="text-3xl font-sans tracking-[-0.04em] lp-text">1</p>
+        <p className="lp-muted">counted</p>
+      </div>
+    </div>
+  );
+}
+
+function ProrationViz({ on }: { on: boolean }) {
+  const beat = useBeat(on, 4);
+  const change = 30 + beat * 15;
+  return (
+    <div className="lp-data">
+      <div className="relative h-9 flex">
+        <div className="h-full bg-[var(--lp-surface)] border lp-border-glass" style={{ width: `${change}%`, transition: "width 500ms ease" }} />
+        <div className="h-full flex-1 bg-[var(--lp-text)] opacity-90" />
+        <div className="absolute -inset-y-1 w-px bg-[var(--lp-text)]" style={{ left: `${change}%`, transition: "left 500ms ease" }} />
+      </div>
+      <div className="flex justify-between mt-2 lp-muted">
+        <span>5 seats</span>
+        <span className="lp-text">+3 seats, day {Math.round(change * 0.3)}</span>
+      </div>
+    </div>
+  );
+}
+
+function TimeViz({ on }: { on: boolean }) {
+  const offsets = ["+2h", "+7d", "+30d"];
+  const beat = useBeat(on, offsets.length, 1500);
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <p className="lp-data lp-secondary break-all">
+        X-AoraHQ-Simulate-Time: <span className="lp-text">{offsets[beat]}</span>
+      </p>
+      <motion.svg viewBox="0 0 40 40" className="h-12 w-12 shrink-0" animate={{ rotate: beat * 120 }} transition={{ duration: 0.6 }} aria-hidden="true">
+        <circle cx="20" cy="20" r="18" fill="none" stroke="var(--lp-tick)" />
+        <path d="M20 20V6" stroke="var(--lp-text)" strokeWidth="1.5" />
+        <path d="M20 20l8 5" stroke="var(--lp-text)" strokeWidth="1.5" />
+      </motion.svg>
+    </div>
+  );
+}
+
+function WebhookViz({ on }: { on: boolean }) {
+  const beat = useBeat(on, 5, 800);
+  return (
+    <div className="flex items-center gap-1.5" aria-hidden="true">
+      {[0, 1, 2, 3, 4].map((i) => (
+        <div key={i} className="flex items-center gap-1.5 flex-1 last:flex-none">
+          <span className={`h-2.5 w-2.5 border transition-colors ${i <= beat ? "bg-[var(--lp-text)] border-[var(--lp-text)]" : "border-[var(--lp-tick)]"}`} />
+          {i < 4 && <span className="h-px bg-[var(--lp-divider)]" style={{ flexGrow: 2 ** i }} />}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function BatchViz({ on }: { on: boolean }) {
+  const beat = useBeat(on, 6, 500);
+  return (
+    <div className="grid grid-cols-[repeat(24,1fr)] gap-[3px]" aria-hidden="true">
+      {Array.from({ length: 72 }, (_, i) => (
+        <span key={i} className="aspect-square bg-[var(--lp-text)] transition-opacity duration-300" style={{ opacity: i < (beat + 1) * 12 ? 0.85 : 0.1 }} />
+      ))}
+    </div>
+  );
+}
+
+function AuditViz({ on }: { on: boolean }) {
+  const rows = ["UPDATE PRICE price_a81", "CREATE PLAN plan_f02", "UPDATE ENTITLEMENT ent_77", "CREATE INVOICE inv_c19"];
+  const beat = useBeat(on, rows.length, 1300);
+  return (
+    <ul className="lp-data space-y-1">
+      {[0, 1, 2].map((i) => (
+        <li key={i} className={i === 0 ? "lp-text" : "lp-muted"}>
+          {rows[(beat + rows.length - i) % rows.length]}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const CARDS: { icon: typeof Copy; title: string; body: string; span: string; viz: (on: boolean) => ReactNode }[] = [
+  { icon: Copy, title: "Two-layer deduplication", body: "Redis, then Postgres, with a 24-hour sliding window. Client retries stay free.", span: "lg:col-span-5", viz: (on) => <DedupViz on={on} /> },
+  { icon: GitBranch, title: "Exact proration", body: "Bigint ceiling-division seat adjustments, with a mid-cycle charge or credit that adds up to the cent.", span: "lg:col-span-7", viz: (on) => <ProrationViz on={on} /> },
+  { icon: Timer, title: "Time-travel sandbox", body: "Isolated sk_test_ keys and simulated payments. Jump ahead to watch a renewal or dunning run.", span: "lg:col-span-7", viz: (on) => <TimeViz on={on} /> },
+  { icon: Send, title: "Webhooks that arrive", body: "Transactional outbox, HMAC-SHA256 signing, 48 retries with exponential backoff.", span: "lg:col-span-5", viz: (on) => <WebhookViz on={on} /> },
+  { icon: Layers, title: "Batch ingestion", body: "Up to 1,000 events per call, deduplicated on the way in.", span: "lg:col-span-5", viz: (on) => <BatchViz on={on} /> },
+  { icon: History, title: "Append-only audit log", body: "Every mutation to every billing entity is recorded, with before and after state.", span: "lg:col-span-7", viz: (on) => <AuditViz on={on} /> },
 ];
 
-const containerVariants: Variants = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
-const cardVariants: Variants = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } } };
+function Card({ card, delay }: { card: (typeof CARDS)[number]; delay: number }) {
+  const [ref, visible] = useOnScreen<HTMLDivElement>();
+  const Icon = card.icon;
+  return (
+    <Reveal delay={delay} className={card.span}>
+      <div ref={ref} className="h-full">
+        <Panel className="lp-panel-solid h-full p-6 flex flex-col gap-6">
+          <div className="flex-1 flex flex-col justify-center min-h-[7.5rem]">{card.viz(visible)}</div>
+          <div>
+            <h3 className="lp-h3 flex items-center gap-2.5">
+              <Icon className="h-4 w-4 lp-secondary" />
+              {card.title}
+            </h3>
+            <p className="lp-body mt-1.5">{card.body}</p>
+          </div>
+        </Panel>
+      </div>
+    </Reveal>
+  );
+}
 
 export default function Features() {
-  const ref = useRef(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { setInView(true); observer.disconnect(); } }, { rootMargin: "-80px" });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <section id="features" ref={ref} className="py-16 relative lp-bg" style={{ backgroundImage: "linear-gradient(to bottom, var(--lp-bg), var(--lp-grad-stop), var(--lp-bg))" }}>
-      <div className="max-w-7xl mx-auto px-6">
-<div className="max-w-3xl mx-auto text-center space-y-4 mb-8">
-        <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">Core Capabilities</span>
-        <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">One unified platform. Complete control.</h2>
-        <p className="text-base font-medium lp-secondary">A comprehensive billing operating system designed as the single source of truth for your monetization.</p>
-      </div>
-        <motion.div ref={ref} variants={containerVariants} initial="hidden" animate={inView ? "visible" : "hidden"} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {features.map((f) => {
-            const Icon = f.icon;
-            return (
-              <motion.div key={f.title} variants={cardVariants} className="group relative">
-                <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative lp-glass rounded-2xl p-7 h-full hover:opacity-90 transition-colors">
-                  <div className="h-10 w-10 rounded-xl lp-surface border lp-border-glass flex items-center justify-center mb-5">
-                    <Icon className="h-5 w-5 lp-accent" />
-                  </div>
-                  <h3 className="text-sm font-bold lp-text mb-2">{f.title}</h3>
-                  <p className="text-sm lp-secondary font-medium leading-relaxed">{f.desc}</p>
-                </div>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+    <section id="features" data-scene="bento" className="lp-section lp-rule">
+      <div className="lp-wrap">
+        <SectionHead index="05" label="Under the hood" title="The hard parts, already built." body="The unglamorous machinery that decides whether billing can be trusted." />
+        <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {CARDS.map((card, i) => (
+            <Card key={card.title} card={card} delay={(i % 2) * 0.08} />
+          ))}
+        </div>
       </div>
     </section>
   );

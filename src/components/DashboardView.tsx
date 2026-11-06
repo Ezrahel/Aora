@@ -134,11 +134,11 @@ export default function DashboardView({ stats, onNavigateTab }: DashboardViewPro
           </div>
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#111111]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[var(--dp-secondary)]" />
               <span className="dp-secondary font-medium">Base Contract Fee</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#0071E3]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[var(--dp-accent)]" />
               <span className="dp-secondary font-medium">Meter Overage (Lago)</span>
             </div>
           </div>
@@ -152,12 +152,12 @@ export default function DashboardView({ stats, onNavigateTab }: DashboardViewPro
             >
               <defs>
                 <linearGradient id="colorBase" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#111111" stopOpacity={0.05}/>
-                  <stop offset="95%" stopColor="#111111" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="var(--dp-secondary)" stopOpacity={0.05}/>
+                  <stop offset="95%" stopColor="var(--dp-secondary)" stopOpacity={0}/>
                 </linearGradient>
                 <linearGradient id="colorOverage" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#0071E3" stopOpacity={0.1}/>
-                  <stop offset="95%" stopColor="#0071E3" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="var(--dp-accent)" stopOpacity={0.1}/>
+                  <stop offset="95%" stopColor="var(--dp-accent)" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--dp-chart-grid)" />
@@ -173,8 +173,8 @@ export default function DashboardView({ stats, onNavigateTab }: DashboardViewPro
                 }}
                 formatter={(val, name) => [formatValue(Number(val)), name === "baseMRR" ? "Base Plan" : "Usage overage"]}
               />
-              <Area type="monotone" dataKey="baseMRR" stroke="#111111" strokeWidth={2} fillOpacity={1} fill="url(#colorBase)" />
-              <Area type="monotone" dataKey="overageMRR" stroke="#0071E3" strokeWidth={2} fillOpacity={1} fill="url(#colorOverage)" />
+              <Area type="monotone" dataKey="baseMRR" stroke="var(--dp-secondary)" strokeWidth={2} fillOpacity={1} fill="url(#colorBase)" />
+              <Area type="monotone" dataKey="overageMRR" stroke="var(--dp-accent)" strokeWidth={2} fillOpacity={1} fill="url(#colorOverage)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -203,7 +203,7 @@ export default function DashboardView({ stats, onNavigateTab }: DashboardViewPro
                   <div className="h-2 w-full dp-surface-alt rounded-full overflow-hidden">
                     <div
                       style={{ width: `${pct}%` }}
-                      className="h-full bg-gradient-to-r from-[#111111] to-[#0071E3] rounded-full"
+                      className="h-full bg-gradient-to-r from-[#111111] to-[var(--dp-accent)] rounded-full"
                     />
                   </div>
                 </div>

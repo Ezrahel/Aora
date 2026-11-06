@@ -72,9 +72,6 @@ export default function TopNav({
             <Menu className="h-5 w-5" />
           </button>
         )}
-        <div className="hidden sm:flex h-7 w-7 items-center justify-center rounded-lg bg-[#111111] text-xs font-semibold text-white tracking-tight shrink-0">
-          B
-        </div>
         <div className="relative flex items-center gap-1.5 cursor-pointer group shrink-0">
           <span className="text-xs md:text-sm font-medium dp-text tracking-tight truncate max-w-[110px] sm:max-w-[200px]">
             {currentWorkspaceName}
@@ -93,8 +90,8 @@ export default function TopNav({
             ))}
           </select>
         </div>
-        <div className="hidden lg:flex items-center gap-1.5 rounded-full dp-surface-alt px-2.5 py-1 text-[11px] font-medium dp-secondary shrink-0">
-          <Activity className="h-3 w-3 text-[#34C759] animate-pulse" />
+        <div className="hidden lg:flex items-center gap-1.5 border dp-border px-2.5 py-1 font-mono text-[11px] font-medium dp-secondary shrink-0">
+          <Activity className="h-3 w-3 dp-secondary" />
           Live Telemetry: Operational
         </div>
       </div>
@@ -157,7 +154,7 @@ export default function TopNav({
             className="flex items-center gap-2 rounded-xl px-1.5 py-1 transition hover:dp-surface-alt"
             id="profile-menu-trigger"
           >
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#111111] text-xs font-semibold text-white shrink-0">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full dp-btn-bg dp-btn-text text-xs font-semibold shrink-0">
               AO
             </div>
             <div className="hidden xl:block text-left">

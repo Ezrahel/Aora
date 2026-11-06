@@ -1,108 +1,76 @@
-import { motion, type Variants } from "motion/react";
-import { useRef, useState, useEffect } from "react";
+import { motion } from "motion/react";
+import { SectionHead } from "./ui/primitives";
 
-const painPoints = [
+const ROWS = [
   {
-    pain: "Multi-gateway",
-    oldWay: "Couple your codebase to Stripe's SDK. Switching to Paystack means rewiring your entire billing pipeline.",
-    solution: "Abstracted adapter layer — swap gateways with a config change. Same billing logic, different payment rail.",
+    file: "gateways",
+    removed: "Couple your codebase to one gateway's SDK. Switching means rewiring the whole billing pipeline.",
+    added: "An adapter layer. Swap Stripe for Paystack with a config change: same billing logic, different rail.",
   },
   {
-    pain: "Pricing flexibility",
-    oldWay: "Hardcode `if (plan === 'pro')` everywhere. Each pricing experiment is a deployment.",
-    solution: "Declarative pricing engine — flat, hybrid, tiered, volume, package, per-seat. Change pricing in the UI, not in the code.",
+    file: "pricing",
+    removed: "Hardcode if (plan === 'pro') everywhere. Each pricing experiment is a deployment.",
+    added: "A declarative engine for flat, seat, usage, hybrid, tiered, volume, and package. Change it in the UI, not the code.",
   },
   {
-    pain: "Key security",
-    oldWay: "Store API keys in .env or worse, in the database in plaintext. Rotating keys means downtime.",
-    solution: "AES-256-GCM encryption at rest. Decrypted in-memory per request. Never logged. Never exposed.",
+    file: "secrets",
+    removed: "Keep API keys in .env, or worse, in plaintext columns. Rotating them means downtime.",
+    added: "AES-256-GCM at rest. Decrypted in memory per request. Never logged, never exposed.",
   },
   {
-    pain: "Revenue visibility",
-    oldWay: "Piece together Stripe data, usage metrics from your DB, and manual spreadsheet reconciliation.",
-    solution: "Real-time dual-data sync — usage events from your product + payment events from your gateway, reconciled automatically.",
+    file: "revenue",
+    removed: "Piece together gateway exports, usage tables, and a reconciliation spreadsheet.",
+    added: "Usage events and payment events reconciled automatically, in real time.",
   },
 ];
 
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.2 } },
-};
-
-const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } },
-};
-
 export default function Problem() {
-  const ref = useRef(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setInView(true); observer.disconnect(); } },
-      { rootMargin: "-100px" }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <section id="problem" className="py-16 relative lp-bg" style={{ backgroundImage: "linear-gradient(to bottom, transparent, var(--lp-grad-stop), transparent)" }}>
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="max-w-3xl mx-auto text-center space-y-4 mb-8">
-          <span className="text-[10px] font-bold lp-secondary uppercase tracking-widest block">
-            The Problem With Billing Today
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-black lp-text tracking-tight">
-            Billing is the last infrastructure tax on SaaS
-          </h2>
-          <p className="text-base lp-secondary font-medium max-w-xl mx-auto">
-            Every team hits the same walls. Here's how we tear them down.
-          </p>
-        </div>
+    <section id="problem" data-scene="problem" className="lp-section lp-rule">
+      <div className="lp-wrap">
+        <SectionHead
+          index="01"
+          label="The problem"
+          title="Billing is the last infrastructure tax on SaaS."
+          body="Every team hits the same four walls. Here is the diff."
+        />
 
-        <motion.div
-          ref={ref}
-          variants={containerVariants}
-          initial="hidden"
-          animate={inView ? "visible" : "hidden"}
-          className="space-y-6 max-w-5xl mx-auto"
-        >
-          {painPoints.map((item, i) => (
-            <motion.div key={item.pain} variants={cardVariants} className="group relative">
-              <div className="absolute -inset-[1px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity blur-sm" style={{ backgroundImage: "linear-gradient(to right, var(--lp-glow), var(--lp-grad-stop), var(--lp-glow))" }} />
-              <div className="relative lp-glass rounded-2xl p-8">
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-                  <div className="md:col-span-1">
-                    <span className="text-[10px] font-mono font-bold lp-secondary/50">0{i + 1}</span>
-                  </div>
-                  <div className="md:col-span-3">
-                    <h3 className="text-xl font-bold lp-text">{item.pain}</h3>
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className="h-px flex-1 lp-divider" />
-                      <span className="text-[9px] font-bold text-red-400/70 uppercase tracking-wider">Pain</span>
-                    </div>
-                    <p className="text-base text-red-400/60 font-medium mt-3 leading-relaxed">{item.oldWay}</p>
-                  </div>
-                  <div className="md:col-span-1 flex justify-center">
-                    <div className="h-px w-full md:h-full md:w-px lp-divider" />
-                  </div>
-                  <div className="md:col-span-7">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="h-5 w-5 rounded-full lp-surface border lp-border-glass flex items-center justify-center">
-                        <span className="h-2 w-2 rounded-full lp-accent" />
-                      </span>
-                      <span className="text-[9px] font-bold lp-accent uppercase tracking-wider">AoraHQ</span>
-                    </div>
-                    <p className="text-base lp-secondary font-medium leading-relaxed">{item.solution}</p>
-                  </div>
-                </div>
+        <div className="mt-12 border lp-border-glass bg-[var(--lp-scrim)] backdrop-blur-md">
+          <div className="px-4 h-10 flex items-center border-b lp-divider lp-data lp-secondary">billing.diff</div>
+          {ROWS.map((row, i) => (
+            <div key={row.file} className={`grid grid-cols-1 lg:grid-cols-[9rem_1fr] ${i > 0 ? "border-t lp-divider" : ""}`}>
+              <div className="px-4 pt-4 lg:py-5 lp-data lp-muted">@@ {row.file}</div>
+              <div className="pb-4 lg:py-3 lp-data !text-[13px]">
+                <motion.p
+                  className="flex gap-3 px-4 py-1.5 lp-muted"
+                  initial={{ opacity: 1 }}
+                  whileInView={{ opacity: 0.72 }}
+                  viewport={{ once: true, margin: "-120px" }}
+                  transition={{ duration: 0.5, delay: 0.1 + i * 0.12 }}
+                >
+                  <span aria-hidden="true">-</span>
+                  <span className="relative">
+                    <span className="sr-only">Before: </span>
+                    {row.removed}
+                  </span>
+                </motion.p>
+                <motion.p
+                  className="flex gap-3 px-4 py-1.5 bg-[var(--lp-surface)] lp-text"
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-120px" }}
+                  transition={{ duration: 0.5, delay: 0.25 + i * 0.12 }}
+                >
+                  <span aria-hidden="true">+</span>
+                  <span>
+                    <span className="sr-only">With AoraHQ: </span>
+                    {row.added}
+                  </span>
+                </motion.p>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

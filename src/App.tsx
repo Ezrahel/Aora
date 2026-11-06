@@ -1,29 +1,9 @@
-import { useState, useEffect } from "react";
+import { Suspense, lazy, useState, useEffect } from "react";
 import Sidebar, { SidebarTab } from "./components/Sidebar";
 import TopNav from "./components/TopNav";
 import LandingPageView from "./components/LandingPageView";
-import DashboardView from "./components/DashboardView";
-import CatalogView from "./components/CatalogView";
-import SubscriptionsView from "./components/SubscriptionsView";
-import CustomerPortalView from "./components/CustomerPortalView";
-import PricingBuilderView from "./components/PricingBuilderView";
-import UsageMeteringView from "./components/UsageMeteringView";
-import EntitlementsView from "./components/EntitlementsView";
-import CustomerWorkspaceView from "./components/CustomerWorkspaceView";
-import RevenueOpsView from "./components/RevenueOpsView";
-import AnalyticsView from "./components/AnalyticsView";
-import ReconciliationView from "./components/ReconciliationView";
-import DeveloperExperienceView from "./components/DeveloperExperienceView";
-import InvoicesView from "./components/InvoicesView";
-import IntegrationsView from "./components/IntegrationsView";
-import GatewayManagementView from "./components/GatewayManagementView";
-import SettingsView from "./components/SettingsView";
-import AccountDetailsView from "./components/AccountDetailsView";
-import SecurityAccessView from "./components/SecurityAccessView";
-import DocumentationView from "./components/DocumentationView";
-import AuthPage from "./components/AuthPage";
-import AIAssistantWidget from "./components/AIAssistantWidget";
 import { DashboardThemeProvider } from "./components/DashboardTheme";
+import { HelixGlyph } from "./components/landing/scene/HelixGlyph";
 import {
   Plan,
   Customer,
@@ -35,6 +15,37 @@ import {
 } from "./types";
 import { routeToTab, syncUrl, tabToPath } from "./routes";
 import { pageSEO, updateMetaTags } from "./lib/seo";
+
+// Only the landing page ships in the entry bundle. Everything else loads on visit.
+const DashboardView = lazy(() => import("./components/DashboardView"));
+const CatalogView = lazy(() => import("./components/CatalogView"));
+const SubscriptionsView = lazy(() => import("./components/SubscriptionsView"));
+const CustomerPortalView = lazy(() => import("./components/CustomerPortalView"));
+const PricingBuilderView = lazy(() => import("./components/PricingBuilderView"));
+const UsageMeteringView = lazy(() => import("./components/UsageMeteringView"));
+const EntitlementsView = lazy(() => import("./components/EntitlementsView"));
+const CustomerWorkspaceView = lazy(() => import("./components/CustomerWorkspaceView"));
+const RevenueOpsView = lazy(() => import("./components/RevenueOpsView"));
+const AnalyticsView = lazy(() => import("./components/AnalyticsView"));
+const ReconciliationView = lazy(() => import("./components/ReconciliationView"));
+const DeveloperExperienceView = lazy(() => import("./components/DeveloperExperienceView"));
+const InvoicesView = lazy(() => import("./components/InvoicesView"));
+const IntegrationsView = lazy(() => import("./components/IntegrationsView"));
+const GatewayManagementView = lazy(() => import("./components/GatewayManagementView"));
+const SettingsView = lazy(() => import("./components/SettingsView"));
+const AccountDetailsView = lazy(() => import("./components/AccountDetailsView"));
+const SecurityAccessView = lazy(() => import("./components/SecurityAccessView"));
+const DocumentationView = lazy(() => import("./components/DocumentationView"));
+const AuthPage = lazy(() => import("./components/AuthPage"));
+const AIAssistantWidget = lazy(() => import("./components/AIAssistantWidget"));
+
+function ViewFallback() {
+  return (
+    <div className="min-h-[50vh] grid place-items-center" role="status" aria-label="Loading">
+      <HelixGlyph className="h-8 w-8 opacity-70" rungs={9} spin />
+    </div>
+  );
+}
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<SidebarTab>(() =>
@@ -311,24 +322,26 @@ export default function App() {
   const isDashboard = !isLandingOrAuth && !isDocs;
 
   return (
-    <div className="min-h-screen font-sans antialiased selection:bg-neutral-100 selection:text-black">
+    <div className="min-h-screen font-sans antialiased selection:bg-neutral-400 selection:text-black">
       {/* Landing page — standalone, no dashboard chrome */}
       {isLandingOrAuth && (
         <div
           className="min-h-screen flex flex-col transition-all duration-300"
         >
           <main className="flex-1 w-full max-w-none">
-            {renderActiveView()}
+            <Suspense fallback={<ViewFallback />}>{renderActiveView()}</Suspense>
           </main>
         </div>
       )}
 
       {/* Platform docs — standalone full page, no dashboard chrome */}
       {isDocs && (
-        <DocumentationView
-          onBackToDashboard={() => setActiveTab("dashboard")}
-          workspaceName={workspace}
-        />
+        <Suspense fallback={<ViewFallback />}>
+          <DocumentationView
+            onBackToDashboard={() => setActiveTab("dashboard")}
+            workspaceName={workspace}
+          />
+        </Suspense>
       )}
 
       {/* Dashboard pages — scoped dark mode */}
@@ -374,12 +387,18 @@ export default function App() {
                 }}
               />
 
-              <main className="flex-1 w-full px-4 py-6 md:px-8 md:py-8 max-w-7xl mx-auto pb-24">
-                {activeTab === "settings" ? renderProfileSection() : renderActiveView()}
+              <main className="dp-canvas flex-1 w-full px-4 py-6 md:px-8 md:py-8 pb-24">
+                <div className="max-w-7xl mx-auto">
+                <Suspense fallback={<ViewFallback />}>
+                  {activeTab === "settings" ? renderProfileSection() : renderActiveView()}
+                </Suspense>
+                </div>
               </main>
             </div>
 
-            <AIAssistantWidget onActionExecuted={handleAIActionExecuted} />
+            <Suspense fallback={null}>
+              <AIAssistantWidget onActionExecuted={handleAIActionExecuted} />
+            </Suspense>
           </div>
         </DashboardThemeProvider>
       )}

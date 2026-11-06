@@ -166,7 +166,7 @@ export default function AnalyticsView() {
                       <td className="px-4.5 py-3 dp-text flex items-center justify-between">
                         <span>{co.month}</span>
                         <ChevronRight
-                          className={`h-3.5 w-3.5 dp-muted transition-transform ${isSelected ? "rotate-90 text-[#0071E3]" : ""}`}
+                          className={`h-3.5 w-3.5 dp-muted transition-transform ${isSelected ? "rotate-90 text-[var(--dp-accent)]" : ""}`}
                         />
                       </td>
                       <td className="px-4.5 py-3 text-center dp-secondary">
@@ -181,7 +181,7 @@ export default function AnalyticsView() {
                       <td className="px-4.5 py-3 text-center font-medium text-emerald-800 bg-emerald-50/60">
                         {co.m3}
                       </td>
-                      <td className="px-4.5 py-3 text-center font-extrabold text-white bg-[#0071E3]">
+                      <td className="px-4.5 py-3 text-center font-extrabold dp-text dp-surface-alt">
                         {co.m4}
                       </td>
                     </tr>
@@ -201,7 +201,7 @@ export default function AnalyticsView() {
           {selectedCohort ? (
             <div className="bg-[#FFFFFF] border-2 border-dashed border-[#111111] p-5 rounded-2xl space-y-4 text-left shadow-md">
               <h4 className="text-xs font-bold text-neutral-800 flex items-center gap-1.5">
-                <Target className="h-4.5 w-4.5 text-[#0071E3]" />
+                <Target className="h-4.5 w-4.5 text-[var(--dp-accent)]" />
                 Cohort Batch: {selectedCohort}
               </h4>
 
@@ -244,7 +244,7 @@ export default function AnalyticsView() {
                     <span className="dp-secondary">
                       Key Unlocking Feature:
                     </span>
-                    <span className="dp-surface-alt px-2 py-0.5 rounded font-mono text-[9px] text-[#0071E3] font-semibold">
+                    <span className="dp-surface-alt px-2 py-0.5 rounded font-mono text-[9px] text-[var(--dp-accent)] font-semibold">
                       API Integrations
                     </span>
                   </div>

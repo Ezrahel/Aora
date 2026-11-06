@@ -229,13 +229,13 @@ export default function RevenueOpsView({
               <Bar
                 dataKey="baseRecurring"
                 stackId="a"
-                fill="#111111"
+                fill="var(--dp-secondary)"
                 name="Base Recurring Ledger"
               />
               <Bar
                 dataKey="usageOverage"
                 stackId="a"
-                fill="#0071E3"
+                fill="var(--dp-accent)"
                 name="Meter Overage (Lago)"
               />
               <Bar

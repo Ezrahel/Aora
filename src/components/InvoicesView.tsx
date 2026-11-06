@@ -218,7 +218,7 @@ export default function InvoicesView({
 
           <div className="bg-[#FFFFFF] border dp-border p-5 rounded-2xl space-y-4.5 text-left shadow-sm">
             <h4 className="text-xs font-bold dp-text flex items-center gap-1.5">
-              <Receipt className="h-4.5 w-4.5 text-[#0071E3]" />
+              <Receipt className="h-4.5 w-4.5 text-[var(--dp-accent)]" />
               Manual Invoice Builder
             </h4>
 

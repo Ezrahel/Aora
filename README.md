@@ -27,7 +27,7 @@ See [OPERATIONS.md](./OPERATIONS.md) for production configuration, health checks
 
 ## Stack
 
-- **Frontend:** React, TypeScript, Tailwind, Vite
+- **Frontend:** React, TypeScript, Tailwind, Vite, three.js + React Three Fiber (landing scene), CodeMirror 6 (live price editor)
 - **Backend:** Express, TypeScript
 - **Database:** CockroachDB (PostgreSQL-compatible)
 - **Cache:** Redis (in-memory fallback)

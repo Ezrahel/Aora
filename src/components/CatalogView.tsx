@@ -162,7 +162,7 @@ export default function CatalogView({
                   </p>
                 </div>
                 <div className="mt-4 pt-3 border-t border-neutral-200/60 text-[11px] font-semibold dp-text">
-                  Commercializing: <span className="text-[#0071E3] font-bold">Aora Core Engine</span>
+                  Commercializing: <span className="text-[var(--dp-accent)] font-bold">Aora Core Engine</span>
                 </div>
               </div>
 
@@ -174,7 +174,7 @@ export default function CatalogView({
               {/* Box 2: Subscription Plans */}
               <div className="lg:col-span-4 bg-neutral-50/50 border border-dashed dp-border p-4.5 rounded-2xl flex flex-col justify-between">
                 <div>
-                  <div className="h-8 w-8 rounded-lg bg-[#0071E3]/10 text-[#0071E3] flex items-center justify-center font-bold text-xs mb-3">
+                  <div className="h-8 w-8 rounded-lg bg-[var(--dp-accent)]/10 text-[var(--dp-accent)] flex items-center justify-center font-bold text-xs mb-3">
                     L
                   </div>
                   <h4 className="text-xs font-bold dp-text uppercase tracking-wide">
