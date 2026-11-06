@@ -8,6 +8,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 
 import * as schema from "./schema.ts";
+import { ensureDefaultOrganization } from "./provision.ts";
 
 // ── Pool ───────────────────────────────────────────────────
 
@@ -55,6 +56,14 @@ function createAuth() {
       trustedOrigins: process.env.TRUSTED_ORIGINS
         ? process.env.TRUSTED_ORIGINS.split(",").map((s) => s.trim())
         : ["http://localhost:3000", "http://localhost:5173"],
+
+      // The session guard authorizes on user.role, which only reaches the session
+      // if declared here. input: false stops sign-up from setting its own role.
+      user: {
+        additionalFields: {
+          role: { type: "string", required: false, defaultValue: "member", input: false },
+        },
+      },
 
       // ── Email / Password Credential Provider ─────────────────
       emailAndPassword: {
@@ -145,6 +154,13 @@ function createAuth() {
         },
         session: {
           create: {
+            // Every dashboard route needs an active organization, so a session
+            // always starts with one. Runs per session so social sign-ups and
+            // accounts created before this hook existed are covered too.
+            before: async (session) => {
+              const activeOrganizationId = await ensureDefaultOrganization(session.userId);
+              return { data: { ...session, activeOrganizationId } };
+            },
             after: async (session) => {
               console.log(
                 `[Auth] Session created: user=${session.userId} id=${session.id} expires=${session.expiresAt.toISOString()}`,

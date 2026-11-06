@@ -3,10 +3,18 @@
 // Runs without DB (health degrades gracefully) and without network.
 // ============================================================
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { AddressInfo } from "node:net";
+
+// The session guard sits in front of every protected route, so a request only
+// reaches the /api 404 fallback once it has passed. Guard behaviour has its own
+// coverage in auth-session-guard.test.ts; this file exercises what comes after it.
+vi.mock("../../src/api/auth/session-guard.ts", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../src/api/auth/session-guard.ts")>()),
+  requireSession: () => (_req: unknown, _res: unknown, next: () => void) => next(),
+}));
 
 describe("LIVE readiness smoke", () => {
   it("GET /api/health returns ok|degraded JSON", async () => {

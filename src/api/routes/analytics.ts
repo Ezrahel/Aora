@@ -13,6 +13,61 @@ import { asyncHandler } from "../middleware.ts";
 
 export const router = Router();
 
+// Shape consumed by the dashboard (DashboardStats in src/types.ts).
+router.get("/revenue-metrics", asyncHandler(async (req, res) => {
+  const ws = await resolveWorkspace(req);
+  const customers = await customerRepo.findByWorkspace(ws.id);
+  const customerIds = customers.map((c) => c.id);
+  const subs = customerIds.length > 0 ? await subscriptionRepo.findByCustomerIds(customerIds) : [];
+  const invoices = customerIds.length > 0 ? await invoiceRepo.findByCustomerIds(customerIds) : [];
+  const plans = subs.length > 0 ? await planRepo.findAll(true) : [];
+
+  const priceOf = new Map(plans.map((plan) => [plan.id, Number(plan.price) || 0]));
+  const active = subs.filter((sub) => sub.status === "active");
+  const mrr = active.reduce((sum, sub) => sum + (priceOf.get(sub.planId) ?? 0), 0);
+
+  const count = (status: string) => customers.filter((c) => c.status === status).length;
+  const rate = (part: number, whole: number) => (whole > 0 ? Math.round((part / whole) * 1000) / 10 : 0);
+  const trials = count("trial");
+  const paying = count("active");
+  const paid = invoices.filter((i) => i.status === "paid").length;
+
+  const { rows } = await query(
+    "SELECT COUNT(*)::int AS count FROM usage_events ue JOIN customers c ON ue.customer_id = c.id WHERE c.workspace_id = $1",
+    [ws.id],
+  );
+
+  const planPerformance = plans
+    .map((plan) => {
+      const planSubs = active.filter((sub) => sub.planId === plan.id);
+      const revenue = planSubs.length * (priceOf.get(plan.id) ?? 0);
+      return { name: plan.name, price: priceOf.get(plan.id) ?? 0, count: planSubs.length, revenueShare: rate(revenue, mrr) };
+    })
+    .filter((plan) => plan.count > 0);
+
+  res.json({
+    baseMRR: mrr,
+    overageMRR: 0,
+    mrr,
+    arr: mrr * 12,
+    activeSubscriptions: active.length,
+    trialConversionRate: rate(paying, paying + trials),
+    churnRate: rate(count("canceled"), customers.length),
+    failedPaymentsCount: invoices.filter((i) => i.status === "past_due").length,
+    usageVolumeEvents: rows[0]?.count ?? 0,
+    invoiceCollectionRate: rate(paid, invoices.length),
+    growthTrendPercent: 0,
+    currencySymbol: "$",
+    historicalChartData: [],
+    conversionFunnel: [
+      { stage: "Customers", count: customers.length },
+      { stage: "Trials", count: trials },
+      { stage: "Active", count: paying },
+    ],
+    planPerformance,
+  });
+}));
+
 router.get("/analytics/dashboard", asyncHandler(async (req, res) => {
   const ws = await resolveWorkspace(req);
   const customers = await customerRepo.findByWorkspace(ws.id);
