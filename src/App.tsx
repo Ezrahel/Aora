@@ -82,21 +82,30 @@ export default function App() {
 
   const [isSyncing, setIsSyncing] = useState(false);
 
+  const isDocs = activeTab === "docs";
+  const isLandingOrAuth = activeTab === "landing" || activeTab === "sign-in";
+  const isDashboard = !isLandingOrAuth && !isDocs;
+
+  // Runs on entering the dashboard, not on page load: a visitor who signs in on this
+  // page has no workspaces yet, and marketing pages have no reason to ask.
   useEffect(() => {
+    if (!isDashboard || workspace) return;
     let active = true;
     fetch("/api/workspaces", { credentials: "include" })
       .then(async (response) => {
+        if (response.status === 401) {
+          if (active) setActiveTab("sign-in");
+          return;
+        }
         if (!response.ok) throw new Error("Unable to load authorized workspaces.");
-        return response.json();
-      })
-      .then((items: Array<{ id: string; name: string; environment: string }>) => {
+        const items: Array<{ id: string; name: string; environment: string }> = await response.json();
         if (!active) return;
         setWorkspaces(items);
         setWorkspace((current) => current || items[0]?.id || "");
       })
       .catch((error) => console.error("Unable to load authorized workspaces:", error));
     return () => { active = false; };
-  }, []);
+  }, [isDashboard, workspace]);
 
   // Sync state loop from Live Express server on mount
   const fetchDatabaseState = async () => {
@@ -122,6 +131,10 @@ export default function App() {
         fetch(`/api/revenue-metrics${qs}`),
       ]);
 
+      // A failed request must not put its error body into state typed as a list.
+      const body = <T,>(response: Response, fallback: T): Promise<T> =>
+        response.ok ? response.json() : Promise.resolve(fallback);
+
       const [
         plansData,
         customersData,
@@ -131,13 +144,13 @@ export default function App() {
         invoicesData,
         statsData,
       ] = await Promise.all([
-        plansRes.json(),
-        customersRes.json(),
-        metersRes.json(),
-        eventsRes.json(),
-        entitlementsRes.json(),
-        invoicesRes.json(),
-        statsRes.json(),
+        body<Plan[]>(plansRes, []),
+        body<Customer[]>(customersRes, []),
+        body<MeterDefinition[]>(metersRes, []),
+        body<UsageEvent[]>(eventsRes, []),
+        body<Entitlement[]>(entitlementsRes, []),
+        body<Invoice[]>(invoicesRes, []),
+        body<DashboardStats | null>(statsRes, null),
       ]);
 
       setPlans(plansData);
@@ -316,10 +329,6 @@ export default function App() {
         );
     }
   };
-
-  const isDocs = activeTab === "docs";
-  const isLandingOrAuth = activeTab === "landing" || activeTab === "sign-in";
-  const isDashboard = !isLandingOrAuth && !isDocs;
 
   return (
     <div className="min-h-screen font-sans antialiased selection:bg-neutral-400 selection:text-black">

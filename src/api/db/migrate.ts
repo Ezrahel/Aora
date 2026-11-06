@@ -816,7 +816,35 @@ CREATE TABLE IF NOT EXISTS "api_key" (
 CREATE INDEX IF NOT EXISTS idx_api_key_hash ON "api_key"(key_hash);
 CREATE INDEX IF NOT EXISTS idx_api_key_org ON "api_key"(organization_id);`,
   },
+  {
+    version: 14,
+    description: "better_auth_two_factor_and_session_token",
+    sql: `
+-- v13 omitted fields Better Auth requires once the twoFactor plugin is enabled,
+-- and the session token, so sign-up could not succeed. Additive and idempotent.
+-- token stays nullable so any pre-existing rows survive. The app always sets it.
+-- Keep semicolons out of comments: splitSqlStatements does not parse them.
+
+ALTER TABLE "user" ADD COLUMN IF NOT EXISTS two_factor_enabled BOOLEAN DEFAULT false;
+ALTER TABLE "session" ADD COLUMN IF NOT EXISTS token TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_session_token ON "session"(token);
+
+CREATE TABLE IF NOT EXISTS "two_factor" (
+    id                        TEXT PRIMARY KEY,
+    secret                    TEXT NOT NULL,
+    backup_codes              TEXT NOT NULL,
+    user_id                   TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    verified                  BOOLEAN DEFAULT true,
+    failed_verification_count INT DEFAULT 0,
+    locked_until              TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_two_factor_user ON "two_factor"(user_id);
+CREATE INDEX IF NOT EXISTS idx_two_factor_secret ON "two_factor"(secret);`,
+  },
 ];
+
+export const MIGRATION_SQL_FOR_TESTS = MIGRATIONS.map((migration) => migration.sql).join("\n");
 
 // ── Migration Runner ───────────────────────────────────────
 
@@ -912,6 +940,11 @@ export function splitSqlStatements(sql: string): string[] {
   return statements;
 }
 
+function migrationTimeoutMs(): number {
+  const value = parseInt(process.env.MIGRATION_STATEMENT_TIMEOUT || "", 10);
+  return Number.isFinite(value) && value > 0 ? value : 300_000;
+}
+
 export async function runMigrations(): Promise<void> {
   validateMigrationDefinitions();
   await ensureMigrationsTable();
@@ -932,6 +965,10 @@ export async function runMigrations(): Promise<void> {
     }
 
     await withTransaction(async (client) => {
+      // Schema changes can far outlast the pool's per-query limit, which is tuned for
+      // requests. A timeout here stops the server from booting.
+      await client.query(`SET LOCAL statement_timeout = '${migrationTimeoutMs()}ms'`);
+
       const statements = splitSqlStatements(migration.sql);
 
       for (const stmt of statements) {
